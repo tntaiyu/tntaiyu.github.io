@@ -744,39 +744,41 @@
 
 
                     window.URL = window.URL || window.webkitURL;
-
+                    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.getUserMedia;
 //                    var parm = {getImgWnd: data.ownerWnd}
 
                     var ownVideo = document.querySelector('.vdo_l_video')
                     var peerVideo = document.querySelector('.vdo_r_callOut')
                     console.log(data.ownerWnd)
-                    console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+                    console.log('111111111111111111111111')
+                    console.log(data.peerWnd)
+                    console.log('2222222222222222222222222222')
 
                     bindVideo(data.ownerWnd, ownVideo)
-                        bindVideo(data.peerWnd, peerVideo)
+                    bindVideo(data.peerWnd, peerVideo)
 
-                        function bindVideo(Handel, oVideo) {
-                            console.log(Handel)
-                            console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
-                            navigator.getUserMedia({
-                                audio: false,
-                                video: {
-                                    mandatory: {
-                                        chromeMediaSource: 'desktop',
-                                        chromeMediaSourceId: 'window:' + Handel + ':0',
-                                        minWidth: 400,
-                                        minHeight: 300,
-                                        maxWidth: 4000,
-                                        maxHeight: 3000
-                                    },
-                                    optional: []
-                                }
-                            }, function (stream) {
-                                console.log('ffffffffffffffffffffffffffffffffffffffff')
-                                debugger;
-                                oVideo.load(function (e) {
-                                    window.URL.revokeObjectURL(this.src); // 清除释放
-                                })
+                    function bindVideo(Handel, oVideo) {
+                       
+                        console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+                        navigator.getUserMedia({
+                            audio: false,
+                            video: {
+                                mandatory: {
+                                    chromeMediaSource: 'desktop',
+                                    chromeMediaSourceId: 'window:' + Handel + ':0',
+                                    minWidth: 400,
+                                    minHeight: 300,
+                                    maxWidth: 4000,
+                                    maxHeight: 3000
+                                },
+                                optional: []
+                            }
+                        }, function (stream) {
+                            console.log('ffffffffffffffffffffffffffffffffffffffff')
+                            debugger;
+                            oVideo.load(function (e) {
+                                window.URL.revokeObjectURL(this.src); // 清除释放
+                            })
 
                             oVideo.src = window.URL.createObjectURL(stream);
 //
