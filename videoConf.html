@@ -765,9 +765,10 @@
                     if (nflag == 'qun_videomeetingcaller' || nflag == 'to_be_videomeetingcalled') {//发起群会议
                         qunVideoConf(nflag)
                     } else {
+                        openMedia();
                         if (nflag == 'videocaller') {//个人发起
                             $('.vdo_invite').hide()
-                            VideoCall(tmpparm)
+                          VideoCall(tmpparm)
                         } else {//个人被叫
 
                             $('.vdo_invite').show();
@@ -780,7 +781,8 @@
                             $('.vdo_iB_btn2')[0].onclick = function () {
 
                                 var parm = {userUniId: peerDialogId, opCode: '0'}
-                                videoCalled(parm)
+                                ResponseVideoCall(parm)//相应被叫
+
                             }
 
                         }
@@ -822,43 +824,7 @@
                 //0=接受；1=拒绝；2=占线；3=超时;4=不在线;5=不支持（PMC关闭）；6=版本不支持
                 if (data.opCode == 0) {
 
-                    var parm = {}
-                    window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-                        if (status == 0) {
-                            window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
-                                if (status == 0) {
 
-
-//打开视频和音频
-                                    playMedia(jsondata)
-                                    var data = JSON.parse(jsondata)
-                                    multimediaSeting(data)
-
-//
-
-                                    var parm = {sendUserUniId: initData.curUserUniID, recUserUniId: initData.dialogId}
-//打开麦克风
-                                    window.lxpc.exebusinessaction('VideoConf', 'VideoMtcCall', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-
-                                        if (status == 0) {
-
-                                        }
-                                        else {
-                                            console.log(status)
-                                        }
-                                    })
-
-
-                                }
-                                else {
-                                    console.log(status)
-                                }
-                            })
-                        }
-                        else {
-                            console.log(status)
-                        }
-                    })
                 } else {
                     var tip = ''
 
@@ -901,7 +867,7 @@
 
     }
     //被叫
-    function videoCalled(tmpparm) {
+    function videoCalled() {
 
         var parm = {}
         window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
@@ -911,11 +877,10 @@
                         //open video
 //                      jsondata
 
-                        ResponseVideoCall(tmpparm)//相应被叫
                         playMedia(jsondata)
-
-//                                    Audiomedia(jsondata)
-
+                        var data = JSON.parse(jsondata)
+                        //绑定获取的可用设备
+                        multimediaSeting(data)
                     }
                     else {
                         console.log(status)
@@ -959,6 +924,18 @@
 
         //open audio
         window.lxpc.exebusinessaction('VideoConf', 'OpenAudio', '0', jsondata, 0, function (status, jsondata, targ) {
+
+            if (status == 0) {
+
+            }
+            else {
+                console.log(status)
+            }
+        })
+
+        var parm = {sendUserUniId: initData.curUserUniID, recUserUniId: initData.dialogId}
+//打开麦克风
+        window.lxpc.exebusinessaction('VideoConf', 'VideoMtcCall', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
 
             if (status == 0) {
 
@@ -1205,8 +1182,8 @@
                 if (status == 0) {
 
                     var data = JSON.parse(jsondata);
-console.log(jsondata)
-console.log('wwwwwwwwwwwwww------------------------')
+                    console.log(jsondata)
+                    console.log('wwwwwwwwwwwwww------------------------')
                     window.URL = window.URL || window.webkitURL;
 
 //                    var parm = {getImgWnd: data.ownerWnd}
@@ -1275,7 +1252,7 @@ console.log('wwwwwwwwwwwwww------------------------')
     }
 
 
-    //    事件
+    // 点击切换左侧视频列表和主视频区域
 
     function changeVideo(ele) {
         debugger;
@@ -1294,6 +1271,32 @@ console.log('wwwwwwwwwwwwww------------------------')
         ovideo.src = strR;
 
 
+    }
+    //打开登菊峰并打开本机的视频和音频设备
+    function openMedia() {
+        var parm = {}
+        window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
+            if (status == 0) {
+                window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
+                    if (status == 0) {
+
+
+//打开视频和音频
+                        playMedia(jsondata)
+                        var data = JSON.parse(jsondata)
+                        //绑定获取的可用设备
+                        multimediaSeting(data)
+
+                    }
+                    else {
+                        console.log(status)
+                    }
+                })
+            }
+            else {
+                console.log(status)
+            }
+        })
     }
 
 
