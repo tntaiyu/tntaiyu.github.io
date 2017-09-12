@@ -51,6 +51,7 @@
             $(window).resize(autoHeight);
         })
         var myscroll3 = null;
+        //控制音量
         $(function () {
 
 //音量
@@ -87,6 +88,14 @@
                 handel.style.bottom = newVal * step + 'px';
                 obtm.style.height = newVal * step + 'px';
 
+                var audioInputId = initData.audioInputId
+                var volume = newVal
+                if (audioInputId) {
+                    var parm = {action: "volume", audioInputId: audioInputId, volumePercent: volume}
+                    ControlAudio(parm).then(function (data) {
+
+                    })
+                }
 
             })
             $('.volume_minus').bind('click', function () {//减少声音
@@ -107,9 +116,28 @@
                 vert.value = newVal;
                 handel.style.bottom = newVal * step + 'px';
                 obtm.style.height = newVal * step + 'px'
+
+                var audioInputId = initData.audioInputId
+                var volume = newVal
+                if (audioInputId) {
+                    var parm = {action: "volume", audioInputId: audioInputId, volumePercent: volume}
+                    ControlAudio(parm).then(function (data) {
+
+                    })
+                }
+
+
             })
             vert.onchange = function () {
                 var clum = parseFloat(this.value);
+                var audioInputId = initData.audioInputId
+                var volume = clum
+                if (audioInputId) {
+                    var parm = {action: "volume", audioInputId: audioInputId, volumePercent: volume}
+                    ControlAudio(parm).then(function (data) {
+
+                    })
+                }
 
             }
 
@@ -163,18 +191,78 @@
 
         //缺少设备 显示/隐藏
         $(function () {
-            var lackH = $(".vdo_btn_lD").outerHeight();	//获取向上滑动弹出框动画的高度
+
 //静音
             $(".vdo_btn_mic").click(function () {
+
+
+                if (this.classList.contains('no')) {
+                    return
+                }
+                var $ele = $(this)
+                var redo = $ele.data('redo');
+                if (redo) {
+                    return
+                } else {
+                    $ele.data('redo', true)
+                }
+
                 closeOrOpen(this)
+                var audioInputId = initData.audioInputId
+                if (audioInputId) {
+
+                    if (this.classList.contains('on')) {
+                        var parm = {action: "stop", audioInputId: audioInputId}
+
+                    } else {
+                        var parm = {action: "start", audioInputId: audioInputId}
+                    }
+console.log(parm)
+                    console.log('gggggggddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
+                    ControlAudio(parm).then(function (data) {
+                        if (data == 0) {
+                            $ele.data('redo', false);
+                        }
+
+                    })
+                }
+
 
             })
-            //禁止对方看到自己
+            //关闭视频
             $(".vdo_btn_camera").click(function () {
+                if (this.classList.contains('no')) {
+                    return
+                }
+              debugger;
+                var $ele = $(this)
+                var redo = $ele.data('redo');
+                if (redo) {
+                    return
+                } else {
+                    $ele.data('redo', true)
+                }
 
                 closeOrOpen(this)
+                if (this.classList.contains('on')) {
+                    var parm = {action: "stop", videoId: initData.videoId}
 
+                } else {
+                    var parm = {action: "start", videoId: initData.videoId}
+                }
+                console.log(parm)
+                console.log('ddddddddddddddddddddd-----------------------------------')
+                ControlVideo(parm).then(function (data) {
+                    console.log('chenggong --------------------------------------------')
+                    if (data == 0) {
+                        var $tem = $(".vdo_btn_camera")
+                        $tem.data('redo', false);
+                        console.log($tem.data('redo'))
+                    }
+
+                })
             })
+
 
             //调节音量
             $(".vdo_btn_mute").click(function () {
@@ -218,26 +306,28 @@
 
 
             });
+//点击显示设备情况
+            var lackH = $(".vdo_btn_lD").outerHeight();	//获取向上滑动弹出框动画的高度
+            $(".vdo_btn_l").hover(function (e) {
 
-            function onEquipment() {
-                $(".vdo_btn_lD").css({
-                    bottom: -lackH
-                })
-
-                var a = $(".vdo_btn_lD").innerWidth();
-                var b = $(".vdo_btn_lD").innerHeight();
-
-                $(".vdo_btn_lD").css({
-                    opacity: "1",
-                    bottom: "38px"
-                })
-            }
-
+//                var opacity =$('.vdo_btn_lD').css('opacity');
+//                if(opacity == '0'){
+//                    $(".vdo_btn_lD").css({opacity:"1",bottom: "38px"})
+//                }else{
+//                    $(".vdo_btn_lD").css({opacity:"0",bottom: -lackH})
+//                }
+                $(".vdo_btn_lD").css({opacity: "1", bottom: "38px"})
+                e.stopPropagation()
+            }, function (e) {
+                $(".vdo_btn_lD").css({opacity: "0", bottom: -lackH})
+                e.stopPropagation()
+            })
+//更改状态
             function closeOrOpen(ele) {
-                if (!ele.classList.contains('no')) {//
-                    ele.classList.add('no')
+                if (!ele.classList.contains('on')) {//
+                    ele.classList.add('on')
                 } else {
-                    ele.classList.remove('no')
+                    ele.classList.remove('on')
                 }
             }
         })
@@ -273,25 +363,39 @@
                 $(".vdo_drop_ModifyThe").removeClass("vdo_drop_aB")
                 $(".vdo_drop_list").hide();
             };
-            $('.vdo_set').click(function () {
+            $('.vdo_set').click(function (event) {
+                $('.vdo_drop_list').hide();
+                $('.vdo_drop_aB').removeClass('vdo_drop_aB')
                 var e = window.event || event;
                 if (e.stopPropagation) {
                     e.stopPropagation();
                 } else {
                     e.cancelBubble = true;
                 }
+
             })
 
-            $('.vdo_drop_ModifyThe').click(function (event) {
+            $('.vdo_drop').click(function (event) {
 
                 var $ele = $(this);
-                if ($ele.hasClass('vdo_drop_MNo')) {
-                    return
-                }
-                $('.vdo_drop_list').hide()
-                $ele.siblings().toggle();
-                $ele.toggleClass("vdo_drop_aB")
+//                if ($ele.hasClass('vdo_drop_MNo')) {
+//                    return
+//                }
+//                $('.vdo_drop_list').hide()
 
+
+                $ele.find('.vdo_drop_list').toggle();
+                $ele.find('.vdo_drop_ModifyThe ').toggleClass("vdo_drop_aB")
+
+                var vdo_set = $ele.parents('.vdo_set_li').siblings()
+                vdo_set.find('.vdo_drop_list').hide();
+                vdo_set.find('.vdo_drop_aB').removeClass('vdo_drop_aB');
+                var e = window.event || event;
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                } else {
+                    e.cancelBubble = true;
+                }
             });
 
 
@@ -645,7 +749,7 @@
                 <a href="javascript:;" class="vdo_btn_member on " style="display: none"><i></i><em>5/6</em></a>
             </div>
             <div class="vdo_btn_r"><a href="javascript:;" class="vdo_btn_quit"><i></i>退出</a></div>
-            <div class="vdo_btn_l">
+            <div class="vdo_btn_l disN">
                 <a href="javascript:;" class="vdo_btn_lack" id="vdo_btn_lack"><i></i>缺少设备</a>
                 <div class="vdo_btn_lD" id="vdo_btn_lD"><h4>未检测到摄像头、话筒、扬声器</h4>
                     <p>请确定设备已插入并安装最新驱动，或其他程序正在占用此设备。</p></div>
@@ -768,7 +872,7 @@
                         openMedia();
                         if (nflag == 'videocaller') {//个人发起
                             $('.vdo_invite').hide()
-                          VideoCall(tmpparm)
+                            VideoCall(tmpparm)
                         } else {//个人被叫
 
                             $('.vdo_invite').show();
@@ -823,7 +927,17 @@
                 var data = JSON.parse(jsondata)
                 //0=接受；1=拒绝；2=占线；3=超时;4=不在线;5=不支持（PMC关闭）；6=版本不支持
                 if (data.opCode == 0) {
+                    var parm = {sendUserUniId: initData.curUserUniID, recUserUniId: initData.dialogId}
+//打开麦克风
+                    window.lxpc.exebusinessaction('VideoConf', 'VideoMtcCall', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
 
+                        if (status == 0) {
+
+                        }
+                        else {
+                            console.log(status)
+                        }
+                    })
 
                 } else {
                     var tip = ''
@@ -879,6 +993,7 @@
 
                         playMedia(jsondata)
                         var data = JSON.parse(jsondata)
+                        initData.Media = data;
                         //绑定获取的可用设备
                         multimediaSeting(data)
                     }
@@ -932,18 +1047,18 @@
                 console.log(status)
             }
         })
-
-        var parm = {sendUserUniId: initData.curUserUniID, recUserUniId: initData.dialogId}
-//打开麦克风
-        window.lxpc.exebusinessaction('VideoConf', 'VideoMtcCall', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-
-            if (status == 0) {
-
-            }
-            else {
-                console.log(status)
-            }
-        })
+//
+//        var parm = {sendUserUniId: initData.curUserUniID, recUserUniId: initData.dialogId}
+////打开麦克风
+//        window.lxpc.exebusinessaction('VideoConf', 'VideoMtcCall', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
+//
+//            if (status == 0) {
+//
+//            }
+//            else {
+//                console.log(status)
+//            }
+//        })
 
     }
     //群会议操作
@@ -1188,10 +1303,10 @@
 
 //                    var parm = {getImgWnd: data.ownerWnd}
 
-                    var ownVideo = document.querySelector('.vdo_l_video')
+
                     var peerVideo = document.querySelector('.vdo_r_callOut')
 
-                    bindVideo(data.ownerWnd, ownVideo)
+
                     bindVideo(data.peerWnd, peerVideo, true)
 
                 } else {
@@ -1208,10 +1323,34 @@
         var camerli = $('.set1');
         var audioInputli = $('.set2');
         var audioOutputli = $('.set3');
+
         bindPlayer(data.cameraInfo, camerli, '没有摄像头设备')
         bindPlayer(data.audioInputInfo, audioInputli, '没有麦克风设备')
         bindPlayer(data.audioOutputInfo, audioOutputli, '没有扬声器设备')
 
+        if (data.audioInputInfo.length > 0) {
+            initData.audioInputId = data.audioInputInfo[0].devId
+        } else {
+            initData.audioInputId = null;
+        }
+
+        if (data.cameraInfo.length == 0) {
+            $('.vdo_btn_camera ').addClass('no')
+        } else {
+            $('.vdo_btn_camera ').removeClass('no')
+        }
+
+        if (data.audioOutputInfo.length == 0) {
+            $('.vdo_btn_mic  ').addClass('no')
+        } else {
+            $('.vdo_btn_mic  ').removeClass('no')
+        }
+
+        if (data.cameraInfo.length == 0 || data.audioInputInfo.length == 0 || data.audioOutputInfo.length == 0) {
+            $('.vdo_btn_l').show()
+        } else {
+            $('.vdo_btn_l').hide()
+        }
         function bindPlayer(data, $box, strTip) {
 
             var str = ''
@@ -1238,7 +1377,7 @@
             }
         }
 
-        $('.vdo_drop_list  li').click(function () {
+        $('.vdo_drop_list  li').click(function (e) {
             var $ele = $(this);
             var s_txt = $ele.text();
 
@@ -1247,6 +1386,27 @@
             var parentPre = $parent.prev('.vdo_drop_ModifyThe')
             parentPre.removeClass("vdo_drop_aB")
             parentPre.find('span').html(s_txt)
+            e.stopPropagation()
+
+
+//            var audioInputId=initData.audioInputId
+//            if(audioInputId){
+//
+//                if(this.classList.contains('no')){
+//                    var parm={action:"stop", audioInputId: audioInputId,volumePercent:50}
+//
+//                }else{
+//                    var parm={action:"start", audioInputId: audioInputId,volumePercent:50}
+//                }
+//                ControlAudio(parm).then(function(data){
+//                    if(data){
+//                        $ele.data('redo',false);
+//                    }
+//
+//                })
+//            }
+
+
         })
 
     }
@@ -1279,7 +1439,12 @@
             if (status == 0) {
                 window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
                     if (status == 0) {
-
+                        console.log(jsondata)
+                        var data = JSON.parse(jsondata);
+                        initData.ownerWnd = data.ownerWnd;
+                        initData.videoId = (data.cameraInfo && data.cameraInfo.length > 0) ? data.cameraInfo[0].devId : null;
+                        var ownVideo = document.querySelector('.vdo_l_video');
+                        bindVideo(data.ownerWnd, ownVideo);
 
 //打开视频和音频
                         playMedia(jsondata)
@@ -1298,6 +1463,53 @@
             }
         })
     }
+    //    1.	打开或关闭视频
+    function ControlVideo(parm) {
+        return new Promise(function (resolve, reject) {
+//        var parm={action:stop/start”, ”wnd”: 窗口句柄（数字）}
+            console.log(parm)
+            console.log('rrrrrrrrrrrrrrrrrrrr')
+            try {
+                window.lxpc.exebusinessaction('VideoConf', 'ControlVideo', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
+                    console.log('打开或关闭视频------')
+                    console.log(jsondata)
+                    if (status == 0) {
 
+                        resolve(status)
+                    } else {
+                        reject(null)
+                    }
+                })
+            } catch (e) {
+                reject(null)
+                console.log(e.message)
+            }
+
+        })
+    }
+
+
+    //    1.	2.	打开或关闭音频，调整音量
+    function ControlAudio(parm) {
+        return new Promise(function (resolve, reject) {
+//        var parm={action:stop/start/volume”, ”audioInputId”:"",volumePercent:0-100}
+            try {
+                window.lxpc.exebusinessaction('VideoConf', 'ControlAudio', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
+        console.log(status)
+                    console.log('ffffffffffffffffffffffffffffffffff')
+                    if (status == 0) {
+                        console.log('ggggggggggggggggggggggggggggggggg------------------')
+                        resolve(status)
+                    } else {
+                        reject(null)
+                    }
+                })
+            } catch (e) {
+                reject(null)
+                console.log(e.message)
+            }
+
+        })
+    }
 
 </script>
