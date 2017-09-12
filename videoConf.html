@@ -245,10 +245,10 @@ console.log(parm)
 
                 closeOrOpen(this)
                 if (this.classList.contains('on')) {
-                    var parm = {action: "stop", wnd:initData.ownerWnd,videoId: initData.videoId}
+                    var parm = {action: "stop", wnd:initData.ownerWnd,videoId: initData.videoId,sessionId:initData.sessionId}
 
                 } else {
-                    var parm = {action: "start",wnd:initData.ownerWnd, videoId: initData.videoId}
+                    var parm = {action: "start",wnd:initData.ownerWnd, videoId: initData.videoId,sessionId:initData.sessionId}
                 }
                 console.log(parm)
                 console.log('ddddddddddddddddddddd-----------------------------------')
@@ -1303,6 +1303,7 @@ console.log(parm)
 
 //                    var parm = {getImgWnd: data.ownerWnd}
 
+                    initData.sessionId=data.sessionId
 
                     var peerVideo = document.querySelector('.vdo_r_callOut')
 
