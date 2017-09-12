@@ -31,14 +31,16 @@
 .vdo_lD { /*宽高动态获取*/
     margin-bottom: 1px;
     position: relative;
+    font-size: 0;
 }
 
 .vdo_l_video {
     width: 100%;
     height: 100%;
-    background-repeat: no-repeat;
-    background-size: cover;
+    /*background-repeat: no-repeat;*/
+    /*background-size: cover;*/
     background: #373737;
+    display: block;
 }
 
 .vdo_lBg_btn {
@@ -109,6 +111,7 @@
     /*left:145px;*/
     right: 0;
     bottom: 5px;
+    overflow: hidden;
 }
 
 .vdo_r_t {
@@ -592,6 +595,13 @@
 .vdo_btn_c .vdo_btn_mic.no i {
     background-position: -72px -168px;
 }
+.vdo_btn_c .vdo_btn_mic.no:hover i {
+    background-position: -24px -168px;
+}
+.vdo_btn_c .vdo_btn_mic.no:active i {
+    background-position: -48px -168px;
+}
+
 
 /*摄像头*/
 .vdo_btn_c .vdo_btn_camera i {
@@ -621,6 +631,12 @@
 /*不可用*/
 .vdo_btn_c .vdo_btn_camera.no i {
     background-position: -72px -216px;
+}
+.vdo_btn_c .vdo_btn_camera.no:hover i {
+    background-position: -24px -216px;
+}
+.vdo_btn_c .vdo_btn_camera.no:active i {
+    background-position: -48px -216px;
 }
 
 /*静音/扬声器*/
@@ -662,9 +678,9 @@
     display: none;
 }
 
-.volume_con:hover .volume_div {
-    display: block;
-}
+/*.volume_con:hover .volume_div {*/
+    /*display: block;*/
+/*}*/
 
 .volume_con:hover .vdo_btn_mute.no ~ .volume_div {
     display: none;
