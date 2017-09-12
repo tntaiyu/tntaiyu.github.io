@@ -245,10 +245,10 @@ console.log(parm)
 
                 closeOrOpen(this)
                 if (this.classList.contains('on')) {
-                    var parm = {action: "stop", videoId: initData.videoId}
+                    var parm = {action: "stop", wnd:initData.ownerWnd,videoId: initData.videoId}
 
                 } else {
-                    var parm = {action: "start", videoId: initData.videoId}
+                    var parm = {action: "start",wnd:initData.ownerWnd, videoId: initData.videoId}
                 }
                 console.log(parm)
                 console.log('ddddddddddddddddddddd-----------------------------------')
