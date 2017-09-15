@@ -213,17 +213,20 @@
                     if (this.classList.contains('on')) {
                         var parm = {action: "stop", audioInputId: audioInputId}
                         isOff = true
-                        this.title='打开麦克风'
+                        this.title = '打开麦克风'
                     } else {
                         var parm = {action: "start", audioInputId: audioInputId}
-                        this.title='关闭麦克风'
+                        this.title = '关闭麦克风'
                     }
 
                     ControlAudio(parm).then(function (data) {
                         if (data == 0) {
                             $ele.data('redo', false);
                             if (isOff) {
-                                $('.mySelf').parents('.vdo_lD').find('.vdo_l_bac').hide().find('.vdo_tip').html('已静音')
+//                                $('.mySelf').parents('.vdo_lD').find('.vdo_l_bac').hide()
+                                $('.mySelf').find('.vdo_l_mute ').show()
+                            } else {
+                                $('.mySelf').find('.vdo_l_mute ').hide()
                             }
                         }
 
@@ -256,8 +259,8 @@
                         sessionId: initData.sessionId
                     }
                     isOff = true
-                    type=1
-                    this.title='打开摄像头'
+                    type = 1
+                    this.title = '打开摄像头'
                 } else {
                     var parm = {
                         action: "start",
@@ -266,8 +269,8 @@
                         sessionId: initData.sessionId
                     }
                     isOff = false
-                    type=0
-                    this.title='关闭摄像头'
+                    type = 0
+                    this.title = '关闭摄像头'
                 }
 
                 ControlVideo(parm).then(function (data) {
@@ -362,7 +365,10 @@
         $(function () {
             $(".vdo_btn_quit").click(function () {
 
-                TerminateVideoConf()
+                my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
+                    TerminateVideoConf()
+                })
+
             })
         })
 
@@ -480,8 +486,11 @@
                             <div class="vdo_l_bac disN">
                                 <div class="vdo_tip ">语音中</div>
                                 <div class="vdo_lBg_btn"></div>
+
                             </div>
+                            <i class="vdo_l_mute disN"></i>
                             <div class="vdo_lD_b">我</div>
+
                         </div>
 
 
@@ -509,6 +518,7 @@
                         <h3 class="main_name">赵晨威</h3>
                         <p class="main_branch">企业安全-产品部</p>
                     </div>
+                    <i class="vdo_l_mute disN"></i>
                     <div class="vdo_r_callOutD">正在呼叫…</div>
                 </div>
 
@@ -812,16 +822,16 @@
             <div class="vdo_set_list">
                 <div class="vdo_set_li">
                     <label class="vdo_set_l">摄像头选择</label>
-                    <div class="fl set1">
-                        <div class="vdo_drop">
+                    <div class="fl  set_camera">
+                        <div class="vdo_drop set1">
                             <div title="Windows默认设备" class="vdo_drop_ModifyThe vdo_drop_M0">
                                 <i></i><span>Windows默认设备</span>
                             </div>
                             <ul class="vdo_drop_list vdo_drop_l0">
-                                <li title="Windows默认设备">Windows默认设备</li>
-                                <li title="扬声器(Realtek High Ddfinition Audio)">扬声器<i class="vdo_drop_lI">(Realtek
-                                    High Ddfinition Audio)</i></li>
-                                <li title="禁用">禁用</li>
+                                <!--<li title="Windows默认设备">Windows默认设备</li>-->
+                                <!--<li title="扬声器(Realtek High Ddfinition Audio)">扬声器<i class="vdo_drop_lI">(Realtek-->
+                                    <!--High Ddfinition Audio)</i></li>-->
+                                <!--<li title="禁用">禁用</li>-->
                             </ul>
                         </div>
                     </div>
@@ -829,17 +839,17 @@
                 </div>
                 <div class="vdo_set_li">
                     <label class="vdo_set_l">麦克风选择</label>
-                    <div class="fl set2">
-                        <div class="vdo_drop">
+                    <div class="fl  set_mic">
+                        <div class="vdo_drop set2">
                             <!--<div title="没有麦克风设备" class="vdo_drop_ModifyThe vdo_drop_M1 disN"><i></i><span>没有麦克风设备</span>-->
                             <!--</div>-->
                             <div title="Windows默认设备" class="vdo_drop_ModifyThe vdo_drop_M1">
                                 <i></i><span>Windows默认设备</span></div>
                             <ul class="vdo_drop_list vdo_drop_l1">
-                                <li title="Windows默认设备">Windows默认设备</li>
-                                <li title="扬声器(Realtek High Ddfinition Audio)">扬声器<i class="vdo_drop_lI">(Realtek
-                                    High Ddfinition Audio)</i></li>
-                                <li title="禁用">禁用</li>
+                                <!--<li title="Windows默认设备">Windows默认设备</li>-->
+                                <!--<li title="扬声器(Realtek High Ddfinition Audio)">扬声器<i class="vdo_drop_lI">(Realtek-->
+                                    <!--High Ddfinition Audio)</i></li>-->
+                                <!--<li title="禁用">禁用</li>-->
                             </ul>
                         </div>
                     </div>
@@ -847,17 +857,17 @@
                 </div>
                 <div class="vdo_set_li">
                     <label class="vdo_set_l">扬声器选择</label>
-                    <div class="fl set3">
-                        <div class="vdo_drop">
+                    <div class="fl ">
+                        <div class="vdo_drop set3">
                             <!--<div title="没有扬声器设备" class="vdo_drop_ModifyThe vdo_drop_M2 disN"><i></i><span>没有扬声器设备</span>-->
                             <!--</div>-->
                             <div title="Windows默认设备" class="vdo_drop_ModifyThe vdo_drop_M2">
                                 <i></i><span class="">Windows默认设备</span></div>
                             <ul class="vdo_drop_list vdo_drop_l2">
-                                <li title="Windows默认设备">Windows默认设备</li>
-                                <li title="扬声器(Realtek High Ddfinition Audio)">扬声器<i class="vdo_drop_lI">(Realtek
-                                    High Ddfinition Audio)</i></li>
-                                <li title="禁用">禁用</li>
+                                <!--<li title="Windows默认设备">Windows默认设备</li>-->
+                                <!--<li title="扬声器(Realtek High Ddfinition Audio)">扬声器<i class="vdo_drop_lI">(Realtek-->
+                                    <!--High Ddfinition Audio)</i></li>-->
+                                <!--<li title="禁用">禁用</li>-->
                             </ul>
                         </div>
                     </div>
@@ -869,7 +879,7 @@
 </div>
 
 <!--邀请-弹出框-->
-<div class="vdo_invite ">
+<div class="vdo_invite  disN">
     <div class="vdo_invite_hint disN"><a href="javascript:;" class="vdo_iHint_close"></a><i
             class="vdo_iHint_mark"></i>未检测到扬声器、话筒，请检查设备或用手机发起
     </div>
@@ -895,7 +905,7 @@
 </html>
 
 <script>
-    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {};
+    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {},settinginfos={};
 
     $(function () {
 
@@ -954,7 +964,7 @@
 
                                 myvideo.find('.vdo_l_bac').show()
                                 myvideo.find('video').hide()
-                               $('.vdo_r_callOutD').html('视频连接中...')
+                                $('.vdo_r_callOutD').html('视频连接中...')
                             })
 
                             ReceiveVideoConfStatus();//注册回调对方对视频会议的操作
@@ -1040,8 +1050,8 @@
 
                     my_layer({message: tip}, 'warn')
 
+                    $('.vdo_r_callOutD').html(tip)
                 }
-
 
             }
             else {
@@ -1429,10 +1439,10 @@
                 for (var i = 0; i < data.length; i++) {
 
                     var curli = data[i];
-                    str += `<li title="{curli.devName}" >${curli.devName}</li>`
+                    str += `<li title="${curli.devName}" >${curli.devName}</li>`
 
                 }
-                str += `<li title="禁用">禁用</li>`
+                str += `<li title="禁用" class="disabled">禁用</li>`
                 ul.append(str);
             } else {
                 ul.empty()
@@ -1454,23 +1464,33 @@
             parentPre.find('span').html(s_txt)
             e.stopPropagation()
 
+            var vdo_drop = $ele.parents('.vdo_drop')
+            if (vdo_drop.hasClass('set1')) {//麦克风
+                if ($ele.hasClass('disabled')) {
+                    $('.vdo_btn_mic').removeClass('on').addClass('no')
+                    $('.vdo_btn_l').show()
+                } else {
+                    $('.vdo_btn_mic').removeClass('no')
+                }
+            } else if (vdo_drop.hasClass('set2')) {//摄像头
+                if ($ele.hasClass('disabled')) {
+                    $('.vdo_btn_camera ').removeClass('on').addClass('no')
+                    $('.vdo_btn_l').show()
+                } else {
+                    $('.vdo_btn_camera ').removeClass('no')
+                }
 
-//            var audioInputId=initData.audioInputId
-//            if(audioInputId){
-//
-//                if(this.classList.contains('no')){
-//                    var parm={action:"stop", audioInputId: audioInputId,volumePercent:50}
-//
-//                }else{
-//                    var parm={action:"start", audioInputId: audioInputId,volumePercent:50}
-//                }
-//                ControlAudio(parm).then(function(data){
-//                    if(data){
-//                        $ele.data('redo',false);
-//                    }
-//
-//                })
-//            }
+            } else if (vdo_drop.hasClass('set3')) {//静音
+                if ($ele.hasClass('disabled')) {
+                    $('.vdo_btn_mute ').removeClass('on').addClass('no')
+                    $('.vdo_btn_l').show()
+                } else {
+                    $('.vdo_btn_mute ').removeClass('no')
+                }
+
+            }
+
+
 
 
         })
@@ -1512,6 +1532,7 @@
 //打开视频和音频
                         playMedia(jsondata)
                         var data = JSON.parse(jsondata)
+                        settinginfos=data
                         //绑定获取的可用设备
                         multimediaSeting(data)
                         if (data.audioOutputInfo && data.audioOutputInfo.length > 0) {
