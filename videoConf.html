@@ -921,7 +921,7 @@
 
                     var tmpdata = JSON.parse(jsondata);
                     initData = JSON.parse(jsondata);
-
+console.log(initData)
                     var peerDialogId = tmpdata['dialogId']
                     var nflag = tmpdata['flag']
                     var tmpparm = {userUniId: peerDialogId};
@@ -1150,24 +1150,10 @@
             $('.vdo_btn_member').show();
             $('.vdo_invite').hide();
             var parm = {}
-            window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-                if (status == 0) {
-                    window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
-                        if (status == 0) {
 
-                            //验证视频会议
-                            MtcCreateVideoMeeting();
-
-                        }
-                        else {
-                            console.log(status)
-                        }
-                    })
-                }
-                else {
-                    console.log(status)
-                }
-            })
+            openMedia()
+            //验证视频会议
+            MtcCreateVideoMeeting();
 
         } else if (ngflag == 'to_be_videomeetingcalled') {//被叫
 
