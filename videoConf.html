@@ -1206,6 +1206,7 @@ console.log(initData)
                     juFengId: initData.juFengId,
                     userUniId: initData.toUserUniId
                 }
+                console.log(parm)
                 videoQunCalled(parm, 1)
                 return;
 //                                var parm={userUniId: peerDialogId,opCode:'1'}
@@ -1213,6 +1214,9 @@ console.log(initData)
             }
             //接受
             $('.vdo_iB_btn2')[0].onclick = function () {
+                console.log(initData)
+                console.log('kkkkkkkkkkkkkkkkkkkk--------------------')
+                debugger;
                 var parm = {
                     dialogId: initData.dialogId,
                     opCode: '0',
@@ -1220,6 +1224,7 @@ console.log(initData)
                     userUniId: initData.toUserUniId
                 }
                 videoQunCalled(parm, 0)
+
 
             }
 
@@ -1293,13 +1298,17 @@ console.log(initData)
                 window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
                     if (status == 0) {
 //                        ResponseVideoMeeting响应被叫群视频会议
+                        console.log('ffffffffffffffffffffffffffffff')
+                        console.log(jsondata)
                         if (opCode == 0) {
                             var parm1 = {displayName: '蓝信视频会议', juFengId: initData.juFengId, password: '123'}
 
+                            console.log(parm1)
                             try {
                                 window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
                                     if (status == 0) {
 
+                                        console.log('ggggggggggggggggggggggggggggggggg---------------------------------')
                                         ResponseVideoMeeting(parm)
                                     }
                                 })
@@ -1310,6 +1319,28 @@ console.log(initData)
                             ResponseVideoMeeting(parm)
                         }
 
+
+
+                        var data = JSON.parse(jsondata);
+                        initData.ownerWnd = data.ownerWnd;
+                        initData.peerWnd = data.peerWnd;
+                        initData.videoId = (data.cameraInfo && data.cameraInfo.length > 0) ? data.cameraInfo[0].devId : null;
+                        var ownVideo = document.querySelector('.vdo_l_video');
+
+                        bindVideo(data.ownerWnd, ownVideo);
+
+                        $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd);
+//打开视频和音频
+                        playMedia(jsondata)
+                        var data = JSON.parse(jsondata)
+                        settinginfos=data
+                        //绑定获取的可用设备
+                        multimediaSeting(data)
+                        if (data.audioOutputInfo && data.audioOutputInfo.length > 0) {
+                            $('.vdo_invite_hint').hide();
+                        } else {
+                            $('.vdo_invite_hint').show();
+                        }
 
                     }
                     else {
@@ -1400,6 +1431,10 @@ console.log(initData)
 
                     var data = JSON.parse(jsondata);
                     window.URL = window.URL || window.webkitURL;
+
+                    
+                    console.log('ReceiveVideoCallResult--------------------')
+                    console.log('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
 //                    var parm = {getImgWnd: data.ownerWnd}
                     initData.peerWnd = data.peerWnd
