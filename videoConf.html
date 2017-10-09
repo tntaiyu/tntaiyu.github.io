@@ -1245,8 +1245,7 @@ console.log(initData)
 //创建群来生成视频会议
                     confId = data.confId
 
-
-                    var parm1 = {displayName: '蓝信视频会议', juFengId: confId, password: '123'}
+                    var parm1 = {displayName: '蓝信视频会议', juFengId: confId, password: data.password}
 
                     try {
                         window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
@@ -1300,9 +1299,10 @@ console.log(initData)
 //                        ResponseVideoMeeting响应被叫群视频会议
                         console.log('ffffffffffffffffffffffffffffff')
                         console.log(jsondata)
-                        if (opCode == 0) {
-                            var parm1 = {displayName: '蓝信视频会议', juFengId: initData.juFengId, password: '123'}
 
+                        if (opCode == 0) {
+                            initData.displayName='蓝信视频会议';
+                            var parm1 = initData
                             console.log(parm1)
                             try {
                                 window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
@@ -1432,7 +1432,7 @@ console.log(initData)
                     var data = JSON.parse(jsondata);
                     window.URL = window.URL || window.webkitURL;
 
-                    
+
                     console.log('ReceiveVideoCallResult--------------------')
                     console.log('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
