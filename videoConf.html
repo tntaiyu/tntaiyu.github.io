@@ -929,7 +929,7 @@ console.log(initData)
                     if (nflag == 'qun_videomeetingcaller' || nflag == 'to_be_videomeetingcalled') {//发起群会议
                         qunVideoConf(nflag)
                     } else {
-                        initSetting();
+                        initSetting(nflag);
 
                         if (nflag == 'videocaller') {//个人发起
                             $('.vdo_invite').hide()
@@ -1792,7 +1792,7 @@ console.log(initData)
     }
     //初始化设置
 
-    function initSetting() {
+    function initSetting(type) {
 
         initData.memberList = [];
         $('vdo_lD').data('index', 0)
@@ -1813,19 +1813,22 @@ console.log(initData)
 
                     $('.main_branch').html(branch)
                     $('.main_name').html(name);
-                    var parm = {resourceList: [{photoResId: item.photoResId}], size: 96}
-                    imgList[targ] = $('.vdo_invite_t img')
+                    if(type !== 'videocaller'){//发起者
+                        var parm = {resourceList: [{photoResId: item.photoResId}], size: 96}
+                        imgList[targ] = $('.vdo_invite_t img')
 
-                    var handle = 'HeaderImage'
-                    getImge(parm, handle, targ).then(function (data) {
-                        var targ = data.index
-                        var $img = imgList[targ];
-                        $img.attr('src', data.path).error(function () {
-                            this.src = 'images/card_icon.png'
+                        var handle = 'HeaderImage'
+                        getImge(parm, handle, targ).then(function (data) {
+                            var targ = data.index
+                            var $img = imgList[targ];
+                            $img.attr('src', data.path).error(function () {
+                                this.src = 'images/card_icon.png'
+                            })
+
+
                         })
+                    }
 
-
-                    })
 
                 }
 
