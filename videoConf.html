@@ -364,17 +364,7 @@
         //退出
         $(function () {
             //点击关闭按钮退出视频
-            ReceiveIframeWebCall('LxVideoConf').then(function (result) {
-                if (result.action == 'close') {
-                    my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                        if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
-                            var parm = {userUniId: initData.dialogId, callType: callType}
-                            CancelVideoCall(parm)
-                        }
-                        TerminateVideoConf()
-                    })
-                }
-            })
+            ReceiveIframeWebCall1('LxVideoConf')
             $(".vdo_btn_quit").click(function () {
                 my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
                     if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
@@ -1938,5 +1928,27 @@
 
 
     }
+
+    function ReceiveIframeWebCall1(handle) {
+            try {
+                window.lxpc.exebusinessaction(handle, 'ReceiveIframeWebCall', '0', JSON.stringify({}), 0, function (status, result, targ) {
+
+                    if (status == 0) {
+                        my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
+                            if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
+                                var parm = {userUniId: initData.dialogId, callType: callType}
+                                CancelVideoCall(parm)
+                            }
+                            TerminateVideoConf()
+                        })
+                    }else {
+
+                    }
+                })
+            }catch (e){
+
+            }
+    }
+
 
 </script>
