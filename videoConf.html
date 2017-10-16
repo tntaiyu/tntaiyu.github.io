@@ -364,7 +364,7 @@
         //退出
         $(function () {
             $(".vdo_btn_quit").click(function () {
-
+console.log('ddddddddddddddddddddddd===================')
                 my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
                     TerminateVideoConf()
                 })
@@ -953,7 +953,7 @@ console.log(initData)
                             $('.vdo_iB_btn2')[0].onclick = function () {//接听
                                 loadJuFeng().then(function(data){
                                     openMedia(data);
-                                    var parm = {userUniId: peerDialogId, opCode: '0'}
+                                    var parm = {userUniId: peerDialogId, opCode: '0',callType:1}
                                     ResponseVideoCall(parm)//相应被叫
 
                                 })
@@ -966,7 +966,7 @@ console.log(initData)
 
                                 $('.vdo_btn_camera').addClass('on')
                                 loadJuFeng().then(function(data){
-                                    var parm = {userUniId: peerDialogId, opCode: '0'}
+                                    var parm = {userUniId: peerDialogId, opCode: '0',callType:2 }
                                     ResponseVideoCall(parm)//相应被叫
                                     openMedia(data);
                                 })
@@ -1011,7 +1011,8 @@ console.log(initData)
 
         window.lxpc.exebusinessaction('VideoConf', 'VideoCall', '0', JSON.stringify(tmpparm), 0, function (status, jsondata, targ) {
             if (status == 0) {
-
+console.log(jsondata)
+                console.log('发起会议===============================')
                 var data = JSON.parse(jsondata)
                 //0=接受；1=拒绝；2=占线；3=超时;4=不在线;5=不支持（PMC关闭）；6=版本不支持
                 if (data.opCode == 0) {
@@ -1074,7 +1075,8 @@ console.log(initData)
 
     //响应被叫
     function ResponseVideoCall(tmpparm) {
-
+console.log(tmpparm)
+        console.log('ResponseVideoCall============----------------------------')
         window.lxpc.exebusinessaction('VideoConf', 'ResponseVideoCall', '0', JSON.stringify(tmpparm), 0, function (status, jsondata, targ) {
             if (status == 0) {
                 console.log('响应被叫------------------')
@@ -1439,11 +1441,8 @@ console.log(initData)
 
                     var data = JSON.parse(jsondata);
                     window.URL = window.URL || window.webkitURL;
-
-
                     console.log('ReceiveVideoCallResult--------------------')
                     console.log('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
-
 //                    var parm = {getImgWnd: data.ownerWnd}
                     initData.peerWnd = data.peerWnd
 
@@ -1714,17 +1713,18 @@ console.log(initData)
     //退出
     function TerminateVideoConf() {
 //        参数：｛“sessionId”:XXXXXX｝
-        if (initData.sessionId) {
+        if(!initData.sessionId){
+            initData.sessionId=0
+        }
+//        if (initData.sessionId) {
             var parm = {sessionId: initData.sessionId}
-
+           console.log(parm)
             try {
 
                 window.lxpc.exebusinessaction('VideoConf', 'TerminateVideoConf', '0', JSON.stringify(parm), 0, function (status, result, targ) {
 
                     if (status == 0) {
-
                         window.lxpc.closewnd();
-
                     } else {
                         my_layer({message: '错误码' + status}, 'error')
                     }
@@ -1734,10 +1734,10 @@ console.log(initData)
                 my_layer({message: '错误码' + e.message}, 'error')
                 console.log(e.message)
             }
-        } else {
-            window.lxpc.closewnd();
-
-        }
+//        } else {
+//            window.lxpc.closewnd();
+//
+//        }
 
     }
     //2．	接收状态回调
@@ -1748,7 +1748,8 @@ console.log(initData)
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveVideoConfStatus', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
 
                 if (status == 0) {
-
+console.log('接收状态回调')
+                    console.log(jsondata)
                     var filter = '.wnd_' + initData.peerWnd,
                             $filter = $(filter),
                             vdo_l_bac = $filter.find('.vdo_l_bac'),
@@ -1764,18 +1765,16 @@ console.log(initData)
 //                        }, 1000)
 
 
-                    } else {
-                        if (data.statusParam.MtcCallVideoStatusKey == 0x636F6666) {//关闭摄像头
+                    } else if (data.statusName=='MtcCallVideoReceiveStatusChangedNotification'){
+                        if (data.statusParam.MtcCallVideoStatusKey == 0x636F6666 ||data.statusParam.MtcCallVideoStatusKey==0x70716f73) {//关闭摄像头
 
                             vdo_l_bac.show();
                             vdo_l_bac.find('.vdo_tip').html('语音中')
                             video.hide()
                         } else {
                             if (data.statusParam.MtcCallVideoStatusKey == 0x6E726D6C) {//正常
-
                                 video.show()
                                 vdo_l_bac.hide();
-
                             }
                         }
                     }
@@ -1808,7 +1807,7 @@ console.log(initData)
 
                     } else {
 
-                        reject(result, targ);
+                        reject(status);
                         console.log(status)
                     }
 
@@ -1816,7 +1815,7 @@ console.log(initData)
             }
             catch (e) {
                 my_layer({message: '调用接口出错，错误码' + e.message}, 'error')
-                reject(result, targ)
+                reject(e.message)
                 console.log(e.message)
             }
         })
