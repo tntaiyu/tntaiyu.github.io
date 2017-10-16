@@ -1567,3 +1567,21 @@ function SelectPeople(handle,parm){
     my_layer({message: '调用接口错误，错误码' + e.message})
 }
 }
+
+function ReceiveIframeWebCall(handle) {
+    return new Promise(function(resolve, reject){
+        try {
+            window.lxpc.exebusinessaction(handle, 'ReceiveIframeWebCall', '0', JSON.stringify({}), 0, function (status, result, targ) {
+                if (status == 0) {
+                    resolve(JSON.parse(result)||null)
+                }else {
+                    reject(status)
+                }
+            })
+        }catch (e){
+            reject(e.message)
+        }
+    })
+
+}
+
