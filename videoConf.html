@@ -363,13 +363,27 @@
 
         //退出
         $(function () {
+            //点击关闭按钮退出视频
+            ReceiveIframeWebCall('LxVideoConf').then(function(result){
+                console.log(result);
+                if (result.action=='close'){
+                    my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
+                        TerminateVideoConf()
+
+                        if(initData.flag=='videocaller'){//主叫的话得取消视频会话
+                            var parm={userUniId:initData.dialogId,callType:callType}
+                            CancelVideoCall(parm)
+                        }
+                    })
+                }
+            })
             $(".vdo_btn_quit").click(function () {
-console.log('ddddddddddddddddddddddd===================')
                 my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
                     TerminateVideoConf()
                 })
 
             })
+
         })
 
         //邀请-弹出框
@@ -905,8 +919,8 @@ console.log('ddddddddddddddddddddddd===================')
 </html>
 
 <script>
-    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {},settinginfos={};
-
+    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {},settinginfos={},callType;
+    //callType 记录会话的状态
     $(function () {
 
         var parm = {};
@@ -921,7 +935,7 @@ console.log('ddddddddddddddddddddddd===================')
 
                     var tmpdata = JSON.parse(jsondata);
                     initData = JSON.parse(jsondata);
-console.log(initData)
+                    console.log(initData);
                     var peerDialogId = tmpdata['dialogId']
                     var nflag = tmpdata['flag']
                     var tmpparm = {userUniId: peerDialogId};
@@ -945,10 +959,20 @@ console.log(initData)
 
                             $('.vdo_invite').show();
                             $('.vdo_iB_btn1')[0].onclick = function () {//拒绝接听
+                               my_layer({message:'是否拒绝接听视频'},'confirm',function(){
+                                   var parm = {userUniId: peerDialogId, opCode: '1'}
+                                   ResponseVideoCall(parm,1)
+                                   return;
+                               },function(){
+                                   callType=1
+                                   loadJuFeng().then(function(data){
+                                       openMedia(data);
+                                       var parm = {userUniId: peerDialogId, opCode: '0',callType:1}
+                                       ResponseVideoCall(parm)//相应被叫
 
-                                var parm = {userUniId: peerDialogId, opCode: '1'}
-                                ResponseVideoCall(parm)
-                                return;
+                                   })
+                               })
+
                             }
                             $('.vdo_iB_btn2')[0].onclick = function () {//接听
                                 loadJuFeng().then(function(data){
@@ -957,6 +981,7 @@ console.log(initData)
                                     ResponseVideoCall(parm)//相应被叫
 
                                 })
+                                callType=1
 
                             }
 
@@ -974,6 +999,7 @@ console.log(initData)
                                 myvideo.find('.vdo_l_bac').show()
                                 myvideo.find('video').hide()
                                 $('.vdo_r_callOutD').html('视频连接中...')
+                                callType=2
                             })
 
                             ReceiveVideoConfStatus();//注册回调对方对视频会议的操作
@@ -1002,7 +1028,7 @@ console.log(initData)
         ReceiveVideoCallResult();
 
 
-        TitleTools();
+//        TitleTools();
     })
 
 
@@ -1074,16 +1100,16 @@ console.log(jsondata)
     }
 
     //响应被叫
-    function ResponseVideoCall(tmpparm) {
+    function ResponseVideoCall(tmpparm,opCode) {
 console.log(tmpparm)
         console.log('ResponseVideoCall============----------------------------')
         window.lxpc.exebusinessaction('VideoConf', 'ResponseVideoCall', '0', JSON.stringify(tmpparm), 0, function (status, jsondata, targ) {
             if (status == 0) {
-                console.log('响应被叫------------------')
+                console.log('响应------------------')
                 console.log(jsondata)
-
-//                var data = JSON.parse(jsondata)
-
+               if (opCode==1){
+                   window.lxpc.closewnd();
+               }
 
             }
             else {
@@ -1718,7 +1744,6 @@ console.log(tmpparm)
         }
 //        if (initData.sessionId) {
             var parm = {sessionId: initData.sessionId}
-           console.log(parm)
             try {
 
                 window.lxpc.exebusinessaction('VideoConf', 'TerminateVideoConf', '0', JSON.stringify(parm), 0, function (status, result, targ) {
@@ -1739,6 +1764,24 @@ console.log(tmpparm)
 //
 //        }
 
+    }
+    //主叫取消视频通话
+    function CancelVideoCall(parm){
+        try {
+//        var parm={userUniId:"",callType:''}被叫的userUniId  callType:通话类型 1-视频通话，2-语音通话
+            window.lxpc.exebusinessaction('VideoConf', 'CancelVideoCall', '0', JSON.stringify(parm), 0, function (status, result, targ) {
+
+                if (status == 0) {
+                    window.lxpc.closewnd();
+                } else {
+                    my_layer({message: '错误码' + status}, 'error')
+                }
+
+            })
+        } catch (e) {
+            my_layer({message: '错误码' + e.message}, 'error')
+            console.log(e.message)
+        }
     }
     //2．	接收状态回调
 
@@ -1767,7 +1810,7 @@ console.log('接收状态回调')
 
                     } else if (data.statusName=='MtcCallVideoReceiveStatusChangedNotification'){
                         if (data.statusParam.MtcCallVideoStatusKey == 0x636F6666 ||data.statusParam.MtcCallVideoStatusKey==0x70716f73) {//关闭摄像头
-
+                             callType=2
                             vdo_l_bac.show();
                             vdo_l_bac.find('.vdo_tip').html('语音中')
                             video.hide()
@@ -1775,6 +1818,7 @@ console.log('接收状态回调')
                             if (data.statusParam.MtcCallVideoStatusKey == 0x6E726D6C) {//正常
                                 video.show()
                                 vdo_l_bac.hide();
+                                callType=1
                             }
                         }
                     }
