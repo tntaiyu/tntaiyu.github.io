@@ -1798,7 +1798,7 @@
 
 
                     } else if (data.statusName == 'MtcCallVideoReceiveStatusChangedNotification') {
-                        if (data.statusParam.MtcCallVideoStatusKey == 0x636F6666 || data.statusParam.MtcCallVideoStatusKey == 0x70716f73) {//关闭摄像头
+                        if (data.statusParam.MtcCallVideoStatusKey == 0x636F6666) {//关闭摄像头
                             callType = 2
                             vdo_l_bac.show();
                             vdo_l_bac.find('.vdo_tip').html('语音中')
@@ -1810,6 +1810,18 @@
                                 callType = 1
                             }
                         }
+                    }else if(data.statusName=='MtcCallIncomingNotification'){//监听是语音还是视频
+                        if(data.statusParam.isVideo==1){
+                            video.show()
+                            vdo_l_bac.hide();
+                            callType = 1
+                        }else{
+                            callType = 2
+                            vdo_l_bac.show();
+                            vdo_l_bac.find('.vdo_tip').html('语音中')
+                            video.hide()
+                        }
+
                     }
 
 
@@ -1822,6 +1834,10 @@
             my_layer({message: '错误码' + e.message}, 'error')
             console.log(e.message)
         }
+    }
+//
+    function MtcCallIncomingNotification(){
+
     }
 
     function getImge(parm, handle, targ) {
@@ -1928,7 +1944,7 @@
 
 
     }
-
+//接受主页面的操作和数据
     function ReceiveIframeWebCall1(handle) {
             try {
                 window.lxpc.exebusinessaction(handle, 'ReceiveIframeWebCall', '0', JSON.stringify({}), 0, function (status, result, targ) {
