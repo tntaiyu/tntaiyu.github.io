@@ -1811,7 +1811,11 @@
                             }
                         }
                     }else if(data.statusName=='MtcCallTalkingNotification'){//监听是语音还是视频
+                        console.log('监听是语音还是视频========================')
+                        console.log(initData.flag)
+                        console.log(initData)
                         if(initData.flag=='videocaller'){
+                            console.log('主叫====================')
                             if(data.statusParam.isVideo==1){
                                 video.show()
                                 vdo_l_bac.hide();
