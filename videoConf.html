@@ -1777,7 +1777,7 @@
     function ReceiveVideoConfStatus() {
         try {
 
-            window.lxpc.exebusinessaction('VideoConf', 'MtcCallTalkingNotification', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
+            window.lxpc.exebusinessaction('VideoConf', 'ReceiveVideoConfStatus', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
 
                 if (status == 0) {
                     console.log('接收状态回调')
@@ -1810,7 +1810,7 @@
                                 callType = 1
                             }
                         }
-                    }else if(data.statusName=='MtcCallIncomingNotification'){//监听是语音还是视频
+                    }else if(data.statusName=='MtcCallTalkingNotification'){//监听是语音还是视频
                         if(initData.flag=='videocaller'){
                             if(data.statusParam.isVideo==1){
                                 video.show()
