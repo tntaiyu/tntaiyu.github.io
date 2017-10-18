@@ -1801,6 +1801,7 @@
                         if (data.statusParam.MtcCallVideoStatusKey == 0x636F6666) {//关闭摄像头
                             callType = 2
                             vdo_l_bac.show();
+                            console.log('MtcCallVideoReceiveStatusChangedNotification==============')
                             vdo_l_bac.find('.vdo_tip').html('语音中')
                             video.hide()
                         } else {
@@ -1817,11 +1818,13 @@
                         if(initData.flag=='videocaller'){
                             console.log('主叫====================')
                             if(data.statusParam.isVideo==1){
+                                console.log('打开视频=============================')
                                 video.show()
                                 vdo_l_bac.hide();
                                 callType = 1
                             }else{
                                 callType = 2
+                                console.log('打开语音=============================')
                                 vdo_l_bac.show();
                                 vdo_l_bac.find('.vdo_tip').html('语音中')
                                 video.hide()
