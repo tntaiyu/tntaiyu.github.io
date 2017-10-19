@@ -927,6 +927,7 @@
 
                     var tmpdata = JSON.parse(jsondata);
                     initData = JSON.parse(jsondata);
+                    console.log('初始化数据================================')
                     console.log(initData);
                     var peerDialogId = tmpdata['dialogId']
                     var nflag = tmpdata['flag']
@@ -935,10 +936,8 @@
                     if (nflag == 'qun_videomeetingcaller' || nflag == 'to_be_videomeetingcalled') {//发起群会议
                         qunVideoConf(nflag)
                     } else {
-                        initSetting(nflag);
-
+//                        initSetting(nflag);
                         if (nflag == 'videocaller') {//个人发起
-                            $('.vdo_invite').hide()
 
 //                            VideoCall(tmpparm)
 //                            openMedia();
@@ -948,51 +947,25 @@
                             })
 
                         } else {//个人被叫
-
-                            $('.vdo_invite').show();
-                            $('.vdo_iB_btn1')[0].onclick = function () {//拒绝接听
-                                my_layer({message: '是否拒绝接听视频'}, 'confirm', function () {
-                                    var parm = {userUniId: peerDialogId, opCode: '1'}
-                                    ResponseVideoCall(parm, 1)
-                                    return;
-                                }, function () {
-                                    callType = 1
-                                    loadJuFeng().then(function (data) {
-                                        openMedia(data);
-                                        var parm = {userUniId: peerDialogId, opCode: '0', callType: 1}
-                                        ResponseVideoCall(parm)//相应被叫
-
-                                    })
-                                })
-
-                            }
-                            $('.vdo_iB_btn2')[0].onclick = function () {//接听
-                                loadJuFeng().then(function (data) {
-                                    openMedia(data);
-                                    var parm = {userUniId: peerDialogId, opCode: '0', callType: 1}
-                                    ResponseVideoCall(parm)//相应被叫
-
-                                })
+                            console.log('被叫======================================')
+                            if(initData.callType==1){//正常接听
                                 callType = 1
+                            }else if(initData.callType==2){//语音接听
+                                callType = 2
 
                             }
-
-                            $('.vdo_iB_bZ').click(function () {//语音接听
-
-                                type = 1;
-
-                                $('.vdo_btn_camera').addClass('on').attr('title','打开摄像头')
-                                loadJuFeng().then(function (data) {
-                                    var parm = {userUniId: peerDialogId, opCode: '0', callType: 2}
+                            loadJuFeng().then(function (data) {
+                                    var parm = {userUniId: peerDialogId, opCode: '0', callType:callType}
                                     ResponseVideoCall(parm)//相应被叫
                                     openMedia(data);
                                 })
+                            if(callType === 2){
                                 var myvideo = $('.vdo_l .vdo_out');
                                 myvideo.find('.vdo_l_bac').show()
                                 myvideo.find('video').hide()
                                 $('.vdo_r_callOutD').html('视频连接中...')
-                                callType = 2
-                            })
+                                $('.vdo_btn_camera').addClass('on').attr('title','打开摄像头')
+                            }
 
                             ReceiveVideoConfStatus();//注册回调对方对视频会议的操作
                         }
@@ -1813,14 +1786,13 @@
                         }
                     }else if(data.statusName=='MtcCallTalkingNotification'){//监听是语音还是视频
                         console.log('监听是语音还是视频========================')
-                        console.log(initData.flag)
-                        console.log(initData)
                         if(initData.flag=='videocaller'){
                             console.log('主叫====================')
                             if(data.statusParam.isVideo==1){
                                 console.log('打开视频=============================')
                                 video.show()
                                 vdo_l_bac.hide();
+                                vdo_l_bac.find('.vdo_tip').html('连接中')
                                 callType = 1
                             }else{
                                 callType = 2
@@ -1830,8 +1802,12 @@
                                 video.hide()
                             }
                         }
+                    }else if (data.statusName=='NotifyCancelledVideoCall'){//监听视频在接通之前对方挂断
+                        console.log('对方挂断======================')
+                        if(data.statusParam.callType==0){
+                            vdo_l_bac.find('.vdo_tip').html('对方挂断')
+                        }
                     }
-
 
                 } else {
                     my_layer({message: '错误码' + status}, 'error')
@@ -1881,60 +1857,61 @@
 
     function initSetting(type) {
 
-        initData.memberList = [];
+//        initData.memberList = [];
         $('vdo_lD').data('index', 0)
 
-        var parm = {userUniId: initData.dialogId, dialogType: 2, orgDomain: initData.orgDomain};
-        senderId += 1
-
-        QuerySenderInfo(parm, senderId).then(function (result) {
-            var data = result.info,
-                    targ = result.index;
-
-            if (Object.prototype.toString.call(data) == '[object Array]') {
-                if (data.length > 0) {
-                    initData.memberList = initData.memberList.concat(data)
-                    var item = data[0];
-                    var name = item.name,
-                            branch = item.branchPath;
-
-                    $('.main_branch').html(branch)
-                    $('.main_name').html(name);
-                    if (type !== 'videocaller') {//发起者
-                        var parm = {resourceList: [{photoResId: item.photoResId}], size: 96}
-                        imgList[targ] = $('.vdo_invite_t img')
-
-                        var handle = 'HeaderImage'
-                        getImge(parm, handle, targ).then(function (data) {
-                            var targ = data.index
-                            var $img = imgList[targ];
-                            $img.attr('src', data.path).error(function () {
-                                this.src = 'images/card_icon.png'
-                            })
-
-
-                        })
-                    }
-
-
-                }
-
-            }
-
-        })
+//        var parm = {userUniId: initData.dialogId, dialogType: 2, orgDomain: initData.orgDomain};
+//        senderId += 1
+//
+//        QuerySenderInfo(parm, senderId).then(function (result) {
+//            var data = result.info,
+//                    targ = result.index;
+//
+//            if (Object.prototype.toString.call(data) == '[object Array]') {
+//                if (data.length > 0) {
+//                    initData.memberList = initData.memberList.concat(data)
+//                    var item = data[0];
+//                    var name = item.name,
+//                            branch = item.branchPath;
+//
+//                    $('.main_branch').html(branch)
+//                    $('.main_name').html(name);
+//                    if (type !== 'videocaller') {//发起者
+//                        var parm = {resourceList: [{photoResId: item.photoResId}], size: 96}
+//                        imgList[targ] = $('.vdo_invite_t img')
+//
+//                        var handle = 'HeaderImage'
+//                        getImge(parm, handle, targ).then(function (data) {
+//                            var targ = data.index
+//                            var $img = imgList[targ];
+//                            $img.attr('src', data.path).error(function () {
+//                                this.src = 'images/card_icon.png'
+//                            })
+//
+//
+//                        })
+//                    }
+//
+//
+//                }
+//
+//            }
+//
+//        })
 
 
     }
 
     //登录菊峰
     function loadJuFeng() {
-
+console.log('登陆菊峰===================================')
         return new Promise(function (resolve, reject) {
             var parm = {}
             window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                 if (status == 0) {
                     window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
                         if (status == 0) {
+                            console.log('登陆成功=============================================')
                             resolve(jsondata)
                         }
                         else {
