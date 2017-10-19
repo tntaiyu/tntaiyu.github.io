@@ -1807,6 +1807,13 @@
                         if(data.statusParam.callType==0){
                             vdo_l_bac.find('.vdo_tip').html('对方挂断')
                         }
+                    }else if (data.statusName=='closeWnd'){//菜单栏关闭蓝信程序使得推出视频
+                        console.log('菜单栏关闭蓝信程序使得推出视频========================================')
+                        if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
+                            var parm = {userUniId: initData.dialogId, callType: callType}
+                            CancelVideoCall(parm)
+                        }
+                        TerminateVideoConf()
                     }
 
                 } else {
