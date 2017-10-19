@@ -981,7 +981,7 @@
 
                                 type = 1;
 
-                                $('.vdo_btn_camera').addClass('on')
+                                $('.vdo_btn_camera').addClass('on').attr('title','打开摄像头')
                                 loadJuFeng().then(function (data) {
                                     var parm = {userUniId: peerDialogId, opCode: '0', callType: 2}
                                     ResponseVideoCall(parm)//相应被叫
@@ -1400,7 +1400,7 @@
     //绑定视频信息
     function bindVideo(Handel, oVideo, mainVideo) {
         navigator.getUserMedia({
-            audio: false,
+            audio: true,
             video: {
                 mandatory: {
                     chromeMediaSource: 'desktop',
