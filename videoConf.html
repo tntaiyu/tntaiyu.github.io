@@ -521,8 +521,8 @@
                     </div>
 
                     <div class="vdo_r_t">
-                        <h3 class="main_name">赵晨威</h3>
-                        <p class="main_branch">企业安全-产品部</p>
+                        <h3 class="main_name"></h3>
+                        <p class="main_branch"></p>
                     </div>
                     <i class="vdo_l_mute disN"></i>
                     <div class="vdo_r_callOutD">正在呼叫…</div>
@@ -936,7 +936,7 @@
                     if (nflag == 'qun_videomeetingcaller' || nflag == 'to_be_videomeetingcalled') {//发起群会议
                         qunVideoConf(nflag)
                     } else {
-//                        initSetting(nflag);
+                        initSetting(nflag);
                         if (nflag == 'videocaller') {//个人发起
 
 //                            VideoCall(tmpparm)
@@ -1864,47 +1864,31 @@
 
     function initSetting(type) {
 
-//        initData.memberList = [];
+        initData.memberList = [];
         $('vdo_lD').data('index', 0)
 
-//        var parm = {userUniId: initData.dialogId, dialogType: 2, orgDomain: initData.orgDomain};
-//        senderId += 1
-//
-//        QuerySenderInfo(parm, senderId).then(function (result) {
-//            var data = result.info,
-//                    targ = result.index;
-//
-//            if (Object.prototype.toString.call(data) == '[object Array]') {
-//                if (data.length > 0) {
-//                    initData.memberList = initData.memberList.concat(data)
-//                    var item = data[0];
-//                    var name = item.name,
-//                            branch = item.branchPath;
-//
-//                    $('.main_branch').html(branch)
-//                    $('.main_name').html(name);
-//                    if (type !== 'videocaller') {//发起者
-//                        var parm = {resourceList: [{photoResId: item.photoResId}], size: 96}
-//                        imgList[targ] = $('.vdo_invite_t img')
-//
-//                        var handle = 'HeaderImage'
-//                        getImge(parm, handle, targ).then(function (data) {
-//                            var targ = data.index
-//                            var $img = imgList[targ];
-//                            $img.attr('src', data.path).error(function () {
-//                                this.src = 'images/card_icon.png'
-//                            })
-//
-//
-//                        })
-//                    }
-//
-//
-//                }
-//
-//            }
-//
-//        })
+        var parm = {userUniId: initData.dialogId, dialogType: 2, orgDomain: initData.orgDomain};
+        senderId += 1
+
+        QuerySenderInfo(parm, senderId).then(function (result) {
+            var data = result.info,
+                    targ = result.index;
+
+            if (Object.prototype.toString.call(data) == '[object Array]') {
+                if (data.length > 0) {
+                    initData.memberList = initData.memberList.concat(data)
+                    var item = data[0];
+                    var name = item.name,
+                            branch = item.branchPath;
+
+                    $('.main_branch').html(branch)
+                    $('.main_name').html(name);
+
+                }
+
+            }
+
+        })
 
 
     }
