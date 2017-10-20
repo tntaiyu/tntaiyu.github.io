@@ -1217,15 +1217,13 @@
     }
     //绑定视频信息
     function bindVideo(Handel, oVideo, mainVideo) {
-        console.log('句柄=========================')
-        console.log(Handel)
+
         navigator.getUserMedia({
             audio: false,
             video: {
                 mandatory: {
                     chromeMediaSource: 'desktop',
-                    chromeMediaSourceId: 'window:65706:0',
-//                    chromeMediaSourceId: 'window:' + Handel + ':0',
+                    chromeMediaSourceId: 'window:' + Handel + ':0',
 //                                        minAspectRatio: 1.333, maxAspectRatio: 1.334,
 //                                        aspectRatio: 1.3333333333,
 //                                        minWidth: 143.333,
