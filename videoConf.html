@@ -1372,52 +1372,70 @@
 
     //绑定视频信息
     function bindVideo(Handel, oVideo, mainVideo) {
-        navigator.getUserMedia({
-            audio: false,
-            video: {
-                mandatory: {
-                    chromeMediaSource: 'desktop',
-                    chromeMediaSourceId: 'window:' + Handel + ':0',
-//                                        minAspectRatio: 1.333, maxAspectRatio: 1.334,
-//                                        aspectRatio: 1.3333333333,
-//                                        minWidth: 143.333,
-//                                        minHeight: 107.5,
-//                                        maxWidth: 4000,
-//                                        maxHeight: 3000,
-//                                        minAspectRatio:1.3333, maxAspectRatio: 1.3334
-//                                        aspectRatio: 1.3333333333
-                },
-                optional: [],
-//                                width: {min: 1024, ideal: 1280, max: 1920},
-//                                height: {min: 776, ideal: 720, max: 1080}
-//                                    width: 108,
-//                                    height:143.333,
-//                                aspectRatio: 1.3333333333
-
-
-            }
-        }, function (stream) {
-            oVideo.load(function (e) {
-                window.URL.revokeObjectURL(this.src); // 清除释放
-
-                if (this.classList.contains('vdo_r_callOut')) {
-                    var ocall = document.querySelector('.vdo_r_callOutD')
-                    ocall.style.display = 'none';
-                    oVideo.data('wnd', Handel)
-                }
-            })
-
-            oVideo.src = window.URL.createObjectURL(stream);
-
-            if (mainVideo) {
-                var ocall = document.querySelector('.vdo_r_callOutD')
-                ocall.style.display = 'none';
-            }
+//        navigator.getUserMedia({
+//            audio: false,
+//            video: {
+//                mandatory: {
+//                    chromeMediaSource: 'desktop',
+//                    chromeMediaSourceId: 'window:' + Handel + ':0',
+////                                        minAspectRatio: 1.333, maxAspectRatio: 1.334,
+////                                        aspectRatio: 1.3333333333,
+////                                        minWidth: 143.333,
+////                                        minHeight: 107.5,
+////                                        maxWidth: 4000,
+////                                        maxHeight: 3000,
+////                                        minAspectRatio:1.3333, maxAspectRatio: 1.3334
+////                                        aspectRatio: 1.3333333333
+//                },
+//                optional: [],
+////                                width: {min: 1024, ideal: 1280, max: 1920},
+////                                height: {min: 776, ideal: 720, max: 1080}
+////                                    width: 108,
+////                                    height:143.333,
+////                                aspectRatio: 1.3333333333
 //
-        }, function () {
+//
+//            }
+//        }, function (stream) {
+//            oVideo.load(function (e) {
+//                window.URL.revokeObjectURL(this.src); // 清除释放
+//                if (this.classList.contains('vdo_r_callOut')) {
+//                    var ocall = document.querySelector('.vdo_r_callOutD')
+//                    ocall.style.display = 'none';
+//                    oVideo.data('wnd', Handel)
+//                }
+//            })
+//            console.log('数据流=========================')
+//console.log(window.URL.createObjectURL(stream))
+//console.log(decodeURI(window.URL.createObjectURL(stream)))
+//console.log(encodeURI(window.URL.createObjectURL(stream)))
+//            oVideo.src = window.URL.createObjectURL(stream);
+//
+//            if (mainVideo) {
+//                var ocall = document.querySelector('.vdo_r_callOutD')
+//                ocall.style.display = 'none';
+//            }
+////
+//        }, function () {
+//
+//            console.log('Error, Screen stream is not available.')
+//        })
 
-            console.log('Error, Screen stream is not available.')
-        })
+        var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        getUserMedia.call(navigator, {
+            video: true,
+            audio: true
+        }, function(localMediaStream) {
+
+            console.log(localMediaStream)
+//            var ocall = document.querySelector('.vdo_r_callOutD')
+//            var video = document.getElementById('video');
+            oVideo.src = window.URL.createObjectURL(localMediaStream);
+
+        }, function(e) {
+            console.log('Reeeejected!', e);
+        });
+
 
     }
     //接收视频信息
