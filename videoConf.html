@@ -319,12 +319,18 @@
             //点击关闭按钮退出视频
             ReceiveIframeWebCall1('LxVideoConf')
             $(".vdo_btn_quit").click(function () {
+                console.log('登陆菊峰失败==================================='+error.Jufeng)
                 my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                    if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
-                        var parm = {userUniId: initData.dialogId, callType: callType}
-                        CancelVideoCall(parm)
+                    if(error.Jufeng){
+                        window.lxpc.closewnd();
+                    }else {
+                        if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
+                            var parm = {userUniId: initData.dialogId, callType: callType}
+                            CancelVideoCall(parm)
+                        }
+                        TerminateVideoConf()
                     }
-                    TerminateVideoConf()
+
                 })
             })
         })
@@ -848,7 +854,7 @@
 </html>
 
 <script>
-    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {}, settinginfos = {}, callType = 1;
+    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {}, settinginfos = {}, callType = 1, error={};
     //callType 记录会话的状态
     $(function () {
         var parm = {};
@@ -1653,24 +1659,32 @@
         console.log('登陆菊峰===================================')
         return new Promise(function (resolve, reject) {
             var parm = {}
-            window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-                if (status == 0) {
-                    window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
-                        if (status == 0) {
-                            console.log('登陆成功=============================================')
-                            resolve(jsondata)
-                        }
-                        else {
-                            console.log(status)
-                            reject(status)
-                        }
-                    })
-                }
-                else {
-                    console.log(status)
-                    reject(status)
-                }
-            })
+            try {
+                window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
+                    if (status == 0) {
+                        window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
+                            if (status == 0) {
+                                console.log('登陆成功=============================================')
+                                resolve(jsondata)
+                            }
+                            else {
+                                console.log(status)
+                                error.Jufeng=true
+                                reject(status)
+                            }
+                        })
+                    }
+                    else {
+                        console.log(status)
+                        error.Jufeng=true
+                        reject(status)
+                    }
+                })
+            }catch (e) {
+                error.Jufeng=true;
+                reject(e.message)
+            }
+
         })
     }
     //接受主页面的操作和数据
