@@ -1692,12 +1692,18 @@
         try {
             window.lxpc.exebusinessaction(handle, 'ReceiveIframeWebCall', '0', JSON.stringify({}), 0, function (status, result, targ) {
                 if (status == 0) {
+                    console.log('Iframe ====主页面关闭--------------'+ error.Jufeng)
+                    console.log(result);
                     my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                        if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
-                            var parm = {userUniId: initData.dialogId, callType: callType}
-                            CancelVideoCall(parm)
+                        if(error.Jufeng){
+                            window.lxpc.closewnd();
+                        }else {
+                            if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
+                                var parm = {userUniId: initData.dialogId, callType: callType}
+                                CancelVideoCall(parm)
+                            }
+                            TerminateVideoConf()
                         }
-                        TerminateVideoConf()
                     })
                 }else {
                 }
