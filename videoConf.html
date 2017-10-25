@@ -321,7 +321,7 @@
             $(".vdo_btn_quit").click(function () {
                 console.log('登陆菊峰失败==================================='+error.Jufeng)
                 my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                    if(error.Jufeng){
+                    if(!error.Jufeng){
                         window.lxpc.closewnd();
                     }else {
                         if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
@@ -854,7 +854,7 @@
 </html>
 
 <script>
-    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {}, settinginfos = {}, callType = 1, error={};
+    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {}, settinginfos = {}, callType = 1, error={Jufeng:false};
     //callType 记录会话的状态
     $(function () {
         var parm = {};
@@ -1695,7 +1695,7 @@
                     console.log('Iframe ====主页面关闭--------------'+ error.Jufeng)
                     console.log(result);
                     my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                        if(error.Jufeng){
+                        if(!error.Jufeng){
                             window.lxpc.closewnd();
                         }else {
                             if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
