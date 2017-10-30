@@ -237,6 +237,8 @@
                     type = 0
                     this.title = '关闭摄像头'
                 }
+                console.log(parm);
+                console.log('控制摄像头================')
                 ControlVideo(parm).then(function (data) {
                     if (data == 0) {
                         var $tem = $(".vdo_btn_camera")
@@ -321,7 +323,7 @@
             $(".vdo_btn_quit").click(function () {
                 console.log('登陆菊峰失败==================================='+error.Jufeng)
                 my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                    if(!error.Jufeng){
+                    if(error.Jufeng){
                         window.lxpc.closewnd();
                     }else {
                         if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
@@ -889,7 +891,9 @@
                             }
                             loadJuFeng().then(function (data) {
                                 var parm = {userUniId: peerDialogId, opCode: '0', callType:callType}
-                                ResponseVideoCall(parm)//相应被叫
+                                console.log('语音接听参数========');
+                                console.log(parm)
+                                ResponseVideoCall(parm)//响应被叫
                                 openMedia(data);
                             })
                             if(callType === 2){
@@ -996,13 +1000,15 @@
 //        else {
         window.lxpc.exebusinessaction('VideoConf', 'OpenVideo', '0', jsondata, 0, function (status, jsondata, targ) {
             if (status == 0) {
-                if (type == 1) {
+                if (callType == 2) {
                     var parm = {
                         action: "stop",
                         wnd: initData.ownerWnd,
                         videoId: initData.videoId,
-                        sessionId: initData.sessionId
+                        sessionId: initData.sessionId || 0
                     }
+                    console.log('关闭自己视频========')
+                    console.log(parm)
                     ControlVideo(parm).then(function (data) {
                     })
                 }
@@ -1274,11 +1280,13 @@
                     window.URL = window.URL || window.webkitURL;
                     console.log('ReceiveVideoCallResult--------------------')
                     console.log('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
+                    console.log(data)
 //                    var parm = {getImgWnd: data.ownerWnd}
                     initData.peerWnd = data.peerWnd
                     initData.sessionId = data.sessionId//添加新的字段 sesstionId用于关闭和打开视频
+                    console.log(initData)
                     var peerVideo = document.querySelector('.vdo_r_callOut')
-                    bindVideo(data.peerWnd, peerVideo, true)
+                    bindVideo(data.peerWnd, peerVideo,true)
                     $('.vdo_r .vdo_out').addClass('wnd_' + data.peerWnd);
                 } else {
                     console.log(status)
@@ -1401,45 +1409,7 @@
             $('.vdo_invite_hint').show();
         }
     }
-    //    function openMedia() {
-    //        var parm = {}
-    //        window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-    //            if (status == 0) {
-    //                window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
-    //                    if (status == 0) {
-    //                        console.log(jsondata)
-    //
-    //                        var data = JSON.parse(jsondata);
-    //                        initData.ownerWnd = data.ownerWnd;
-    //                        initData.peerWnd = data.peerWnd;
-    //                        initData.videoId = (data.cameraInfo && data.cameraInfo.length > 0) ? data.cameraInfo[0].devId : null;
-    //                        var ownVideo = document.querySelector('.vdo_l_video');
-    //                        bindVideo(data.ownerWnd, ownVideo);
-    //                        var vdo_me = $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd);
-    //
-    ////打开视频和音频
-    //                        playMedia(jsondata)
-    //                        var data = JSON.parse(jsondata)
-    //                        settinginfos=data
-    //                        //绑定获取的可用设备
-    //                        multimediaSeting(data)
-    //                        if (data.audioOutputInfo && data.audioOutputInfo.length > 0) {
-    //                            $('.vdo_invite_hint').hide();
-    //                        } else {
-    //                            $('.vdo_invite_hint').show();
-    //                        }
-    //
-    //                    }
-    //                    else {
-    //                        console.log(status)
-    //                    }
-    //                })
-    //            }
-    //            else {
-    //                console.log(status)
-    //            }
-    //        })
-    //    }
+
     //    1.	打开或关闭视频
     function ControlVideo(parm) {
         return new Promise(function (resolve, reject) {
@@ -1448,11 +1418,11 @@
                     if (status == 0) {
                         resolve(status)
                     } else {
-                        reject(null)
+                        reject(status)
                     }
                 })
             } catch (e) {
-                reject(null)
+                reject(e.message)
                 console.log(e.message)
             }
         })
@@ -1502,6 +1472,8 @@
         }
 //        if (initData.sessionId) {
         var parm = {sessionId: initData.sessionId}
+        console.log(parm)
+        console.log('推出参数==================================')
         try {
             window.lxpc.exebusinessaction('VideoConf', 'TerminateVideoConf', '0', JSON.stringify(parm), 0, function (status, result, targ) {
                 if (status == 0) {
@@ -1695,7 +1667,7 @@
                     console.log('Iframe ====主页面关闭--------------'+ error.Jufeng)
                     console.log(result);
                     my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                        if(!error.Jufeng){
+                        if(error.Jufeng){
                             window.lxpc.closewnd();
                         }else {
                             if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
