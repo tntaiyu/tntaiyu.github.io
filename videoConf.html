@@ -1522,17 +1522,14 @@
                             vdo_l_bac = $filter.find('.vdo_l_bac'),
                             video = $filter.find('video');
                     var data = JSON.parse(jsondata)
-                    console.log(vdo_l_bac)
-                    console.log(video)
-                    console.log(vdo_l_bac.find('.vdo_tip'))
-                    console.log(initData)
+
                     if (data.statusName == 'MtcCallTermedNotification') {//对方断开断开
                         vdo_l_bac.show().find('.vdo_tip').html('通话已结束');
                         video.hide();
                         window.URL.revokeObjectURL(video.attr('src')); // 清除释放
-//                        setTimeout(function () {
-//                            window.lxpc.closewnd();
-//                        }, 1000)
+                        setTimeout(function () {
+                            window.lxpc.closewnd();
+                        }, 2000)
                     } else if (data.statusName == 'MtcCallVideoReceiveStatusChangedNotification') {
                         if (data.statusParam.MtcCallVideoStatusKey == 0x636F6666) {//关闭摄像头
                             callType = 2
