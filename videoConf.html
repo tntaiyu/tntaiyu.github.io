@@ -882,6 +882,16 @@
                                 VideoCall(tmpparm);
                                 openMedia(data)
                             })
+
+                            setTimeout(function(){
+                               if (!initData.getSuccess){
+                                   $('.vdo_r_callOutD').html('对方正忙,请稍后再拨...')
+                                   setTimeout(function(){
+                                       TerminateVideoConf()
+                                   },3000)
+                               }
+                            },30000)
+
                         } else {//个人被叫
                             console.log('被叫======================================')
                             if(initData.callType==1){//正常接听
@@ -928,6 +938,7 @@
                 console.log(jsondata)
                 console.log('发起会议===============================')
                 var data = JSON.parse(jsondata)
+                initData.getSuccess=true;
                 //0=接受；1=拒绝；2=占线；3=超时;4=不在线;5=不支持（PMC关闭）；6=版本不支持
                 if (data.opCode == 0) {
                     var parm = {sendUserUniId: initData.curUserUniID, recUserUniId: initData.dialogId}
