@@ -993,7 +993,12 @@
                             tip = '未知错误'
                             break;
                     }
-                    my_layer({message: tip}, 'warn')
+                    my_layer({message: tip}, 'warn',function(){
+                        setTimeout(function(){
+                            TerminateVideoConf();
+                        },2000)
+
+                    })
                     $('.vdo_r_callOutD').html(tip)
                 }
             }
