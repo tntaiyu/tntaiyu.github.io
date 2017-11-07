@@ -237,8 +237,7 @@
                     type = 0
                     this.title = '关闭摄像头'
                 }
-                console.log(parm);
-                console.log('控制摄像头================')
+
                 ControlVideo(parm).then(function (data) {
                     if (data == 0) {
                         var $tem = $(".vdo_btn_camera")
@@ -257,6 +256,24 @@
             //调节音量
             $(".vdo_btn_mute").click(function () {
                 closeOrOpen(this)
+                var audioInputId = initData.audioInputId
+                if(this.classList.contains('on')){//静音
+                    if (audioInputId) {
+                        var parm = {action: "volume", audioInputId: audioInputId, volumePercent: 0}
+                        ControlAudio(parm).then(function (data) {
+                        })
+                    }
+                }else{
+                    if (audioInputId) {
+
+                        var  vert = document.querySelector('.js-vertical');
+
+                        var parm = {action: "volume", audioInputId: audioInputId, volumePercent: parseInt(vert.value)}
+                        ControlAudio(parm).then(function (data) {
+                        })
+                    }
+                }
+
             })
             //设置
             $(".vdo_btn_set").click(function (e) {
@@ -1107,7 +1124,7 @@
                     juFengId: initData.juFengId,
                     userUniId: initData.toUserUniId
                 }
-                console.log(parm)
+
                 videoQunCalled(parm, 1)
                 return;
 //                                var parm={userUniId: peerDialogId,opCode:'1'}
@@ -1115,9 +1132,7 @@
             }
             //接受
             $('.vdo_iB_btn2')[0].onclick = function () {
-                console.log(initData)
-                console.log('kkkkkkkkkkkkkkkkkkkk--------------------')
-                debugger;
+
                 var parm = {
                     dialogId: initData.dialogId,
                     opCode: '0',
@@ -1176,7 +1191,6 @@
                 window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
                     if (status == 0) {
 //                        ResponseVideoMeeting响应被叫群视频会议
-                        console.log('ffffffffffffffffffffffffffffff')
                         console.log(jsondata)
                         if (opCode == 0) {
                             initData.displayName = '蓝信视频会议';
@@ -1185,7 +1199,6 @@
                             try {
                                 window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
                                     if (status == 0) {
-                                        console.log('ggggggggggggggggggggggggggggggggg---------------------------------')
                                         ResponseVideoMeeting(parm)
                                     }
                                 })
@@ -1291,12 +1304,10 @@
                     var data = JSON.parse(jsondata);
                     window.URL = window.URL || window.webkitURL;
                     console.log('ReceiveVideoCallResult--------------------')
-                    console.log('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
                     console.log(data)
 //                    var parm = {getImgWnd: data.ownerWnd}
                     initData.peerWnd = data.peerWnd
                     initData.sessionId = data.sessionId//添加新的字段 sesstionId用于关闭和打开视频
-                    console.log(initData)
                     var peerVideo = document.querySelector('.vdo_r_callOut')
                     bindVideo(data.peerWnd, peerVideo,true)
                     $('.vdo_r .vdo_out').addClass('wnd_' + data.peerWnd);
@@ -1443,6 +1454,7 @@
     }
     //    1.	2.	打开或关闭音频，调整音量
     function ControlAudio(parm) {
+        console.log(parm);
         return new Promise(function (resolve, reject) {
 //        var parm={action:stop/start/volume”, ”audioInputId”:"",volumePercent:0-100}
             try {
@@ -1663,7 +1675,6 @@
             window.lxpc.exebusinessaction(handle, 'ReceiveIframeWebCall', '0', JSON.stringify({}), 0, function (status, result, targ) {
                 if (status == 0) {
                     console.log('Iframe ====主页面关闭--------------'+ error.Jufeng)
-                    console.log(result);
                     my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
                         if(error.Jufeng){
                             window.lxpc.closewnd();
