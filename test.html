@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+    <video id="video" style="width: 200px;height: 200px ; border: 3px solid #00a7d0;margin: auto; display: block" controls autoplay volume>
+
+    </video>
+
+
+</body>
+</html>
+<script>
+
+    window.onload=function(){
+
+        var oVideo=document.getElementById('video')
+        navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.getUserMedia;
+        navigator.getUserMedia({
+            audio: false,
+//            video: true,
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'desktop',
+//                    chromeMediaSourceId: 'window:65706:0',
+                    chromeMediaSourceId: 'window:65680:0',
+                },
+                optional: [],
+            }
+        }, function (stream) {
+            oVideo.load(function (e) {
+                window.URL.revokeObjectURL(this.src); // 清除释放
+
+            })
+            console.log('数据流=========================')
+            console.log(window.URL.createObjectURL(stream))
+            oVideo.src = window.URL.createObjectURL(stream);
+
+        }, function () {
+
+            console.log('Error, Screen stream is not available.')
+        })
+    }
+
+</script>
