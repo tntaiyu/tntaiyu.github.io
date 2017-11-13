@@ -49,14 +49,25 @@
         })
         var myscroll3 = null;
         //控制音量
+
         $(function () {
 //音量
-            var initVert = null;
+            var initVert = null, step;
             var vert = document.querySelector('.js-vertical');
+            var $btn_mute=$('.vdo_btn_mute')
             $('.volume_con').hover(function () {
+                console.log(this.querySelector('.vdo_btn_mute').classList.contains('on'))
+                console.log('ttttttttttttttttt')
+                if(this.querySelector('.vdo_btn_mute').classList.contains('on')){
+                    return;
+                }
                 $('.volume_div').show()
                 if (!initVert) {
                     initVert = new Powerange(vert, {start: 80, vertical: true});
+                    var option = initVert.options;
+//                    var slider = initVert.slider;
+                    var handel = initVert.handle;
+                    step=(initVert.slider.offsetHeight - handel.offsetHeight) / (option.max - option.min);
                 }
             }, function () {
                 $('.volume_div').hide()
@@ -84,7 +95,11 @@
                     ControlAudio(parm).then(function (data) {
                     })
                 }
+                if(volume<=step){
+                    $btn_mute.removeClass('on')
+                }
             })
+
             $('.volume_minus').bind('click', function () {//减少声音
                 vert.value ? vert.value : 0
                 var option = initVert.options;
@@ -108,6 +123,12 @@
                     ControlAudio(parm).then(function (data) {
                     })
                 }
+                if(volume==0){
+                    $btn_mute.addClass('on')
+                }else if(volume<=step){
+                    $btn_mute.removeClass('on')
+                }
+
             })
             vert.onchange = function () {
                 var clum = parseFloat(this.value);
@@ -117,6 +138,11 @@
                     var parm = {action: "volume", audioInputId: audioInputId, volumePercent: volume}
                     ControlAudio(parm).then(function (data) {
                     })
+                }
+                if(volume==0){
+                    $btn_mute.addClass('on')
+                }else if(volume<=step){
+                    $btn_mute.removeClass('on')
                 }
             }
             //右侧成员列表 显示/隐藏
@@ -162,10 +188,8 @@
                     $(this).attr("title", "打开视频");
                 }
             })
-        })
-        //缺少设备 显示/隐藏
-        $(function () {
-//静音
+
+            //调节麦克风
             $(".vdo_btn_mic").click(function () {
                 if (this.classList.contains('no')) {
                     return
@@ -257,16 +281,25 @@
             $(".vdo_btn_mute").click(function () {
                 closeOrOpen(this)
                 var audioInputId = initData.audioInputId
+                var vert = document.querySelector('.js-vertical');
                 if (this.classList.contains('on')) {//静音
                     if (audioInputId) {
                         var parm = {action: "volume", audioInputId: audioInputId, volumePercent: 0}
                         ControlAudio(parm).then(function (data) {
                         })
+
+                        var slider = initVert.slider;
+                        var handel = initVert.handle;
+                        var obtm = slider.querySelector('.range-quantity')
+//                        var step = (initVert.slider.offsetHeight - handel.offsetHeight) / (option.max - option.min);
+                        vert.value = 0;
+                        handel.style.bottom = 0 + 'px';
+                        obtm.style.height = 0 + 'px';
+
                     }
+                    vert.value=0;
                 } else {
                     if (audioInputId) {
-
-                        var vert = document.querySelector('.js-vertical');
 
                         var parm = {action: "volume", audioInputId: audioInputId, volumePercent: parseInt(vert.value)}
                         ControlAudio(parm).then(function (data) {
@@ -333,6 +366,10 @@
                 }
             }
         })
+        //缺少设备 显示/隐藏
+        $(function () {
+
+        })
         //退出
         $(function () {
             //点击关闭按钮退出视频
@@ -343,7 +380,7 @@
                 if(initData.isXP){
                     var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
                     ConfirmMsgBox(parm).then(function (data) {
-                        if (data == 0) {//拒绝
+                        if (data == '0') {//同意
                             if (error.Jufeng) {
                                 window.lxpc.closewnd();
                             } else {
@@ -793,7 +830,7 @@
                 <a href="javascript:;" class="vdo_btn_set" title="设置"><i></i></a>
                 <a href="javascript:;" class="vdo_btn_member on " style="display: none"><i></i><em>5/6</em></a>
             </div>
-            <div class="vdo_btn_r"><a href="javascript:;" class="vdo_btn_quit"><i></i>退出</a></div>
+            <div class="vdo_btn_r"><span class="vdo_time" id="vdo_time">00:00</span><a href="javascript:;" class="vdo_btn_quit"><i></i>退出</a></div>
             <div class="vdo_btn_l disN">
                 <a href="javascript:;" class="vdo_btn_lack" id="vdo_btn_lack"><i></i>缺少设备</a>
                 <div class="vdo_btn_lD" id="vdo_btn_lD"><h4>未检测到摄像头、话筒、扬声器</h4>
@@ -1335,6 +1372,8 @@
                     var peerVideo = document.querySelector('.vdo_r_callOut')
                     bindVideo(data.peerWnd, peerVideo, true)
                     $('.vdo_r .vdo_out').addClass('wnd_' + data.peerWnd);
+                   var oTime=document.getElementById('vdo_time')
+                    setTimer(oTime)
                 } else {
                     console.log(status)
                 }
@@ -1604,6 +1643,17 @@
                             CancelVideoCall(parm)
                         }
                         TerminateVideoConf()
+                    }else if(data.statusName == 'closeWnd'){//切换组织是关闭视频弹窗
+                        if (error.Jufeng) {
+                            window.lxpc.closewnd();
+                        } else {
+                            if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
+                                var parm = {userUniId: initData.dialogId, callType: callType}
+                                CancelVideoCall(parm)
+                            }
+                            TerminateVideoConf()
+                        }
+
                     }
                 } else {
                     my_layer({message: '错误码' + status}, 'error')
@@ -1710,7 +1760,7 @@
                         var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
 
                         ConfirmMsgBox(parm).then(function (data) {
-                            if (data == 0) {//拒绝
+                            if (data == '0') {//同意
                                 if (error.Jufeng) {
                                     window.lxpc.closewnd();
                                 } else {
@@ -1765,5 +1815,59 @@
         })
     }
 
+    //d定时器
+    function setTimer(oTime){
+        var value =0
+        var sec=0,min=0,h=0,result='00:00'
+        setInterval(function(){
+            value++;
+            if(value<60){
+                //result= '00:'+(value<10?('0'+value):value);
+                result= '00:'+ToDou(value);
+            }else if(value<60*60){
+                min=Math.floor(value/60);
+                sec=value%60;
+                result= ToDou(min)+':'+ToDou(sec)
+            }else{
+                h=Math.floor(value/(60*60));
+                min=Math.floor(value/(h*60));
+                sec=value%(min*60*60);
+
+                result= ToDou(h)+':'+ToDou(min)+':'+ToDou(sec);
+
+            }
+            oTime.innerHTML=result
+        },500)
+        function ToDou(n) {
+            var result= n >= 0 && n < 10 ? ("0" + n) : n;
+            return result;
+        }
+    }
+//生成消息接口
+    /**
+     *
+     * @param parm {sender：发送者userdialogid，messageType：视频会议=2，视频通话=1,dialogId:接收者userdialogid,message:消息内容，base64格式}
+     * @constructor
+     */
+    function GenerateVideoMessage(parm){
+        return new Promise(function (resolve, reject) {
+            try {
+                window.lxpc.exebusinessaction('VideoConf', 'GenerateVideoMessage', '0', JSON.stringify(parm), 0, function (status, result, targ) {
+                    if (status == 0) {
+                        var data = parseInt(result)
+                        resolve(data)
+
+                    } else {
+                        reject(status)
+                    }
+                })
+            } catch (e) {
+                reject(e.message)
+                console.log(e.message)
+            }
+
+
+        })
+    }
 
 </script>
