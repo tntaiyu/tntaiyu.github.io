@@ -508,12 +508,13 @@
 
                             </video>
                             <div class="vdo_l_bac disN">
-                                <div class="vdo_tip ">语音中</div>
+                                <div class="vdo_tip ">语音中</div>ing
                                 <div class="vdo_lBg_btn"></div>
 
                             </div>
                             <i class="vdo_l_mute disN"></i>
                             <div class="vdo_lD_b">我</div>
+                            <div class="vdo_r_callOutD">正在呼叫</div>
 
                         </div>
                     </div>
@@ -944,7 +945,6 @@
                     initData = JSON.parse(jsondata);
                     console.log('初始化数据================================')
                     console.log(jsondata)
-                    console.log(initData);
                     var peerDialogId = tmpdata['dialogId']
                     var nflag = tmpdata['flag']
                     var tmpparm = {userUniId: peerDialogId};
@@ -1355,21 +1355,16 @@
 //                                aspectRatio: 1.3333333333
             }
         }, function (stream) {
+
             oVideo.onload = function (e) {
                 window.URL.revokeObjectURL(this.src); // 清除释放
-                if (this.classList.contains('vdo_r_callOut')) {
-                    var ocall = document.querySelector('.vdo_r_callOutD')
-                    ocall.style.display = 'none';
-                    oVideo.data('wnd', Handel)
-                }
+                $(this).siblings('.vdo_r_callOutD').hide();
+                oVideo.data('wnd', Handel)
             }
 
             oVideo.src = window.URL.createObjectURL(stream);
-            if (mainVideo) {
-                var ocall = document.querySelector('.vdo_r_callOutD')
-                ocall.style.display = 'none';
-            }
-//
+            $(oVideo).siblings('.vdo_r_callOutD').hide();
+
         }, function () {
             console.log('Error, Screen stream is not available.')
         })
@@ -1377,6 +1372,7 @@
     //接收视频信息
     function ReceiveVideoCallResult() {
         var hasJoinList=[];
+        var index=0;
         try {
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveVideoCallResult', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
                 console.log('ReceiveVideoCallResult--------------------')
@@ -1385,9 +1381,15 @@
                     var nflg=initData.flag
                     var data = JSON.parse(jsondata);
                     if(nflg=='qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled'){//视频会议
-                   var peerVideo= $('.vdo_l .vdo_lD[id="'+data.userUniID+'"] ')
-                        console.log(peerVideo)
-                        bindVideo(data.peerWnd, peerVideo)
+
+                        if(index==0){
+                            var peerVideo = document.querySelector('.vdo_r_callOut')
+                            bindVideo(data.peerWnd, peerVideo,true)
+                        }else{
+                            var peerVideo= $('.vdo_l .vdo_lD[UniId="'+data.userUniID+'"] ')
+                            bindVideo(data.peerWnd, peerVideo)
+                        }
+
                        var index= initData.userUniIdList.findIndex(function(item){
                             return item.userUniId==data.userUniID
                         })
@@ -1931,8 +1933,8 @@
             var vdo_clone = vdo.clone(true);
             vdo_clone.find('.vdo_lD_b').html(curMember.name);
             vdo_clone.find('.vdo_tip').html('正在呼叫');
-            vdo_clone.find('.vdo_l_bac').show();
-            vdo_clone.data('id',curMember.userUniId)
+            vdo_clone.find('.vdo_l_bac').hide();
+            vdo_clone.data('UniId',curMember.userUniId)
             $scroll.append(vdo_clone);
 
         }
