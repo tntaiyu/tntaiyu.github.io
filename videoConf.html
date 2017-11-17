@@ -1,6 +1,6 @@
 <!DOCTYPE>
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head width="915" height="516">
+<head width="915" height="516" notusetoolbar="0">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="msapplication-tap-highlight" content="no">
 
@@ -16,7 +16,7 @@
     <!--<meta http-equiv="pragma" content="no-cache">-->
     <!--<meta http-equiv="cache-control" content="no-cache">-->
     <!--<meta http-equiv="expires" content="0">-->
-    <title>正在视频通话</title>
+    <title>1212正在视频通话</title>
     <link rel="stylesheet" type="text/css" href="css/reset.css"/>    <!--通用-->
     <link rel="stylesheet" type="text/css" href="css/common.css"/>    <!--通用-->
     <link rel="stylesheet" type="text/css" href="css/video.css"/>    <!--视频-->
@@ -47,18 +47,18 @@
             autoHeight();
             $(window).resize(autoHeight);
         })
-        var myscroll3 = null;
+        var myscroll3 = null, myScroll = null;
         //控制音量
 
         $(function () {
 //音量
             var initVert = null, step;
             var vert = document.querySelector('.js-vertical');
-            var $btn_mute=$('.vdo_btn_mute')
+            var $btn_mute = $('.vdo_btn_mute')
             $('.volume_con').hover(function () {
                 console.log(this.querySelector('.vdo_btn_mute').classList.contains('on'))
                 console.log('ttttttttttttttttt')
-                if(this.querySelector('.vdo_btn_mute').classList.contains('on')){
+                if (this.querySelector('.vdo_btn_mute').classList.contains('on')) {
                     return;
                 }
                 $('.volume_div').show()
@@ -67,7 +67,7 @@
                     var option = initVert.options;
 //                    var slider = initVert.slider;
                     var handel = initVert.handle;
-                    step=(initVert.slider.offsetHeight - handel.offsetHeight) / (option.max - option.min);
+                    step = (initVert.slider.offsetHeight - handel.offsetHeight) / (option.max - option.min);
                 }
             }, function () {
                 $('.volume_div').hide()
@@ -95,7 +95,7 @@
                     ControlAudio(parm).then(function (data) {
                     })
                 }
-                if(volume<=step){
+                if (volume <= step) {
                     $btn_mute.removeClass('on')
                 }
             })
@@ -123,9 +123,9 @@
                     ControlAudio(parm).then(function (data) {
                     })
                 }
-                if(volume==0){
+                if (volume == 0) {
                     $btn_mute.addClass('on')
-                }else if(volume<=step){
+                } else if (volume <= step) {
                     $btn_mute.removeClass('on')
                 }
 
@@ -139,22 +139,22 @@
                     ControlAudio(parm).then(function (data) {
                     })
                 }
-                if(volume==0){
+                if (volume == 0) {
                     $btn_mute.addClass('on')
-                }else if(volume<=step){
+                } else if (volume <= step) {
                     $btn_mute.removeClass('on')
                 }
             }
             //右侧成员列表 显示/隐藏
             $(".vdo_btn_member").click(function () {
-                var opacity = $('.vdo_rList').css('opacity');
-                if (opacity == '0') {
-                    $(".vdo_rList").css({opacity: "1", right: "0"})
-                    $(this).addClass("on");
-                } else {
-                    $(".vdo_rList").css({opacity: "0", right: "-246px"})
-                    $(this).removeClass("on");
-                }
+               if (!this.classList.contains('on')){
+                   $(".vdo_rList").css({opacity: "1", right: "0"}).show()
+                   $(this).addClass("on");
+               }else{
+                   $(".vdo_rList").css({opacity: "0", right: "-246px"}).hide()
+                   $(this).removeClass("on");
+               }
+
             })
             //主持人-右侧参会人员tab切换
             $(".vdo_rL_tTab a").each(function (index) {
@@ -297,7 +297,7 @@
                         obtm.style.height = 0 + 'px';
 
                     }
-                    vert.value=0;
+                    vert.value = 0;
                 } else {
                     if (audioInputId) {
 
@@ -377,7 +377,7 @@
             $(".vdo_btn_quit").click(function () {
                 console.log('登陆菊峰失败===================================' + error.Jufeng)
 
-                if(initData.isXP){
+                if (initData.isXP) {
                     var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
                     ConfirmMsgBox(parm).then(function (data) {
                         if (data == '0') {//同意
@@ -392,7 +392,7 @@
                             }
                         }
                     })
-                }else{
+                } else {
                     my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
                         if (error.Jufeng) {
                             window.lxpc.closewnd();
@@ -473,7 +473,7 @@
                 shrinkScrollbars: 'scale',
                 preventDefault: false
             };
-//            var myscroll = new IScroll('#wrapper', option);
+            myScroll = new IScroll('#wrapper', option);
 //            var myscroll2 = new IScroll('#wrapper2', option);
             myscroll3 = new IScroll('#wrapper3', option);
 //            var myscroll4 = new IScroll('#wrapper4', option);
@@ -516,8 +516,6 @@
                             <div class="vdo_lD_b">我</div>
 
                         </div>
-
-
                     </div>
                 </div>
             </div>
@@ -556,258 +554,258 @@
                         <div class="vdo_rL_tBtn"><a href="javascript:;"><i></i>可邀请20人</a></div>
                         <div class="vdo_rL_tTab">
                             <ul>
-                                <li><a href="javascript:;" class="on">已接通(5)</a></li>
-                                <li><a href="javascript:;">未接通(1)</a></li>
+                                <li><a href="javascript:;" class="on">已接通(<span id="connectCount">0</span>)</a></li>
+                                <li><a href="javascript:;">未接通(<span id="notConnectCount">0</span>)</a></li>
                             </ul>
                         </div>
                     </div>
                     <div class="vdo_rL_tabC" id="wrapper3">
                         <div class="vdo_rL_tCon ">
-                            <ul class="vdo_rL_list">
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo" title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>莉莉(主持人)</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>李成伟</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i class="vdo_rL_iVideo"
-                                                                                          title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>王月</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>巍巍</p></li>
-                                <li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"
-                                                                 title="挂断"></a><a href="javascript:;"
-                                                                                   class="vdo_rL_aMute"
-                                                                                   title="点击禁言"></a><a
-                                        href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo" title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>莉莉(主持人)</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>李成伟</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i class="vdo_rL_iVideo"
-                                                                                          title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>王月</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>巍巍</p></li>
-                                <li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"
-                                                                 title="挂断"></a><a href="javascript:;"
-                                                                                   class="vdo_rL_aMute"
-                                                                                   title="点击禁言"></a><a
-                                        href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo" title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>莉莉(主持人)</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>李成伟</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i class="vdo_rL_iVideo"
-                                                                                          title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>王月</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>巍巍</p></li>
-                                <li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"
-                                                                 title="挂断"></a><a href="javascript:;"
-                                                                                   class="vdo_rL_aMute"
-                                                                                   title="点击禁言"></a><a
-                                        href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo" title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>莉莉(主持人)</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>李成伟</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i class="vdo_rL_iVideo"
-                                                                                          title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>王月</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>巍巍</p></li>
-                                <li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"
-                                                                 title="挂断"></a><a href="javascript:;"
-                                                                                   class="vdo_rL_aMute"
-                                                                                   title="点击禁言"></a><a
-                                        href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo" title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>莉莉(主持人)</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>李成伟</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i class="vdo_rL_iVideo"
-                                                                                          title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>王月</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>巍巍</p></li>
-                                <li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"
-                                                                 title="挂断"></a><a href="javascript:;"
-                                                                                   class="vdo_rL_aMute"
-                                                                                   title="点击禁言"></a><a
-                                        href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo" title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>莉莉(主持人)</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>李成伟</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i class="vdo_rL_iVideo"
-                                                                                          title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>王月</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>巍巍</p></li>
-                                <li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"
-                                                                 title="挂断"></a><a href="javascript:;"
-                                                                                   class="vdo_rL_aMute"
-                                                                                   title="点击禁言"></a><a
-                                        href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo" title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>莉莉(主持人)</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>李成伟</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i class="vdo_rL_iVideo"
-                                                                                          title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>王月</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>巍巍</p></li>
-                                <li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"
-                                                                 title="挂断"></a><a href="javascript:;"
-                                                                                   class="vdo_rL_aMute"
-                                                                                   title="点击禁言"></a><a
-                                        href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
+                            <ul class="vdo_rL_list" id="vdo_connecting">
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>李成伟</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
+                                                                                          <!--title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>王月</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>巍巍</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
+                                                                 <!--title="挂断"></a><a href="javascript:;"-->
+                                                                                   <!--class="vdo_rL_aMute"-->
+                                                                                   <!--title="点击禁言"></a><a-->
+                                        <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>李成伟</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
+                                                                                          <!--title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>王月</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>巍巍</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
+                                                                 <!--title="挂断"></a><a href="javascript:;"-->
+                                                                                   <!--class="vdo_rL_aMute"-->
+                                                                                   <!--title="点击禁言"></a><a-->
+                                        <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>李成伟</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
+                                                                                          <!--title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>王月</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>巍巍</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
+                                                                 <!--title="挂断"></a><a href="javascript:;"-->
+                                                                                   <!--class="vdo_rL_aMute"-->
+                                                                                   <!--title="点击禁言"></a><a-->
+                                        <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>李成伟</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
+                                                                                          <!--title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>王月</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>巍巍</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
+                                                                 <!--title="挂断"></a><a href="javascript:;"-->
+                                                                                   <!--class="vdo_rL_aMute"-->
+                                                                                   <!--title="点击禁言"></a><a-->
+                                        <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>李成伟</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
+                                                                                          <!--title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>王月</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>巍巍</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
+                                                                 <!--title="挂断"></a><a href="javascript:;"-->
+                                                                                   <!--class="vdo_rL_aMute"-->
+                                                                                   <!--title="点击禁言"></a><a-->
+                                        <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>李成伟</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
+                                                                                          <!--title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>王月</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>巍巍</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
+                                                                 <!--title="挂断"></a><a href="javascript:;"-->
+                                                                                   <!--class="vdo_rL_aMute"-->
+                                                                                   <!--title="点击禁言"></a><a-->
+                                        <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>李成伟</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
+                                                                                          <!--title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>王月</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>巍巍</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
+                                                                 <!--title="挂断"></a><a href="javascript:;"-->
+                                                                                   <!--class="vdo_rL_aMute"-->
+                                                                                   <!--title="点击禁言"></a><a-->
+                                        <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
                             </ul>
                         </div>
                         <div class="vdo_rL_tCon disN">
-                            <ul class="vdo_rL_list">
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo" title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>莉莉(主持人)11111111111</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>李成伟111111111111111</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i class="vdo_rL_iVideo"
-                                                                                          title="视频已被开启"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威11111111111111</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>王月1111111111</p></li>
-                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"
-                                                                  title="主持人未开启音频"></i><i
-                                        class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img
-                                        src="images/card_icon.png">
-                                    <p>巍巍111111111111</p></li>
-                                <li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"
-                                                                 title="挂断"></a><a href="javascript:;"
-                                                                                   class="vdo_rL_aMute"
-                                                                                   title="点击禁言"></a><a
-                                        href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img
-                                        src="images/card_icon.png">
-                                    <p>赵晨威</p></li>
+                            <ul class="vdo_rL_list" id="vdo_notConnect">
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)11111111111</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>李成伟111111111111111</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
+                                                                                          <!--title="视频已被开启"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威11111111111111</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>王月1111111111</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
+                                                                  <!--title="主持人未开启音频"></i><i-->
+                                        <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>巍巍111111111111</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
+                                                                 <!--title="挂断"></a><a href="javascript:;"-->
+                                                                                   <!--class="vdo_rL_aMute"-->
+                                                                                   <!--title="点击禁言"></a><a-->
+                                        <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>赵晨威</p></li>-->
                             </ul>
                         </div>
                     </div>
@@ -828,9 +826,11 @@
         </div>
                     </span>
                 <a href="javascript:;" class="vdo_btn_set" title="设置"><i></i></a>
-                <a href="javascript:;" class="vdo_btn_member on " style="display: none"><i></i><em>5/6</em></a>
+                <a href="javascript:;" class="vdo_btn_member " style="display: none"><i></i><em id="vdo_btn_Count">5/6</em></a>
             </div>
-            <div class="vdo_btn_r"><span class="vdo_time" id="vdo_time">00:00</span><a href="javascript:;" class="vdo_btn_quit"><i></i>退出</a></div>
+            <div class="vdo_btn_r"><span class="vdo_time" id="vdo_time">00:00</span><a href="javascript:;"
+                                                                                       class="vdo_btn_quit"><i></i>退出</a>
+            </div>
             <div class="vdo_btn_l disN">
                 <a href="javascript:;" class="vdo_btn_lack" id="vdo_btn_lack"><i></i>缺少设备</a>
                 <div class="vdo_btn_lD" id="vdo_btn_lD"><h4>未检测到摄像头、话筒、扬声器</h4>
@@ -899,6 +899,7 @@
                 </div>
             </div>
         </div>
+        <div class="vdo_set_foot"><a href="javascript:;" class="btn2 vdo_set_ok">确定</a></div>
     </div>
 </div>
 
@@ -929,7 +930,9 @@
 </html>
 
 <script>
-    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {}, settinginfos = {}, callType = 1, error = {Jufeng: false};
+    var initData = null, confId = 0, senderId = -1, type = 0, imgList = {}, settinginfos = {}, callType = 1, error = {Jufeng: false},
+            connectList=[],//已通列表
+            notConnectList=[]//未接通列表
     //callType 记录会话的状态
     $(function () {
         var parm = {};
@@ -940,12 +943,14 @@
                     var tmpdata = JSON.parse(jsondata);
                     initData = JSON.parse(jsondata);
                     console.log('初始化数据================================')
+                    console.log(jsondata)
                     console.log(initData);
                     var peerDialogId = tmpdata['dialogId']
                     var nflag = tmpdata['flag']
                     var tmpparm = {userUniId: peerDialogId};
                     if (nflag == 'qun_videomeetingcaller' || nflag == 'to_be_videomeetingcalled') {//发起群会议
                         qunVideoConf(nflag)
+                        bindJoinMember()
                     } else {
                         initSetting(nflag);
                         if (nflag == 'videocaller') {//个人发起
@@ -1130,17 +1135,16 @@
     }
     //群会议操作
     function qunVideoConf(ngflag) {
-        $('.vdo_rList')
         $('.vdo_btn_member').show();
+        $('#vdo_btn_Count').html('0/'+initData.userUniIdList.length)
         if (ngflag == 'qun_videomeetingcaller') {//主叫
-            $('.vdo_btn_member').show();
-            $('.vdo_invite').hide();
             var parm = {}
             window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                 if (status == 0) {
                     window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
                         if (status == 0) {
                             //验证视频会议
+                            console.log('登陆菊峰成功=====================================')
                             console.log(jsondata)
                             MtcCreateVideoMeeting();
                             var data = JSON.parse(jsondata);
@@ -1203,6 +1207,9 @@
                 videoQunCalled(parm, 0)
             }
         }
+
+        //接受响应结果
+//        ReceiveVideoCallResult()
     }
     //验证视频会议
     function MtcCreateVideoMeeting(parm) {
@@ -1217,12 +1224,18 @@
                     try {
                         window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
                             if (status == 0) {
+                                var userlist=[]
+                                for(var i=0;i<initData.userUniIdList.length;i++){
+                                    var cur=initData.userUniIdList[i]
+                                    userlist.push(cur.userUniId)
+                                }
                                 var parm = {
                                     juFengId: confId,
                                     passwd: data.password,
-                                    userUniIdList: initData.userUniIdList,
+                                    userUniIdList: userlist,
                                     invitedGroups: initData.invitedGroups
                                 };
+
                                 try {
                                     window.lxpc.exebusinessaction('VideoConf', 'CreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                                         if (status == 0) {
@@ -1361,18 +1374,23 @@
     function ReceiveVideoCallResult() {
         try {
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveVideoCallResult', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
+                console.log('ReceiveVideoCallResult--------------------')
+                console.log(data)
                 if (status == 0) {
+                    var nflg=initData.flag
                     var data = JSON.parse(jsondata);
-                    window.URL = window.URL || window.webkitURL;
-                    console.log('ReceiveVideoCallResult--------------------')
-                    console.log(data)
-//                    var parm = {getImgWnd: data.ownerWnd}
-                    initData.peerWnd = data.peerWnd
-                    initData.sessionId = data.sessionId//添加新的字段 sesstionId用于关闭和打开视频
-                    var peerVideo = document.querySelector('.vdo_r_callOut')
-                    bindVideo(data.peerWnd, peerVideo, true)
-                    $('.vdo_r .vdo_out').addClass('wnd_' + data.peerWnd);
-                   var oTime=document.getElementById('vdo_time')
+                    if(nflg=='qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled'){//视频会议
+
+                    }else {//视频通话
+
+                        initData.peerWnd = data.peerWnd
+                        initData.sessionId = data.sessionId//添加新的字段 sesstionId用于关闭和打开视频
+                        var peerVideo = document.querySelector('.vdo_r_callOut')
+                        bindVideo(data.peerWnd, peerVideo, true)
+                        $('.vdo_r .vdo_out').addClass('wnd_' + data.peerWnd)
+                    }
+                    ;
+                    var oTime = document.getElementById('vdo_time')
                     setTimer(oTime)
                 } else {
                     console.log(status)
@@ -1643,7 +1661,7 @@
                             CancelVideoCall(parm)
                         }
                         TerminateVideoConf()
-                    }else if(data.statusName == 'preCloseWnd'){//切换组织是关闭视频弹窗
+                    } else if (data.statusName == 'preCloseWnd') {//切换组织是关闭视频弹窗
                         if (error.Jufeng) {
                             window.lxpc.closewnd();
                         } else {
@@ -1667,28 +1685,28 @@
     //
     function MtcCallIncomingNotification() {
     }
-    function getImge(parm, handle, targ) {
-        return new Promise(function (resolve, reject) {
-            try {
-                window.lxpc.exebusinessaction('DownloadResource', handle, '0', JSON.stringify(parm), targ, function (status, result, targ) {
-                    if (status == 0) {
-                        if (result.indexOf('\\') > -1 || result.indexOf('/') > -1) {
-                            var obj = {path: result, index: targ}
-                            resolve(obj)
-                        }
-                    } else {
-                        reject(status);
-                        console.log(status)
-                    }
-                })
-            }
-            catch (e) {
-                my_layer({message: '调用接口出错，错误码' + e.message}, 'error')
-                reject(e.message)
-                console.log(e.message)
-            }
-        })
-    }
+//    function getImge(parm, handle, targ) {
+//        return new Promise(function (resolve, reject) {
+//            try {
+//                window.lxpc.exebusinessaction('DownloadResource', handle, '0', JSON.stringify(parm), targ, function (status, result, targ) {
+//                    if (status == 0) {
+//                        if (result.indexOf('\\') > -1 || result.indexOf('/') > -1) {
+//                            var obj = {path: result, index: targ}
+//                            resolve(obj)
+//                        }
+//                    } else {
+//                        reject(status);
+//                        console.log(status)
+//                    }
+//                })
+//            }
+//            catch (e) {
+//                my_layer({message: '调用接口出错，错误码' + e.message}, 'error')
+//                reject(e.message)
+//                console.log(e.message)
+//            }
+//        })
+//    }
     //初始化设置
     function initSetting(type) {
         initData.memberList = [];
@@ -1816,40 +1834,40 @@
     }
 
     //d定时器
-    function setTimer(oTime){
-        var value =0
-        var sec=0,min=0,h=0,result='00:00'
-        setInterval(function(){
+    function setTimer(oTime) {
+        var value = 0
+        var sec = 0, min = 0, h = 0, result = '00:00'
+        setInterval(function () {
             value++;
-            if(value<60){
+            if (value < 60) {
                 //result= '00:'+(value<10?('0'+value):value);
-                result= '00:'+ToDou(value);
-            }else if(value<60*60){
-                min=Math.floor(value/60);
-                sec=value%60;
-                result= ToDou(min)+':'+ToDou(sec)
-            }else{
-                h=Math.floor(value/(60*60));
-                min=Math.floor(value/(h*60));
-                sec=value%(min*60*60);
+                result = '00:' + ToDou(value);
+            } else if (value < 60 * 60) {
+                min = Math.floor(value / 60);
+                sec = value % 60;
+                result = ToDou(min) + ':' + ToDou(sec)
+            } else {
+                h = Math.floor(value / (60 * 60));
+                min = Math.floor(value / (h * 60));
+                sec = value % (min * 60 * 60);
 
-                result= ToDou(h)+':'+ToDou(min)+':'+ToDou(sec);
+                result = ToDou(h) + ':' + ToDou(min) + ':' + ToDou(sec);
 
             }
-            oTime.innerHTML=result
-        },500)
+            oTime.innerHTML = result
+        }, 500)
         function ToDou(n) {
-            var result= n >= 0 && n < 10 ? ("0" + n) : n;
+            var result = n >= 0 && n < 10 ? ("0" + n) : n;
             return result;
         }
     }
-//生成消息接口
+    //生成消息接口
     /**
      *
      * @param parm {sender：发送者userdialogid，messageType：视频会议=2，视频通话=1,dialogId:接收者userdialogid,message:消息内容，base64格式}
      * @constructor
      */
-    function GenerateVideoMessage(parm){
+    function GenerateVideoMessage(parm) {
         return new Promise(function (resolve, reject) {
             try {
                 window.lxpc.exebusinessaction('VideoConf', 'GenerateVideoMessage', '0', JSON.stringify(parm), 0, function (status, result, targ) {
@@ -1869,5 +1887,78 @@
 
         })
     }
+
+    function bindJoinMember() {
+        var vdo = $('.vdo_l .vdo_lD'),
+                $scroll = $('.vdo_l .scroll');
+
+        var str=''
+        for (var i = 0; i < initData.userUniIdList.length; i++) {
+            var curMember = initData.userUniIdList[i];
+           var tem=`<li index=${i}><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i
+                                        class="vdo_rL_iVideo" title="视频已被开启"></i></span><img
+                                        src="images/card_icon.png" onload="getImge(${i})">
+                                    <p>${curMember.name}</p></li>`
+            if (curMember.userUniId == initData.curUserUniID) {//当前的用户的信息再次不现实，在后边会显示
+                connectList.push(curMember);
+
+                var vdo_notConnect=document.getElementById('vdo_connecting')
+                vdo_notConnect.innerHTML=tem;
+                continue;
+            }else{
+                notConnectList.push(curMember);
+            }
+
+
+            str+=tem;
+            var vdo_clone = vdo.clone(true);
+            vdo_clone.find('.vdo_lD_b').html(curMember.name);
+            vdo_clone.find('.vdo_tip').html('正在呼叫');
+            vdo_clone.find('.vdo_l_bac').show();
+            $scroll.append(vdo_clone);
+
+        }
+        myScroll.refresh();
+        var vdo_notConnect=document.getElementById('vdo_notConnect')
+                vdo_notConnect.innerHTML=str;
+        myscroll3.refresh();
+        var connectCount=document.getElementById('connectCount')
+        connectCount.innerHTML=1;
+        var notconnectCount=document.getElementById('notConnectCount')
+        notconnectCount.innerHTML=initData.userUniIdList.length;
+    }
+
+    function  getImge(index){
+        var curitem= initData.userUniIdList[index]
+        var parm = {resourceList: [{photoResId: curitem.photoResId}], size: 96}
+
+        try {
+            window.lxpc.exebusinessaction('DownloadResource', handle, '0', JSON.stringify(parm), index, function (status, result, targ) {
+                if (status == 0) {
+                    if (result.indexOf('\\') > -1 || result.indexOf('/') > -1) {
+
+                       var item= $('#vdo_notConnect li[index="'+targ+'"]');
+                        var $img=item.find('img')
+                                $img.attr('src',result);
+                        $img.load(function(e){
+                            $(this).off();
+                        })
+                        $img.error(function(e){
+                            this.src='images/card_icon.png'
+                        })
+
+                    }
+                } else {
+                    console.log(status)
+                }
+            })
+        }
+        catch (e) {
+            console.log(e.message)
+        }
+
+
+    }
+
 
 </script>
