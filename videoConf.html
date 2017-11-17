@@ -1372,15 +1372,28 @@
     }
     //接收视频信息
     function ReceiveVideoCallResult() {
+        var hasJoinList=[];
         try {
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveVideoCallResult', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
                 console.log('ReceiveVideoCallResult--------------------')
-                console.log(data)
+                console.log(jsondata)
                 if (status == 0) {
                     var nflg=initData.flag
                     var data = JSON.parse(jsondata);
                     if(nflg=='qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled'){//视频会议
-
+                   var peerVideo= $('.vdo_l .vdo_lD[id="'+data.userUniID+'"] ')
+                        console.log(peerVideo)
+                        bindVideo(data.peerWnd, peerVideo)
+                       var index= initData.userUniIdList.findIndex(function(item){
+                            return item.userUniId==data.userUniID
+                        })
+                        if(index>-1){
+                            connectList.push(initData.userUniIdList[index])
+                            var id=notConnectList.findIndex(function(item){
+                                return item.userUniId==data.userUniID
+                            })
+                            if(id>-1) notConnectList.splice(id,1)
+                        }
                     }else {//视频通话
 
                         initData.peerWnd = data.peerWnd
@@ -1915,6 +1928,7 @@
             vdo_clone.find('.vdo_lD_b').html(curMember.name);
             vdo_clone.find('.vdo_tip').html('正在呼叫');
             vdo_clone.find('.vdo_l_bac').show();
+            vdo_clone.data('id',curMember.userUniId)
             $scroll.append(vdo_clone);
 
         }
