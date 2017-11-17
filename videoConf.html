@@ -925,7 +925,7 @@
 </div>
 
 </div>
-
+<audio src="" id="audio" autoplay></audio>
 </body>
 </html>
 
@@ -967,6 +967,7 @@
                                     setTimeout(function () {
                                         TerminateVideoConf()
                                     }, 3000)
+                                    replayAudioTip()
                                 }
                             }, 30000)
 
@@ -1060,6 +1061,9 @@
                         }, 2000)
 
                     })
+
+                    replayAudioTip()//语音提示
+
                     $('.vdo_r_callOutD').html(tip)
                 }
             }
@@ -1973,6 +1977,10 @@
 
 
     }
-
+    //当用户正在忙的时候语音提示
+    function replayAudioTip(){
+        var  audio=document.getElementById('audio');
+        audio.src=initData.docPath+'\\'+'ring_busy.wav';
+    }
 
 </script>
