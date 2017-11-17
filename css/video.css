@@ -239,6 +239,9 @@ display: none;
     right: 0;
     margin-top: -10px;
 }
+.vdo_l .vdo_r_callOutD{
+    font-size: 12px;
+}
 
 .vdo_r_voice { /*语音*/
     width: 100%;
@@ -821,12 +824,16 @@ display: none;
     top: 0;
     padding: 9px 20px;
 }
-
+.vdo_time{
+    color: #fff;
+    font-size: 13px;
+    margin-right: 8px;
+}
 .vdo_btn_duration {
     line-height: 28px;
     margin-right: 20px;
     color: #eee;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .vdo_btn_quit {
@@ -954,7 +961,11 @@ display: none;
     border-radius: 0 0 1px 1px;
     -webkit-border-radius: 0 0 1px 1px;
 }
-
+.vdo_set_foot{
+    background: #f6f7f9;
+    text-align: center;
+    padding: 0 0 12px;
+}
 .vdo_set_list {
     display: inline-block;
     margin: 0 auto;
