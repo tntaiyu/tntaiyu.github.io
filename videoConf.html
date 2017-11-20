@@ -1355,7 +1355,7 @@
 //                                aspectRatio: 1.3333333333
             }
         }, function (stream) {
-
+console.log(oVideo)
             oVideo.onload = function (e) {
                 window.URL.revokeObjectURL(this.src); // 清除释放
                 $(this).siblings('.vdo_r_callOutD').hide();
@@ -1372,19 +1372,23 @@
     //接收视频信息
     function ReceiveVideoCallResult() {
         var hasJoinList=[];
-        var index=0;
+        var ltarg=0;
         try {
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveVideoCallResult', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
                 console.log('ReceiveVideoCallResult--------------------')
                 console.log(jsondata)
+                debugger;
                 if (status == 0) {
                     var nflg=initData.flag
                     var data = JSON.parse(jsondata);
                     if(nflg=='qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled'){//视频会议
 
-                        if(index==0){
-                            var peerVideo = document.querySelector('.vdo_r_callOut')
+                        if(ltarg==0){
+                            var peerVideo = document.querySelector('.vdo_r video')
+                            console.log(peerVideo)
                             bindVideo(data.peerWnd, peerVideo,true)
+                            var temp= $('.vdo_l .vdo_lD[UniId="'+data.userUniID+'"] ')
+                            temp.remove();
                         }else{
                             var peerVideo= $('.vdo_l .vdo_lD[UniId="'+data.userUniID+'"] ')
                             bindVideo(data.peerWnd, peerVideo)
@@ -1408,9 +1412,10 @@
                         bindVideo(data.peerWnd, peerVideo, true)
                         $('.vdo_r .vdo_out').addClass('wnd_' + data.peerWnd)
                     }
-                    ;
+
                     var oTime = document.getElementById('vdo_time')
                     setTimer(oTime)
+                    ltarg++;
                 } else {
                     console.log(status)
                 }
