@@ -28,6 +28,7 @@
     <script type="text/javascript" src="js/my_layer.js"></script> <!--弹窗-->
     <script type="text/javascript" src="js/application.js"></script>
     <script type="text/javascript" src="js/xss.min.js"></script>
+    <script type="text/javascript" src="js/base64.min.js"></script>
     <style>
         video {
             /*object-fit:fill;*/
@@ -381,31 +382,50 @@
                     var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
                     ConfirmMsgBox(parm).then(function (data) {
                         if (data == '0') {//同意
-                            if (error.Jufeng) {
-                                window.lxpc.closewnd();
-                            } else {
-                                if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
-                                    var parm = {userUniId: initData.dialogId, callType: callType}
-                                    CancelVideoCall(parm)
-                                }
-                                TerminateVideoConf()
-                            }
+                            exitVideo()
                         }
                     })
                 } else {
                     my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                        if (error.Jufeng) {
-                            window.lxpc.closewnd();
-                        } else {
-                            if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
-                                var parm = {userUniId: initData.dialogId, callType: callType}
-                                CancelVideoCall(parm)
-                            }
-                            TerminateVideoConf()
-                        }
+                        exitVideo()
 
                     })
                 }
+
+
+                function exitVideo(){
+                    var type=1
+                    if(video_role==0 ||video_role==1){//视频通话
+                        type=1
+                    }else{//视频会议
+                        type=2
+                    }
+                    if (error.Jufeng) {
+                        if(video_role==1||video_role==3){//被叫
+                            var message=Base64.encode('已拒绝视频通话');
+                        }else{
+                            var message=Base64.encode('已取消视频通话');
+                        }
+                        GenerateVideoMessage({sender:initData.curUserUniID,messageType:type,dialogId:initData.dialogId,message:message})
+                        window.lxpc.closewnd();
+                    } else {
+                        if (video_role==0||video_role==2) {//视频通话主叫或是视频会议发起者 退出视频通话或视频会议
+                            var parm = {userUniId: initData.dialogId, callType: callType}
+                            CancelVideoCall(parm)
+                        }
+                        TerminateVideoConf()
+
+                        var oTime=document.getElementById('vdo_time')
+                        if(video_role==0){
+                            var message=Base64.encode('通话时长'+oTime.innerHTML);
+                        }else if(video_role==1){
+                            var message=Base64.encode('已拒绝视频通话');
+                        }
+
+                        GenerateVideoMessage({sender:initData.curUserUniID,messageType:type,dialogId:initData.dialogId,message:message})
+                    }
+                }
+
 
             })
         })
@@ -933,7 +953,8 @@
 <script>
     var initData = null, confId = 0, senderId = -1, type = 0, imgList = {}, settinginfos = {}, callType = 1, error = {Jufeng: false},
             connectList=[],//已通列表
-            notConnectList=[]//未接通列表
+            notConnectList=[],//未接通列表
+            video_role= 0// 0 视频通话 主叫 1视频通话被叫 2 视频会议发起者 3 视频会议参与者
     //callType 记录会话的状态
     $(function () {
         var parm = {};
@@ -954,6 +975,7 @@
                     } else {
                         initSetting(nflag);
                         if (nflag == 'videocaller') {//个人发起
+                            video_role=0
 //                            VideoCall(tmpparm)
 //                            openMedia();
                             loadJuFeng().then(function (data) {
@@ -968,10 +990,15 @@
                                         TerminateVideoConf()
                                     }, 3000)
                                     replayAudioTip()
+                                    if(video_role==0){
+                                        var message=Base64.encode('视频通话无人接听');
+                                        GenerateVideoMessage({sender:initData.curUserUniID,messageType:1,dialogId:initData.dialogId,message:message})
+                                    }
                                 }
                             }, 30000)
 
                         } else {//个人被叫
+                            video_role=1
                             console.log('被叫======================================')
                             if (initData.callType == 1) {//正常接听
                                 callType = 1
@@ -1063,7 +1090,15 @@
                     })
 
                     replayAudioTip()//语音提示
+                    if(data.opCode=='2'){
+                        var message=Base64.encode('对方正在通话中');
+                    }else if(data.opCode=='4'||data.opCode=='5'||data.opCode=='6'){
+                        var message=Base64.encode('对方无法使用视频通话');
+                    }else if(data.opCode!='1'&&data.opCode!='3'){
+                        var message=Base64.encode('对方无法使用视频通话');
+                    }
 
+                    GenerateVideoMessage({sender:initData.curUserUniID,messageType:1,dialogId:initData.dialogId,message:message})
                     $('.vdo_r_callOutD').html(tip)
                 }
             }
@@ -1142,6 +1177,7 @@
         $('.vdo_btn_member').show();
         $('#vdo_btn_Count').html('0/'+initData.userUniIdList.length)
         if (ngflag == 'qun_videomeetingcaller') {//主叫
+            video_role=2
             var parm = {}
             window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                 if (status == 0) {
@@ -1183,6 +1219,7 @@
 //            //验证视频会议
 //            MtcCreateVideoMeeting();
         } else if (ngflag == 'to_be_videomeetingcalled') {//被叫
+            video_role=3
             $('.vdo_btn_member').hide();
             $('.vdo_invite').show();
             //拒绝
@@ -1382,28 +1419,43 @@ console.log(oVideo)
                     var nflg=initData.flag
                     var data = JSON.parse(jsondata);
                     if(nflg=='qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled'){//视频会议
+                        if(data.isLeaved==0 ){//加入会议
+                            if(ltarg==0){
+                                var peerVideo = document.querySelector('.vdo_r video')
+                                console.log(peerVideo)
+                                bindVideo(data.peerWnd, peerVideo,true)
+                                var temp= $('.vdo_l .vdo_lD[UniId="'+data.userUniID+'"] ')
+                                temp.remove();
+                            }else{
+                                var peerVideo= $('.vdo_l .vdo_lD[UniId="'+data.userUniID+'"] ')
+                                bindVideo(data.peerWnd, peerVideo)
+                            }
 
-                        if(ltarg==0){
-                            var peerVideo = document.querySelector('.vdo_r video')
-                            console.log(peerVideo)
-                            bindVideo(data.peerWnd, peerVideo,true)
-                            var temp= $('.vdo_l .vdo_lD[UniId="'+data.userUniID+'"] ')
-                            temp.remove();
-                        }else{
-                            var peerVideo= $('.vdo_l .vdo_lD[UniId="'+data.userUniID+'"] ')
-                            bindVideo(data.peerWnd, peerVideo)
-                        }
-
-                       var index= initData.userUniIdList.findIndex(function(item){
-                            return item.userUniId==data.userUniID
-                        })
-                        if(index>-1){
-                            connectList.push(initData.userUniIdList[index])
-                            var id=notConnectList.findIndex(function(item){
+                            var index= initData.userUniIdList.findIndex(function(item){
                                 return item.userUniId==data.userUniID
                             })
-                            if(id>-1) notConnectList.splice(id,1)
+                            if(index>-1){
+                                connectList.push(initData.userUniIdList[index])
+                                var id=notConnectList.findIndex(function(item){
+                                    return item.userUniId==data.userUniID
+                                })
+                                if(id>-1) notConnectList.splice(id,1)
+                            }
+                        } else{//退出会议
+                            var peerVideo= $('.vdo_l .vdo_lD[UniId="'+data.userUniID+'"] ');
+                            peerVideo.remove();
+                            var index= initData.userUniIdList.findIndex(function(item){
+                                return item.userUniId==data.userUniID
+                            })
+                            if(index>-1){
+                                notConnectList.push(initData.userUniIdList[index])
+                                var id=connectList.findIndex(function(item){
+                                    return item.userUniId==data.userUniID
+                                })
+                                if(id>-1) connectList.splice(id,1)
+                            }
                         }
+
                     }else {//视频通话
 
                         initData.peerWnd = data.peerWnd
@@ -1659,6 +1711,14 @@ console.log(oVideo)
                         setTimeout(function () {
                             window.lxpc.closewnd();
                         }, 2000)
+                        if(video_role==0){
+                            var message=Base64.encode('对方已结束通话');
+
+                        }else if(video_role==1){
+                            var message=Base64.encode('已拒绝视频通话');
+                        }
+                        GenerateVideoMessage({sender:initData.curUserUniID,messageType:1,dialogId:initData.dialogId,message:message})
+
                     } else if (data.statusName == 'MtcCallVideoReceiveStatusChangedNotification') {
                         if (data.statusParam.MtcCallVideoStatusKey == 0x636F6666) {//关闭摄像头
                             callType = 2
@@ -1678,6 +1738,15 @@ console.log(oVideo)
                         if (data.statusParam.callType == 0) {
                             vdo_l_bac.find('.vdo_tip').html('对方挂断')
                         }
+
+                        if(video_role==0){
+                            var message=Base64.encode('已取消视频通话');
+
+                        }else if(video_role==1){
+                            var message=Base64.encode('视频通话未接听');
+                        }
+                        GenerateVideoMessage({sender:initData.curUserUniID,messageType:1,dialogId:initData.dialogId,message:message})
+
                     } else if (data.statusName == 'closeWnd') {//菜单栏关闭蓝信程序使得推出视频
                         console.log('菜单栏关闭蓝信程序使得推出视频========================================')
                         if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
@@ -1685,6 +1754,15 @@ console.log(oVideo)
                             CancelVideoCall(parm)
                         }
                         TerminateVideoConf()
+
+                        if(video_role==0){
+                            var message=Base64.encode('对方已结束通话');
+
+                        }else if(video_role==1){
+                            var message=Base64.encode('已拒绝视频通话');
+                        }
+                        GenerateVideoMessage({sender:initData.curUserUniID,messageType:1,dialogId:initData.dialogId,message:message})
+
                     } else if (data.statusName == 'preCloseWnd') {//切换组织是关闭视频弹窗
                         if (error.Jufeng) {
                             window.lxpc.closewnd();
@@ -1695,6 +1773,14 @@ console.log(oVideo)
                             }
                             TerminateVideoConf()
                         }
+
+                        if(video_role==0){
+                            var message=Base64.encode('对方已结束通话');
+
+                        }else if(video_role==1){
+                            var message=Base64.encode('已拒绝视频通话');
+                        }
+                        GenerateVideoMessage({sender:initData.curUserUniID,messageType:1,dialogId:initData.dialogId,message:message})
 
                     }
                 } else {
@@ -1892,6 +1978,12 @@ console.log(oVideo)
      * @constructor
      */
     function GenerateVideoMessage(parm) {
+        //var parm={sender:'',messageType:'',dialogId:'',message:''}
+        //messageType  视频会议=2，视频通话=1
+//        sender       发送者userdialogid
+//        dialogId      接收者userdialogid
+//        message       消息内容，base64格式
+
         return new Promise(function (resolve, reject) {
             try {
                 window.lxpc.exebusinessaction('VideoConf', 'GenerateVideoMessage', '0', JSON.stringify(parm), 0, function (status, result, targ) {
@@ -1911,7 +2003,9 @@ console.log(oVideo)
 
         })
     }
-
+    /**
+     * 绑定与会人员的信息
+     */
     function bindJoinMember() {
         var vdo = $('.vdo_l .vdo_lD'),
                 $scroll = $('.vdo_l .scroll');
