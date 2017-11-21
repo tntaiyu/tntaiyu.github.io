@@ -540,7 +540,7 @@
                             </video>
                             <div class="vdo_l_bac disN">
                                 <div class="vdo_tip ">语音中</div>
-                                ing
+                               
                                 <div class="vdo_lBg_btn"></div>
 
                             </div>
@@ -988,8 +988,7 @@
                         qunVideoConf(nflag)
                         bindJoinMember()
                     } else {
-                        console.log('wwwwwwwwwwwwwwwwwwwwwww')
-
+                        
                         if (nflag == 'videocaller') {//个人发起
                             video_role = 0
 //                            VideoCall(tmpparm)
@@ -1016,9 +1015,9 @@
                                         })
                                     }
                                     replayAudioTip(3)
-                                    setTimeout(function(){
+                                    setTimeout(function () {
                                         replayAudioTip(0)
-                                    },1000)
+                                    }, 1000)
 
 
                                 }
@@ -1210,10 +1209,11 @@
     //群会议操作
     function qunVideoConf(ngflag) {
         $('.vdo_btn_member').show();
-        $('#vdo_btn_Count').html('0/' + initData.userUniIdList.length)
+
         if (ngflag == 'qun_videomeetingcaller') {//主叫
             video_role = 2
             var parm = {}
+            $('#vdo_btn_Count').html('0/' + initData.userUniIdList.length)
             window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                 if (status == 0) {
                     window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
@@ -1255,37 +1255,17 @@
 //            MtcCreateVideoMeeting();
         } else if (ngflag == 'to_be_videomeetingcalled') {//被叫
             video_role = 3
-            $('.vdo_btn_member').hide();
-            $('.vdo_invite').show();
-            //拒绝
-            $('.vdo_iB_btn1')[0].onclick = function () {
-                var parm = {
-                    dialogId: initData.dialogId,
-                    opCode: '1',
-                    juFengId: initData.juFengId,
-                    userUniId: initData.toUserUniId
-                }
+//            if (initData.callType == 1) {//正常接听
+//
+//            } else {//语音接听
+//
+//            }
+            loadJuFeng().then(function (data) {
+                videoQunCalled(data)
+            })
 
-                videoQunCalled(parm, 1)
-                return;
-//                                var parm={userUniId: peerDialogId,opCode:'1'}
-//                                ResponseVideoCall(parm)
-            }
-            //接受
-            $('.vdo_iB_btn2')[0].onclick = function () {
-
-                var parm = {
-                    dialogId: initData.dialogId,
-                    opCode: '0',
-                    juFengId: initData.juFengId,
-                    userUniId: initData.toUserUniId
-                }
-                videoQunCalled(parm, 0)
-            }
         }
 
-        //接受响应结果
-//        ReceiveVideoCallResult()
     }
     //验证视频会议
     function MtcCreateVideoMeeting(parm) {
@@ -1335,57 +1315,47 @@
         }
     }
     //接受群的视频会议
-    function videoQunCalled(parm, opCode) {
-        window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
-            if (status == 0) {
-                window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
-                    if (status == 0) {
-//                        ResponseVideoMeeting响应被叫群视频会议
-                        console.log(jsondata)
-                        if (opCode == 0) {
-                            initData.displayName = '蓝信视频会议';
-                            var parm1 = initData
-                            console.log(parm1)
-                            try {
-                                window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
-                                    if (status == 0) {
-                                        ResponseVideoMeeting(parm)
-                                    }
-                                })
-                            } catch (e) {
-                                console.log(e.message)
-                            }
-                        } else {
-                            ResponseVideoMeeting(parm)
-                        }
-                        var data = JSON.parse(jsondata);
-                        initData.ownerWnd = data.ownerWnd;
-                        initData.peerWnd = data.peerWnd;
-                        initData.videoId = (data.cameraInfo && data.cameraInfo.length > 0) ? data.cameraInfo[0].devId : null;
-                        var ownVideo = document.querySelector('.vdo_l_video');
-                        bindVideo(data.ownerWnd, ownVideo);
-                        $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd);
+    function videoQunCalled(jsondata) {
+
+        var parm = {
+            dialogId: initData.dialogId,
+            opCode: '0',
+            juFengId: initData.juFengId,
+            userUniId: initData.toUserUniId
+        }
+
+        initData.displayName = '蓝信视频会议';
+        var parm1 = initData
+        console.log(parm1)
+        try {
+            window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
+                if (status == 0) {
+                    ResponseVideoMeeting(parm)
+                }
+            })
+        } catch (e) {
+            console.log(e.message)
+        }
+
+        var data = JSON.parse(jsondata);
+        initData.ownerWnd = data.ownerWnd;
+        initData.peerWnd = data.peerWnd;
+        initData.videoId = (data.cameraInfo && data.cameraInfo.length > 0) ? data.cameraInfo[0].devId : null;
+        var ownVideo = document.querySelector('.vdo_l_video');
+        bindVideo(data.ownerWnd, ownVideo);
+        $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd);
 //打开视频和音频
-                        playMedia(jsondata)
-                        var data = JSON.parse(jsondata)
-                        settinginfos = data
-                        //绑定获取的可用设备
-                        multimediaSeting(data)
-                        if (data.audioOutputInfo && data.audioOutputInfo.length > 0) {
-                            $('.vdo_invite_hint').hide();
-                        } else {
-                            $('.vdo_invite_hint').show();
-                        }
-                    }
-                    else {
-                        console.log(status)
-                    }
-                })
-            }
-            else {
-                console.log(status)
-            }
-        })
+        playMedia(jsondata)
+        var data = JSON.parse(jsondata)
+        settinginfos = data
+        //绑定获取的可用设备
+        multimediaSeting(data)
+        if (data.audioOutputInfo && data.audioOutputInfo.length > 0) {
+            $('.vdo_invite_hint').hide();
+        } else {
+            $('.vdo_invite_hint').show();
+        }
+
     }
     //ResponseVideoMeeting响应被叫群视频会议
     function ResponseVideoMeeting(parm) {
@@ -1792,9 +1762,9 @@
                             dialogId: initData.dialogId,
                             message: message
                         })
-                        setTimeout(function(){
+                        setTimeout(function () {
                             window.lxpc.closewnd();
-                        },3000)
+                        }, 3000)
 
                     } else if (data.statusName == 'closeWnd') {//菜单栏关闭蓝信程序使得推出视频
                         console.log('菜单栏关闭蓝信程序使得推出视频========================================')
@@ -1903,9 +1873,7 @@
         } else {
             $('.vdo_btn_set').show()
         }
-        console.log('更改文案=================')
-        console.log($('.vdo_r .vdo_r_callOutD'))
-        console.log(video_role)
+        
         if (video_role == 0) {//个人主叫
             $('.vdo_r .vdo_r_callOutD').html('正在呼叫...')
         } else if (video_role == 1) {//个人被叫
@@ -1920,7 +1888,9 @@
             try {
                 window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                     if (status == 0) {
-                        window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
+                        var data=JSON.parse(jsondata);
+                        data.flag=initData.flag
+                        window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', JSON.stringify(data), 0, function (status, jsondata, targ) {
                             if (status == 0) {
                                 console.log('登陆成功=============================================')
                                 console.log(jsondata)
@@ -2051,13 +2021,13 @@
 //        sender       发送者userdialogid
 //        dialogId      接收者userdialogid
 //        message       消息内容，base64格式
-  console.log('生成消息的参数===========================')
+        console.log('生成消息的参数===========================')
         console.log(parm)
         return new Promise(function (resolve, reject) {
             try {
                 window.lxpc.exebusinessaction('VideoConf', 'GenerateVideoMessage', '0', JSON.stringify(parm), 0, function (status, result, targ) {
                     console.log('生成消息的结果============================')
-                    console.log('状态码========'+status)
+                    console.log('状态码========' + status)
                     console.log(result)
                     if (status == 0) {
                         var data = parseInt(result)
@@ -2157,11 +2127,11 @@
      */
     function replayAudioTip(type) {
         var audio = document.getElementById('audio');
-        if(type==1){
+        if (type == 1) {
             audio.src = initData.docPath + '\\' + 'ring_call.wav';
-        }else if(type==0){
+        } else if (type == 0) {
             audio.src = initData.docPath + '\\' + 'ring_busy.wav';
-        }else{
+        } else {
             audio.pause()
         }
 
