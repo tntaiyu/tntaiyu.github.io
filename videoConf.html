@@ -2111,19 +2111,20 @@
                     message: message
                 })
             } else {
+//会与对方不在线冲突
 
-                if (video_role == 0) {
-                    var message = Base64.encode('已取消视频通话');
-                } else {
-                    var message = Base64.encode('视频通话未接通');
-                }
-
-                GenerateVideoMessage({
-                    sender: initData.curUserUniID,
-                    messageType: type,
-                    dialogId: initData.dialogId,
-                    message: message
-                })
+//                if (video_role == 0) {
+//                    var message = Base64.encode('已取消视频通话');
+//                } else {
+//                    var message = Base64.encode('视频通话未接通');
+//                }
+//
+//                GenerateVideoMessage({
+//                    sender: initData.curUserUniID,
+//                    messageType: type,
+//                    dialogId: initData.dialogId,
+//                    message: message
+//                })
 
             }
 
