@@ -958,10 +958,9 @@
                                 VideoCall(tmpparm);
                                 openMedia(data)
                             })
-
                             timer = setTimeout(function () {
                                 if (!initData.getSuccess) {
-                                    $('.vdo_r_callOutD').html('对方正忙,请稍后再拨...')
+                                    $('.vdo_r .vdo_r_callOutD').html('对方正忙,请稍后再拨...')
                                     setTimeout(function () {
                                         TerminateVideoConf()
                                     }, 3000)
@@ -1679,25 +1678,7 @@
                         setTimeout(function () {
                             window.lxpc.closewnd();
                         }, 2000)
-                        if (!exitVideoIsManual) {
-                            if (isconnect) {
-                                var oTime = document.getElementById('vdo_time')
-                                var message = Base64.encode('通话时长' + oTime.innerHTML);
-                            } else {
-                                if (video_role == 0) {
-                                    var message = Base64.encode('视频通话无人接听');
-                                } else if (video_role == 1) {
-                                    var message = Base64.encode('已取消视频通话');
-                                }
-
-                            }
-                            GenerateVideoMessage({
-                                sender: initData.dialogId,
-                                messageType: 1,
-                                dialogId: initData.dialogId,
-                                message: message
-                            })
-                        }
+                        exitVideo();
                         clearTimeout(timer)
                         clearInterval(timer_video)
                     } else if (data.statusName == 'MtcCallVideoReceiveStatusChangedNotification') {
@@ -1718,7 +1699,7 @@
                         console.log('对方挂断======================')
                         clearTimeout(timer)
                         if (data.statusParam.callType == 0) {
-                            vdo_l_bac.find('.vdo_tip').html('对方挂断')
+                            vdo_l_bac.find('.vdo_tip').html('已取消视频通话')
                         }
                         if (!exitVideoIsManual) {
                             if (video_role == 0) {
@@ -1748,25 +1729,26 @@
                     } else if (data.statusName == 'preCloseWnd') {//切换组织是关闭视频弹窗
 
                         exitVideoIsManual = true
-                        if (video_role == 0) {
-                            var message = Base64.encode('对方已结束通话');
-                            GenerateVideoMessage({
-                                sender: initData.curUserUniID,
-                                messageType: 1,
-                                dialogId: initData.dialogId,
-                                message: message
-                            })
-                        }
-
-                        if (error.Jufeng) {
-                            window.lxpc.closewnd();
-                        } else {
-                            if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
-                                var parm = {userUniId: initData.dialogId, callType: callType}
-                                CancelVideoCall(parm)
-                            }
-                            TerminateVideoConf()
-                        }
+                        exitVideo();
+//                        if (video_role == 0) {
+//                            var message = Base64.encode('对方已结束通话');
+//                            GenerateVideoMessage({
+//                                sender: initData.curUserUniID,
+//                                messageType: 1,
+//                                dialogId: initData.dialogId,
+//                                message: message
+//                            })
+//                        }
+//
+//                        if (!error.Jufeng) {
+//                            window.lxpc.closewnd();
+//                        } else {
+//                            if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
+//                                var parm = {userUniId: initData.dialogId, callType: callType}
+//                                CancelVideoCall(parm)
+//                            }
+//                            TerminateVideoConf()
+//                        }
                     }
                 } else {
                     my_layer({message: '错误码' + status}, 'error')
@@ -1821,30 +1803,33 @@
             var parm = {}
             try {
                 window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
+                   
                     if (status == 0) {
                         var data = JSON.parse(jsondata);
                         data.flag = initData.flag
                         window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', JSON.stringify(data), 0, function (status, jsondata, targ) {
+                           
                             if (status == 0) {
                                 console.log('登陆成功=============================================')
-                                console.log(jsondata)
+                               
+                                error.Jufeng = true
                                 resolve(jsondata)
                             }
                             else {
                                 console.log(status)
-                                error.Jufeng = true
                                 reject(status)
                             }
                         })
                     }
                     else {
                         console.log(status)
-                        error.Jufeng = true
+
                         reject(status)
                     }
                 })
             } catch (e) {
-                error.Jufeng = true;
+
+                console.log('登陆菊峰失败================================')
                 reject(e.message)
             }
 
@@ -2068,7 +2053,7 @@
             type = 2
         }
         clearInterval(timer_video)
-        if (error.Jufeng) {
+        if (!error.Jufeng) {
             if (video_role == 0) {//被叫
                 var message = Base64.encode('已取消视频通话');
                 GenerateVideoMessage({
