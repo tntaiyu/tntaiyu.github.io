@@ -495,7 +495,7 @@
                             </video>
                             <div class="vdo_l_bac disN">
                                 <div class="vdo_tip ">语音中</div>
-                                ing
+
                                 <div class="vdo_lBg_btn"></div>
 
                             </div>
@@ -813,7 +813,7 @@
             </div>
         </div>
                     </span>
-                <a href="javascript:;" class="vdo_btn_set" title="设置"><i></i></a>
+                <a href="javascript:;" class="vdo_btn_set disN" title="设置"><i></i></a>
                 <a href="javascript:;" class="vdo_btn_member " style="display: none"><i></i><em
                         id="vdo_btn_Count">5/6</em></a>
             </div>
@@ -948,7 +948,6 @@
                         bindJoinMember()
                     } else {
                         console.log('wwwwwwwwwwwwwwwwwwwwwww')
-
                         if (nflag == 'videocaller') {//个人发起
                             replayAudioTip(1)//语音提示正在呼叫
                             video_role = 0
@@ -1784,11 +1783,11 @@
             }
         })
 
-        if (initData.isXP) {//Xp系统的设置按钮隐藏
-            $('.vdo_btn_set').hide()
-        } else {
-            $('.vdo_btn_set').show()
-        }
+//        if (initData.isXP) {//Xp系统的设置按钮隐藏
+//            $('.vdo_btn_set').hide()
+//        } else {
+//            $('.vdo_btn_set').show()
+//        }
 
         if (video_role == 0) {//个人主叫
             $('.vdo_r .vdo_r_callOutD').html('正在呼叫...')
