@@ -767,6 +767,9 @@ display: none;
 .vdo_btn_c .vdo_btn_set i {
     background-position: 0 -288px;
 }
+.vdo_btn_c .vdo_btn_set {
+    display: none;
+}
 
 .vdo_btn_c .vdo_btn_set:hover i {
     background-position: -24px -288px;
