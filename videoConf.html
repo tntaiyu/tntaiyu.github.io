@@ -461,6 +461,7 @@
             myscroll3 = new IScroll('#wrapper3', option);
 //            var myscroll4 = new IScroll('#wrapper4', option);
         }
+        ReceiveVideoConfStatus();//注册回调对方对视频会议的操作
     </script>
     <!--<script type="application/javascript" src="./js/videoConf.js"></script>-->
 </head>
@@ -1003,7 +1004,7 @@
 
                         }
                         initSetting(nflag);
-                        ReceiveVideoConfStatus();//注册回调对方对视频会议的操作
+
                     }
                     //video call发起
                 } else {
@@ -1172,7 +1173,7 @@
         if (ngflag == 'qun_videomeetingcaller') {//主叫
             video_role = 2
             var parm = {}
-            $('#vdo_btn_Count').html('0/' + initData.userUniIdList.length)
+            $('#vdo_btn_Count').html('1/' + initData.userUniIdList.length)
             window.lxpc.exebusinessaction('VideoConf', 'GetJusToken', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                 if (status == 0) {
                     window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', jsondata, 0, function (status, jsondata, targ) {
@@ -1232,6 +1233,8 @@
         try {
             window.lxpc.exebusinessaction('VideoConf', 'MtcCreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                 if (status == 0) {
+                    console.log('建群成功=================================')
+                    console.log(jsondata);
                     var data = JSON.parse(jsondata);
 //创建群来生成视频会议
                     confId = data.confId
