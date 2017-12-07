@@ -53,10 +53,12 @@
 
         $(function () {
 //音量
-            var initVert = null, step;
+
+
             var vert = document.querySelector('.js-vertical');
             var $btn_mute = $('.vdo_btn_mute')
             $('.volume_con').hover(function () {
+
                 if (this.querySelector('.vdo_btn_mute').classList.contains('on')) {
                     return;
                 }
@@ -64,14 +66,16 @@
                 if (!initVert) {
                     initVert = new Powerange(vert, {start: 80, vertical: true});
                     var option = initVert.options;
-//                    var slider = initVert.slider;
                     var handel = initVert.handle;
                     step = (initVert.slider.offsetHeight - handel.offsetHeight) / (option.max - option.min);
                 }
+
+
             }, function () {
                 $('.volume_div').hide()
             })
             $('.volume_plus').bind('click', function () {//增加声音
+                initData.setInitAutio = false
                 var value = isNaN(vert.value) ? 0 : parseInt(vert.value)
                 var option = initVert.options;
 //                var value=parseInt(vert.value)
@@ -100,6 +104,7 @@
             })
 
             $('.volume_minus').bind('click', function () {//减少声音
+                initData.setInitAutio = false
                 vert.value ? vert.value : 0
                 var option = initVert.options;
                 var value = parseInt(vert.value)
@@ -130,6 +135,10 @@
 
             })
             vert.onchange = function () {
+                if (initData.setInitAutio){
+                    initData.setInitAutio = false
+                    return ;
+                }
                 var clum = parseFloat(this.value);
                 var audioInputId = initData.audioInputId
                 var volume = clum
@@ -190,6 +199,7 @@
 
             //调节麦克风
             $(".vdo_btn_mic").click(function () {
+                initData.setInitAutio=false;
                 if (this.classList.contains('no')) {
                     return
                 }
@@ -279,6 +289,7 @@
             //调节音量
             $(".vdo_btn_mute").click(function () {
                 closeOrOpen(this)
+                initData.setInitAutio=false;
                 var audioInputId = initData.audioInputId
                 var vert = document.querySelector('.js-vertical');
                 if (this.classList.contains('on')) {//静音
@@ -380,9 +391,9 @@
                      } else if(type === '3') {
                         ctrType='video'
                      }
-                     console.log($ele.parents('li'));
+
                      var uniid=$ele.parents('li').attr('uniid');
-                     console.log(uniid);
+
                      var parm ={action:action,ctrlType:ctrType,userUniId:uniid,sessionId:initData.sessionId}
                      ControlConfMember(parm)
                  }else {
@@ -862,7 +873,8 @@
             isconnect = false,//是否接通
             timer = null,//计时30秒如果超过30秒则自动挂断
             timer_video = null,//记录视频通话时间null
-            exitVideoIsManual = false;//退出视频是否是主动退出的
+            exitVideoIsManual = false,//退出视频是否是主动退出的
+            initVert = null, step = 5; //记录音频
     //callType 记录会话的状态
     $(function () {
         var parm = {};
@@ -996,13 +1008,18 @@
                             tip = '未知错误'
                             break;
                     }
-                    my_layer({message: tip}, 'warn', function () {
+                    if (initData.isXP) {
                         setTimeout(function () {
                             TerminateVideoConf();
                         }, 2000)
+                    } else {
+                        my_layer({message: tip}, 'warn', function () {
+                            setTimeout(function () {
+                                TerminateVideoConf();
+                            }, 2000)
 
-                    })
-
+                        })
+                    }
 
                     if (data.opCode == '2') {
                         var message = Base64.encode('对方正在通话中');
@@ -1412,6 +1429,11 @@
 //        bindPlayer(data.audioOutputInfo, audioOutputli, '没有扬声器设备')
         if (data.audioInputInfo.length > 0) {
             initData.audioInputId = data.audioInputInfo[0].devId
+            var parm = {action: "volume", audioInputId: initData.audioInputId, volumePercent: 80}
+            initData.setInitAutio = true;
+            ControlAudio(parm).then(function (data) {
+
+            })
         } else {
             initData.audioInputId = null;
         }
@@ -2019,18 +2041,37 @@
                 VideoMeetingOver(parm);
                 if (initData.meetingQunId) {
                     TerminateVideoConf(function () {
-                        my_layer({message: '是否解散该群'}, 'confirm', function () {
-                            var reg = /-(\d+)@/
-                            var qunId = reg.exec(initData.meetingQunId)[1];
-                            var parm = {qunId: parseFloat(qunId), orgDomain: initData.orgDomain}
-                            DismissQun(parm).then(function (data) {
-                                if (data === 0) {
+                        if (initData.isXP) {
+                            var parm = {title: '蓝信', text: '是否解散该群？'}
+                            ConfirmMsgBox(parm).then(function (data) {
+                                if (data == '0') {//同意
+                                    var reg = /-(\d+)@/
+                                    var qunId = reg.exec(initData.meetingQunId)[1];
+                                    var parm = {qunId: parseFloat(qunId), orgDomain: initData.orgDomain}
+                                    DismissQun(parm).then(function (data) {
+                                        if (data === 0) {
+                                            window.lxpc.closewnd();
+                                        }
+                                    })
+                                } else {
                                     window.lxpc.closewnd();
                                 }
                             })
-                        }, function () {
-                            window.lxpc.closewnd();
-                        });
+                        } else {
+                            my_layer({message: '是否解散该群'}, 'confirm', function () {
+                                var reg = /-(\d+)@/
+                                var qunId = reg.exec(initData.meetingQunId)[1];
+                                var parm = {qunId: parseFloat(qunId), orgDomain: initData.orgDomain}
+                                DismissQun(parm).then(function (data) {
+                                    if (data === 0) {
+                                        window.lxpc.closewnd();
+                                    }
+                                })
+                            }, function () {
+                                window.lxpc.closewnd();
+                            });
+                        }
+
 
                     })
                 } else {
@@ -2130,10 +2171,21 @@
             }, 3000)
             clearInterval(timer_video)
         } else if (data.statusName == 'closeWnd') {//菜单栏关闭蓝信程序使得推出视频
-            my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                exitVideoIsManual = true
-                exitVideo()
-            })
+            if (initData.isXP){
+                var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
+                ConfirmMsgBox(parm).then(function (data) {
+                    if (data == '0') {//同意
+                        exitVideoIsManual = true
+                        exitVideo()
+                    }
+                })
+            }else{
+                my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
+                    exitVideoIsManual = true
+                    exitVideo()
+                })
+            }
+
 
 
         } else if (data.statusName == 'preCloseWnd') {//切换组织是关闭视频弹窗
