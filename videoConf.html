@@ -53,12 +53,9 @@
 
         $(function () {
 //音量
-
-
             var vert = document.querySelector('.js-vertical');
             var $btn_mute = $('.vdo_btn_mute')
             $('.volume_con').hover(function () {
-
                 if (this.querySelector('.vdo_btn_mute').classList.contains('on')) {
                     return;
                 }
@@ -69,8 +66,6 @@
                     var handel = initVert.handle;
                     step = (initVert.slider.offsetHeight - handel.offsetHeight) / (option.max - option.min);
                 }
-
-
             }, function () {
                 $('.volume_div').hide()
             })
@@ -199,7 +194,7 @@
 
             //调节麦克风
             $(".vdo_btn_mic").click(function () {
-                initData.setInitAutio=false;
+                initData.setInitAutio = false
                 if (this.classList.contains('no')) {
                     return
                 }
@@ -235,7 +230,7 @@
                     })
                 }
             })
-            //关闭视频
+            // 关闭视频
             $(".vdo_btn_camera").click(function () {
                 if (this.classList.contains('no')) {
                     return
@@ -286,10 +281,10 @@
                     }
                 })
             })
-            //调节音量
+            // 调节音量
             $(".vdo_btn_mute").click(function () {
-                closeOrOpen(this)
                 initData.setInitAutio=false;
+                closeOrOpen(this)
                 var audioInputId = initData.audioInputId
                 var vert = document.querySelector('.js-vertical');
                 if (this.classList.contains('on')) {//静音
@@ -375,30 +370,87 @@
                     ele.classList.remove('on')
                 }
             }
-            $('.vdo_rL_tabC  #vdo_connecting').delegate('i','click',function (){
-                 if (initData.flag=='qun_videomeetingcaller'){
-                     var $ele =$(this);
-                     var type =this.dataset.type
-                     var isOn =this.classList.contains('on');
-                     this.classList.toggle('on');
-                     var action =isOn?'start':'stop',
-                             ctrType='';
 
-                    if (type==='1') {
-                        ctrType='kick'
-                    } else if (type ==='2') {
-                        ctrType='audio'
-                     } else if(type === '3') {
-                        ctrType='video'
-                     }
+            // 视频会议主持人队成员处理
+            $('.vdo_rL_tabC  #vdo_connecting').delegate('i', 'click', function () {
+                if (initData.flag == 'qun_videomeetingcaller') {
+                    var $ele = $(this);
+                    var type = this.dataset.type
+                    var isOn = this.classList.contains('on');
+                    this.classList.toggle('on');
+                    var action = isOn ? 'start' : 'stop',
+                            ctrType = '';
 
-                     var uniid=$ele.parents('li').attr('uniid');
+                    if (type === '1') {
+                        ctrType = 'kick'
+                    } else if (type === '2') {
+                        ctrType = 'audio'
+                    } else if (type === '3') {
+                        ctrType = 'video'
+                    }
+                    console.log($ele.parents('li'));
+                    var uniid = $ele.parents('li').attr('uniid');
+                    console.log(uniid);
+                    var parm = {action: action, ctrlType: ctrType, userUniId: uniid, sessionId: initData.sessionId}
+                    ControlConfMember(parm)
+                } else {
+                    return;
+                }
+            });
 
-                     var parm ={action:action,ctrlType:ctrType,userUniId:uniid,sessionId:initData.sessionId}
-                     ControlConfMember(parm)
-                 }else {
-                     return;
-                 }
+            $('.vdo_rL_tabC  #vdo_notConnect').delegate('.vdo_rL_iReCalled', 'click', function () {
+                if (initData.flag == 'qun_videomeetingcaller') {
+                    var $ele = $(this);
+                    if ($ele.data('redo')) {
+                        return;
+                    } else {
+                        $ele.data('redo', true);
+                    }
+                    var uniid = $ele.parents('li').attr('uniid')
+                    var parm = {
+                        qunId: qunId,
+                        userUniIdList: [uniid],
+                        recordDomain: initData.recordDomain,
+                        juFengId: confId,
+                        passwd: initData.password
+                    }
+                    InvateVideoMeetingMember(parm).then(function () {
+                        $ele.data('redo', false);
+                        var id = initData.userUniIdList.findIndex(function (item) {
+                            return item.userUniId == uniid
+                        });
+                        if (id > -1) {
+                            var curMember = initData.userUniIdList[id];
+                            var vdo = $('.vdo_l .vdo_lD:eq(0)'),
+                                    $scroll = $('.vdo_l .scroll');
+                            var vdo_clone = vdo.clone(true);
+                            vdo_clone.find('.vdo_lD_b').html(curMember.name);
+                            vdo_clone.find('.vdo_tip').html('正在连接');
+                            vdo_clone.find('.vdo_l_bac').hide();
+                            vdo_clone.data('uniid', curMember.userUniId)
+                            vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId)
+                            vdo_clone.find('video').attr('src', '');
+                            $scroll.append(vdo_clone);
+                            myScroll.refresh();
+                        }
+
+                    })
+                } else {
+                    return;
+                }
+            });
+            // 添加选人窗口
+            $('.vdo_rL_tBtn').click(function () {
+                var parm = {
+                    fromCode: initData.code,
+                    orgDomain: initData.orgDomain,
+                    existUserList: initData.userUniIdList,
+                    initdatas: initData,
+                    option: {maxLength: 20}
+                }
+                console.log('打开选人窗口')
+                SelectPeople(initData.id, parm)
+
             })
         })
         //缺少设备 显示/隐藏
@@ -583,250 +635,25 @@
                     <div class="vdo_rL_tabC" id="wrapper3">
                         <div class="vdo_rL_tCon ">
                             <ul class="vdo_rL_list vdo_qun_call" id="vdo_connecting">
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iKick" title="剔除"></i><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>莉莉(主持人)</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>李成伟</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
-                                <!--title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>王月</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>巍巍</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
-                                <!--title="挂断"></a><a href="javascript:;"-->
-                                <!--class="vdo_rL_aMute"-->
-                                <!--title="点击禁言"></a><a-->
-                                <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>莉莉(主持人)</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>李成伟</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
-                                <!--title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>王月</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>巍巍</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
-                                <!--title="挂断"></a><a href="javascript:;"-->
-                                <!--class="vdo_rL_aMute"-->
-                                <!--title="点击禁言"></a><a-->
-                                <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>莉莉(主持人)</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>李成伟</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
-                                <!--title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>王月</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>巍巍</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
-                                <!--title="挂断"></a><a href="javascript:;"-->
-                                <!--class="vdo_rL_aMute"-->
-                                <!--title="点击禁言"></a><a-->
-                                <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>莉莉(主持人)</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>李成伟</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
-                                <!--title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>王月</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>巍巍</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
-                                <!--title="挂断"></a><a href="javascript:;"-->
-                                <!--class="vdo_rL_aMute"-->
-                                <!--title="点击禁言"></a><a-->
-                                <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>莉莉(主持人)</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>李成伟</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
-                                <!--title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>王月</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>巍巍</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
-                                <!--title="挂断"></a><a href="javascript:;"-->
-                                <!--class="vdo_rL_aMute"-->
-                                <!--title="点击禁言"></a><a-->
-                                <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>莉莉(主持人)</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>李成伟</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
-                                <!--title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>王月</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>巍巍</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
-                                <!--title="挂断"></a><a href="javascript:;"-->
-                                <!--class="vdo_rL_aMute"-->
-                                <!--title="点击禁言"></a><a-->
-                                <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>莉莉(主持人)</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>李成伟</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
-                                <!--title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>王月</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>巍巍</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
-                                <!--title="挂断"></a><a href="javascript:;"-->
-                                <!--class="vdo_rL_aMute"-->
-                                <!--title="点击禁言"></a><a-->
-                                <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
+                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iKick" title="剔除"></i><i-->
+                                        <!--class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                        <!--class="vdo_rL_iVideo" title="视频已被开启"></i><i class="vdo_rL_iReCalled"-->
+                                                                                    <!--title="重拨"></i><span-->
+                                        <!--class="vdo_noReceive_tip">已挂断</span></span></span><img-->
+                                        <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
                             </ul>
                         </div>
                         <div class="vdo_rL_tCon disN">
                             <ul class="vdo_rL_list" id="vdo_notConnect">
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo" title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>莉莉(主持人)11111111111</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>李成伟111111111111111</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i class="vdo_rL_iVideo"-->
-                                <!--title="视频已被开启"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威11111111111111</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>王月1111111111</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iMute on"-->
-                                <!--title="主持人未开启音频"></i><i-->
-                                <!--class="vdo_rL_iVideo on" title="主持人未开启视频"></i></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>巍巍111111111111</p></li>-->
-                                <!--<li><span class="vdo_rL_lBtn"><a href="javascript:;" class="vdo_rL_aConnect on"-->
-                                <!--title="挂断"></a><a href="javascript:;"-->
-                                <!--class="vdo_rL_aMute"-->
-                                <!--title="点击禁言"></a><a-->
-                                <!--href="javascript:;" class="vdo_rL_aVideo" title="关闭视频"></a></span><img-->
-                                <!--src="images/card_icon.png">-->
-                                <!--<p>赵晨威</p></li>-->
+                                <li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iKick" title="剔除"></i><i
+                                        class="vdo_rL_iMute" title="音频已被开启"></i><i
+                                        class="vdo_rL_iVideo" title="视频已被开启"></i><i class="vdo_rL_iReCalled"
+                                                                                    title="重拨"></i><span
+                                        class="vdo_noReceive_tip">已挂断</span></span></span><img
+                                        src="images/card_icon.png">
+                                    <p>莉莉(主持人)</p></li>
+
                             </ul>
                         </div>
                     </div>
@@ -847,8 +674,9 @@
         </div>
                     </span>
                 <!--<a href="javascript:;" class="vdo_btn_set disN" title="设置"><i></i></a>-->
-                <a href="javascript:;" class="vdo_btn_member " style="display: none"><i></i><em
-                        ><span id="vdo_btn_AllCount">0</span> / <span id="vdo_btn_Count">7</span></em></a>
+                <a href="javascript:;" class="vdo_btn_member " style="">
+                    <i></i><em><span id="vdo_btn_AllCount">0</span> / <span id="vdo_btn_Count">0</span></em>
+                </a>
             </div>
             <div class="vdo_btn_r"><span class="vdo_time" id="vdo_time">00:00</span><a href="javascript:;"
                                                                                        class="vdo_btn_quit"><i></i>退出</a>
@@ -860,6 +688,7 @@
             </div>
         </div>
     </div>
+
 </div>
 <audio src="" id="audio" autoplay></audio>
 </body>
@@ -874,6 +703,9 @@
             timer = null,//计时30秒如果超过30秒则自动挂断
             timer_video = null,//记录视频通话时间null
             exitVideoIsManual = false,//退出视频是否是主动退出的
+            qunId = 0, //视频会议记录群的ID
+            imgList=[],
+            imgId=-1,
             initVert = null, step = 5; //记录音频
     //callType 记录会话的状态
     $(function () {
@@ -885,6 +717,8 @@
 
                     var tmpdata = JSON.parse(jsondata);
                     initData = JSON.parse(jsondata);
+                    console.log('初始化数据================================')
+                    console.log(jsondata)
                     var peerDialogId = tmpdata['dialogId']
                     var nflag = tmpdata['flag']
                     var tmpparm = {userUniId: peerDialogId};
@@ -962,7 +796,7 @@
         ReceiveVideoCallResult();
 //        TitleTools();
     })
-    //发起会议
+    //发起视频通话
     function VideoCall(tmpparm) {
         window.lxpc.exebusinessaction('VideoConf', 'VideoCall', '0', JSON.stringify(tmpparm), 0, function (status, jsondata, targ) {
             if (status == 0) {
@@ -1008,7 +842,7 @@
                             tip = '未知错误'
                             break;
                     }
-                    if (initData.isXP) {
+                    if (initData.isXP){
                         setTimeout(function () {
                             TerminateVideoConf();
                         }, 2000)
@@ -1022,15 +856,15 @@
                     }
 
                     if (data.opCode == '2') {
-                        var message = Base64.encode('对方正在通话中');
+//                        var message = Base64.encode('对方正在通话中');
                         replayAudioTip(0)//语音提示
                     } else if (data.opCode == '4' || data.opCode == '5' || data.opCode == '6') {
-                        var message = Base64.encode('对方无法使用视频通话');
+//                        var message = Base64.encode('对方无法使用视频通话');
                     } else if (data.opCode == '1') {
                         clearTimeout(timer)
-                        var message = Base64.encode('对方正忙，无法接听');
+//                        var message = Base64.encode('对方正忙，无法接听');
                     } else if (data.opCode != '1' && data.opCode != '3') {
-                        var message = Base64.encode('对方无法使用视频通话');
+//                        var message = Base64.encode('对方无法使用视频通话');
                     }
 
                     $('.vdo_r_callOutD').html(tip)
@@ -1120,6 +954,9 @@
                 initData.videoId = (data.cameraInfo && data.cameraInfo.length > 0) ? data.cameraInfo[0].devId : null;
                 var ownVideo = document.querySelector('.vdo_l_video');
                 bindVideo(data.ownerWnd, ownVideo);
+                $('#vdo_btn_Count').html(1)
+                $('#notConnectCount').html(initData.userUniIdList.length-1)
+                $('#connectCount').html(1)
                 $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd);
 //打开视频和音频
                 playMedia(jsondata)
@@ -1150,7 +987,8 @@
             window.lxpc.exebusinessaction('VideoConf', 'MtcCreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                 if (status == 0) {
                     var data = JSON.parse(jsondata);
-                    confId = data.confId
+                    confId = data.confId;
+                    initData.password = data.password
                     var parm1 = {displayName: '蓝信视频会议', juFengId: confId, password: data.password}
                     try {
                         window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
@@ -1169,8 +1007,54 @@
                                 try {
                                     window.lxpc.exebusinessaction('VideoConf', 'CreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                                         if (status == 0) {
+                                            debugger;
+                                            console.log('CreateVideoMeeting========================', jsondata);
                                             var data = JSON.parse(jsondata);
                                             initData.meetingQunId = data.dialogId;
+                                            var reg = /-(\d+)@/
+                                            qunId = reg.exec(initData.meetingQunId)[1];
+
+                                            var tip = '',
+                                                    rtip = '未接通',
+                                                    opCode = data.opCode.toString();
+                                            if(opCode==='0'){
+                                                return;
+                                            }
+                                            switch (opCode) {
+                                                case '1':
+                                                    tip = '对方已拒绝'
+                                                    rtip = '拒绝'
+                                                    break;
+                                                case '2':
+                                                    tip = '对方占线'
+                                                    rtip = '占线'
+                                                    break;
+                                                case '3':
+                                                    tip = '请求超时'
+                                                    break;
+                                                case '4':
+                                                    tip = '对方不在线'
+                                                    rtip = '离线'
+                                                    break;
+                                                case '5':
+                                                    tip = '设备不支持'
+                                                    break;
+                                                case '6':
+                                                    tip = '版本不支持'
+                                                    break;
+                                                default:
+                                                    tip = '未知错误'
+                                                    break;
+                                            }
+                                            if (opCode !== "0") { // 未接通
+                                                var vdeo_out = $('.vdo_out[uniid="' + data.userUniId + '"]');
+                                                vdeo_out.find('.vdo_r_callOutD').html(tip)
+                                                var vdo_parent = vdeo_out.parents('.vdo_lD')
+                                                setTimeout(function () {
+                                                    vdo_parent.remove();
+                                                }, 2000)
+                                                $('.vdo_rL_tabC li[uniid="' + data.userUniId + '"] .vdo_noReceive_tip').html(rtip)
+                                            }
                                         }
                                     })
                                 } catch (e) {
@@ -1217,6 +1101,9 @@
         initData.videoId = (data.cameraInfo && data.cameraInfo.length > 0) ? data.cameraInfo[0].devId : null;
         var ownVideo = document.querySelector('.vdo_l_video');
         bindVideo(data.ownerWnd, ownVideo);
+        $('#vdo_btn_Count').html(1)
+        $('#notConnectCount').html(initData.userUniIdList.length-1)
+        $('#connectCount').html(1)
         $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd);
 //打开视频和音频
         playMedia(jsondata)
@@ -1271,7 +1158,7 @@
 //                                aspectRatio: 1.3333333333
             }
         }, function (stream) {
-            console.log(oVideo)
+            
             oVideo.onload = function (e) {
                 window.URL.revokeObjectURL(this.src); // 清除释放
                 $(this).siblings('.vdo_r_callOutD').hide();
@@ -1287,33 +1174,36 @@
     }
     //接收视频信息
     function ReceiveVideoCallResult() {
-        var hasJoinList = [];
-        var ltarg = 0,JoinCount=0;
+        var hasJoinList = {};
+        var ltarg = 0, JoinCount = 0;
         try {
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveVideoCallResult', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
                 console.log('ReceiveVideoCallResult--------------------')
                 console.log(jsondata)
+                debugger;
                 if (status == 0) {
                     var nflg = initData.flag
                     var data = JSON.parse(jsondata);
                     if (nflg == 'qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled') {//视频会议
                         if (data.isLeaved == 0) {//加入会议
-                            if (nflg == 'qun_videomeetingcaller' ) {
-                                if (data.userUniID == initData.curUserUniID) {
+                            if (nflg == 'qun_videomeetingcaller') {
+                                if (data.userUniID == initData.curUserUniID) {// 主持人自己
                                     var peerVideo = $('.vdo_l .vdo_lD[uniid="' + data.userUniID + '"] video');
                                     bindVideo(data.peerWnd, peerVideo[0])
                                 } else {
-                                    if (hasJoinList.indexOf(data.userUniID) > -1) {
+                                    if (hasJoinList[data.userUniID]) {
                                         return;
                                     }
-                                    hasJoinList.push(data.userUniID);
+                                    hasJoinList[data.userUniID]=data;
                                     JoinCount++;
-                                    $('#vdo_btn_Count').html(JoinCount+1)
+                                    $('#vdo_btn_Count').html(JoinCount + 1)
+                                    $('#connectCount').html(JoinCount + 1)
+                                    $('#notConnectCount').html(initData.userUniIdList.length-(JoinCount + 1))
                                     console.log('进入的标识========');
                                     console.log(ltarg);
                                     if (ltarg == 0) {
                                         initData.sessionId = data.sessionId;
-                                        var tem = $('.vdo_l  .vdo_out[uniid="' + data.userUniID + '"]').parents('.vdo_lD');
+                                        var tem = $('.vdo_out[uniid="' + data.userUniID + '"]').parents('.vdo_lD');
                                         changeVideo(tem);
                                         var peerVideo = document.querySelector('.vdo_r video');
                                         bindVideo(data.peerWnd, peerVideo)
@@ -1322,7 +1212,7 @@
                                         timer_video = setTimer(oTime);
 
                                     } else {
-                                        var peerVideo = $('.vdo_l .vdo_out[uniid="' + data.userUniID + '"] video')
+                                        var peerVideo = $('.vdo_out[uniid="' + data.userUniID + '"] video')
                                         console.log(peerVideo)
                                         bindVideo(data.peerWnd, peerVideo[0])
                                     }
@@ -1343,31 +1233,92 @@
                                 }
                             } else {
 
-                                    if (hasJoinList.indexOf(data.userUniID) > -1) {
+                                var item = hasJoinList[data.userUniID]
+                                if (item) {
+                                    var item = hasJoinList[data.userUniID]
+                                    if (item.mediaOption === data.mediaOption && item.isStart === data.isStart) {
                                         return;
                                     }
+                                    var peerVideo = $('.vdo_out[uniid="' + data.userUniID + '"] ').parents('.vdo_lD');
+                                    var userInfo = $('.vdo_rL_tabC .li[uniid="' + data.userUniID + '"] ');
+                                    var $Mick = userInfo.find('.vdo_rL_iMute');
+                                    var $video = userInfo.find('.vdo_rL_iVideo');
+
+                                    if (data.mediaOption === 0) {//正常状态
+//                                        if (data.isStart == 1) {//打开
+//                                            $video.removeClass('on');
+//                                            $Mick.removeClass('on');
+//                                            peerVideo.find('.vdo_l_bac').hide();
+//                                            peerVideo.find('.vdo_l_mute').hide();
+//                                        } else {
+//                                            $video.addClass('on');
+//                                            $Mick.addClass('on')
+//                                            peerVideo.find('.vdo_l_bac').show();
+//                                            peerVideo.find('.vdo_l_mute').show();
+//                                        };
+                                    } else if (data.mediaOption === 1) { // 主持人禁掉或开启某人语音
+                                        if (data.isStart == 1) {//打开
+                                            $Mick.removeClass('on')
+                                            peerVideo.find('.vdo_l_mute').hide();
+                                        } else {
+                                            $Mick.addClass('on')
+                                            peerVideo.find('.vdo_l_mute').show();
+                                        }
+
+                                    } else if (data.mediaOption === 2) {//主持人禁掉或开启某人视频
+                                        if (data.isStart == 1) {//打开
+                                            $video.removeClass('on')
+                                            peerVideo.find('.vdo_l_bac').hide();
+                                        } else {
+                                            $video.addClass('on')
+                                            peerVideo.find('.vdo_l_bac').show();
+                                        }
+                                    } else if (data.mediaOption === 3) {//主持人禁掉或开启某人视频和语音
+                                        if (data.isStart == 1) {//打开
+                                            $video.removeClass('on');
+                                            $Mick.removeClass('on');
+                                            peerVideo.find('.vdo_l_bac').hide();
+                                            peerVideo.find('.vdo_l_mute').hide();
+                                        } else {
+                                            $video.addClass('on');
+                                            $Mick.addClass('on')
+                                            peerVideo.find('.vdo_l_bac').show();
+                                            peerVideo.find('.vdo_l_mute').show();
+                                        }
+                                    }
+
+                                    return;
+                                } else {
+                                    hasJoinList[data.userUniID] = data;
                                     JoinCount++;
-                                    $('#vdo_btn_Count').html(JoinCount+1)
-                                    hasJoinList.push(data.userUniID);
+                                    $('#vdo_btn_Count').html(JoinCount + 1);
+                                    $('#connectCount').html(JoinCount + 1)
+                                    $('#notConnectCount').html(initData.userUniIdList.length-(JoinCount + 1))
                                     connectList.push(data)
-                                    console.log('进入的标识========');
+                                    var curMember = data;
+                                    var index = initData.userUniIdList.findIndex(function (item) {
+                                        return item.userUniId == data.userUniID
+                                    })
+                                    if (index > -1) curMember = initData.userUniIdList[index];
                                     if (data.userUniID === initData.userUniId) {//主持人
                                         initData.sessionId = data.sessionId;
                                         var peerVideo = $('.vdo_r video');
                                         bindVideo(data.peerWnd, peerVideo[0]);
                                         var oTime = document.getElementById('vdo_time')
                                         timer_video = setTimer(oTime);
-                                        var id= initData.userUniIdList.findIndex(function (item,index){
+                                        var id = initData.userUniIdList.findIndex(function (item, index) {
                                             return item.userUniId === data.userUniID;
                                         });
-                                        var curMember=data;
-                                        if (id>-1) curMember =initData.userUniIdList[id];
+
                                         $('.vdo_r .main_name').html(curMember.name)
                                         $('.vdo_r .main_branch').html(curMember.branchPath)
-                                        bindmemberInfoforCalled(data,true);
+                                        bindmemberInfoforCalled(curMember, true);
                                     } else {
-                                       bindmemberInfoforCalled(data);
+
+                                        bindmemberInfoforCalled(curMember);
                                     }
+                                }
+
                             }
                         } else {//退出会议
                             if (data.userUniID === initData.userUniId) {//主持人
@@ -1376,6 +1327,8 @@
                             }
                             JoinCount--;
                             $('#vdo_btn_Count').html(JoinCount);
+                            $('#connectCount').html(JoinCount);
+                            $('#notConnectCount').html(initData.userUniIdList.length-JoinCount)
                             var peerVideo = $('.vdo_l .vdo_out[uniid="' + data.userUniID + '"] ').parents('.vdo_lD');
                             if (peerVideo.length === 0) {
                                 peerVideo = document.querySelector('.vdo_r .vdo_out');
@@ -1384,19 +1337,10 @@
                             } else {
                                 peerVideo.remove();
                             }
-                            var $li = $('#vdo_notConnect li[uniid="' + data.userUniID + '"]');
-                            $('#vdo_connecting').append($li);
+                            var $li = $('#vdo_connecting li[uniid="' + data.userUniID + '"]');
+                            console.log($li)
+                            $('#vdo_notConnect').append($li);
 
-//                            var index = initData.userUniIdList.findIndex(function (item) {
-//                                return item.userUniId == data.userUniID
-//                            })
-//                            if (index > -1) {
-//                                notConnectList.push(initData.userUniIdList[index])
-//                                var id = connectList.findIndex(function (item) {
-//                                    return item.userUniId == data.userUniID
-//                                })
-//                                if (id > -1) connectList.splice(id, 1)
-//                            }
                         }
 
                     } else {//视频通话
@@ -1428,7 +1372,7 @@
 //        bindPlayer(data.audioInputInfo, audioInputli, '没有麦克风设备')
 //        bindPlayer(data.audioOutputInfo, audioOutputli, '没有扬声器设备')
         if (data.audioInputInfo.length > 0) {
-            initData.audioInputId = data.audioInputInfo[0].devId
+            initData.audioInputId = data.audioInputInfo[0].devId;
             var parm = {action: "volume", audioInputId: initData.audioInputId, volumePercent: 80}
             initData.setInitAutio = true;
             ControlAudio(parm).then(function (data) {
@@ -1551,6 +1495,7 @@
                     } else {
                         reject(status)
                     }
+
                 })
             } catch (e) {
                 reject(e.message)
@@ -1644,7 +1589,9 @@
         try {
             window.lxpc.exebusinessaction('VideoConf', 'VideoMeetingOver', '0', JSON.stringify(parm), 0, function (status, result, targ) {
                 if (status == 0) {
-
+                    if (video_role === 3) { // 被叫
+                        TerminateVideoConf();
+                    }
                 } else {
                     console.log(status)
                 }
@@ -1688,21 +1635,47 @@
 
     //初始化设置
     function initSettingforMetting(type) {
+        $('.vdo_r .vdo_r_callOutD').hide();
         if (type === "qun_videomeetingcaller") {//视频会议的主持人
             video_role = 2
             $('.PA88').show();
             $('.notConnectCount').show();
-            $('#vdo_connecting ').addClass('vdo_qun_call');
+            $('#vdo_connecting ').addClass('vdo_qun_call').removeClass('vdo_qun_called');
             $('#vdo_btn_AllCount').html(initData.userUniIdList.length)
+            ReceiveSelectPeople(initData.id, function (data) {
+                console.log('JJJJJJJJJJJJJJJJJJJJJJJJJJJ')
+                console.log(datalist)
+                var orgList=[],memberlist=[];
+                var datalist =data.userlist
+                for (var i=0;i<datalist.length;i++) {
+                    var curItem=datalist[i];
+                    if (curItem.isstruct){
+                        orgList.push({qunId:parseFloat(curItem.userUniId),type:2})
+                    }else {
+                        memberlist.push(curItem.userUniId);
+                    }
+                }
+
+                var parm = {
+                    qunId: qunId,
+                    userUniIdList: memberlist,
+                    recordDomain: initData.recordDomain,
+                    juFengId: confId,
+                    passwd: initData.password,
+                    invitedGroups:orgList
+                }
+                InvateVideoMeetingMember(parm).then(function () {
+                })
+            });
         } else {
             $('.PA88').hide();
             $('.notConnectCount').hide();
-            $('#vdo_connecting ').removeClass('vdo_qun_call')
-            video_role = 3
+            $('#vdo_connecting ').removeClass('vdo_qun_call').addClass('vdo_qun_called')
+            video_role = 3;
+            var parm = {dialogId: initData.dialogId, juFengId: confId};
+            VideoMeetingOver(parm);
         }
-
     }
-
     //登录菊峰
     function loadJuFeng() {
         return new Promise(function (resolve, reject) {
@@ -1874,75 +1847,74 @@
         } else {//被叫
             var parm = {dialogId: initData.dialogId, orgDomain: initData.orgDomain}
             getQunMemberInfo(parm).then(function (datalist) {
-                 initData.userUniIdList = datalist;
+                initData.userUniIdList = datalist;
                 $('#vdo_btn_AllCount').html(datalist.length);
-//                console.log(datalist)
-//                var str = bindmemberInfo(datalist);
-//                myScroll.refresh();
-//                var vdo_notConnect = document.getElementById('vdo_notConnect')
-//                vdo_notConnect.innerHTML = str;
-//                myscroll3.refresh();
-//                var connectCount = document.getElementById('connectCount')
-//                connectCount.innerHTML = 1;
-//                var notconnectCount = document.getElementById('notConnectCount')
-//                notconnectCount.innerHTML = datalist.length;
             })
         }
 
 
     }
     function bindmemberInfo(datalist) {
-        console.log(datalist);
-        console.log('成员列表')
-        initData.userUniIdList = datalist;
+
         var vdo = $('.vdo_l .vdo_lD:eq(0)'),
                 $scroll = $('.vdo_l .scroll');
-        console.log(vdo);
         var str = ''
+
         for (var i = 0; i < datalist.length; i++) {
             var curMember = datalist[i];
+            var name = ''
+            if (curMember.userUniId == initData.curUserUniID) {
+                name = curMember.name + '(主持人)';
+            } else {
+                name = curMember.name
+            }
+            name = XssToString(curMember.name);
             var tem = `<li index=${i} uniid="${curMember.userUniId}">
                              <span class="vdo_rL_lBtn2">
                              <i class="vdo_rL_iKick" title="剔除" data-type="1"></i>
                              <i class="vdo_rL_iMute" title="音频已被开启" data-type="2"></i>
                              <i class="vdo_rL_iVideo" title="视频已被开启" data-type="3"></i>
+                             <i class="vdo_rL_iReCalled" title="重拨" data-type="4"></i>
+                             <span class="vdo_noReceive_tip">未接听</span></span>
                              </span>
-                             <img src="images/card_icon.png" onload="getImge(${i})">
-                                    <p>${curMember.name}</p></li>`
+                             <img src="images/card_icon.png" data-resid="${curMember.photoResId}" onload="getImge(${i},this)">
+                                    <p>${name}</p></li>`
             if (curMember.userUniId == initData.curUserUniID) {//当前的用户的信息再次不现实，在后边会显示
-//                    connectList.push(curMember);
-//                    var vdo_notConnect = document.getElementById('vdo_connecting')
-//                    vdo_notConnect.innerHTML = tem;
-//                    vdo.data('uniid', curMember.userUniId)
-                continue;
+                var vdo_Connect = document.getElementById('vdo_connecting')
+                vdo_Connect.innerHTML = tem;
+
             } else {
                 notConnectList.push(curMember);
+                str += tem;
+                var vdo_clone = vdo.clone(true);
+                vdo_clone.find('.vdo_lD_b').html(curMember.name);
+                vdo_clone.find('.vdo_tip').html('正在连接');
+                vdo_clone.find('.vdo_l_bac').hide();
+                vdo_clone.data('uniid', curMember.userUniId)
+                vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId)
+                $scroll.append(vdo_clone);
             }
-
-            str += tem;
-            var vdo_clone = vdo.clone(true);
-            vdo_clone.find('.vdo_lD_b').html(curMember.name);
-            vdo_clone.find('.vdo_tip').html('正在连接');
-            vdo_clone.find('.vdo_l_bac').hide();
-            vdo_clone.data('uniid', curMember.userUniId)
-            vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId)
-            $scroll.append(vdo_clone);
         }
         return str
     }
-    function bindmemberInfoforCalled(data,isNotCreatvideo) {
+    function bindmemberInfoforCalled(data, isNotCreatvideo) {
         console.log(data);
         console.log('成员列表')
         var vdo = $('.vdo_l .vdo_lD:eq(0)'),
                 $scroll = $('.vdo_l .scroll');
         console.log(vdo);
         var str = ''
-        var i = connectList.length-1;
-       var id= initData.userUniIdList.findIndex(function (item,index){
+        var i = connectList.length - 1;
+        var id = initData.userUniIdList.findIndex(function (item, index) {
             return item.userUniId === data.userUniID;
         });
-        var curMember=data;
-        if (id>-1) curMember =initData.userUniIdList[id];
+        var curMember = data;
+        var name =curMember.name
+        if (isNotCreatvideo){
+            name = name+'(主持人)'
+        }
+        name = XssToString(name);
+        if (id > -1) curMember = initData.userUniIdList[id];
         console.log(curMember);
         var tem = `<li index=${i} uniid="${curMember.userUniId}">
                              <span class="vdo_rL_lBtn2">
@@ -1950,42 +1922,55 @@
                              <i class="vdo_rL_iMute" title="音频已被开启" data-type="2"></i>
                              <i class="vdo_rL_iVideo" title="视频已被开启" data-type="3"></i>
                              </span>
-                             <img src="images/card_icon.png" onload="getImge(${i})">
-                                    <p>${curMember.name}</p></li>`
+                             <img src="images/card_icon.png" data-resid="${curMember.photoResId}" onload="getImge(${i},this)">
+                                    <p title="${name}">${name}</p></li>`
 
         str += tem;
-        if (!isNotCreatvideo){
+        if (!isNotCreatvideo) {
             var vdo_clone = vdo.clone(true);
             vdo_clone.find('.vdo_lD_b').html(curMember.name);
             vdo_clone.find('.vdo_tip').html('正在连接');
             vdo_clone.find('.vdo_l_bac').hide();
             vdo_clone.data('uniid', curMember.userUniId)
             vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId);
-            var peerVideo = vdo_clone.find('video')
+            var peerVideo = vdo_clone.find('video');
+            peerVideo.attr('src','');
             $scroll.append(vdo_clone);
+            bindVideo(data.peerWnd, peerVideo[0])
+        }
+        if (isNotCreatvideo){
+            $('#vdo_connecting').append(str);
+        } else {
+            $('#vdo_connecting').prepend(str);
         }
 
-        $('#vdo_connecting').append(str);
-        bindVideo(data.peerWnd, peerVideo[0])
         myScroll.refresh();
         myscroll3.refresh();
     }
-    function getImge(index) {
-        var curitem = initData.userUniIdList[index]
-        var parm = {resourceList: [{photoResId: curitem.photoResId}], size: 96}
-
+    function getImge(index,ele) {
+        var $ele=$(ele)
+        var resId=$ele.data('resid')
+        console.log(resId);
+        console.log('ffffffffffffffffffffffffff');
+        if (!resId){return;}
+        var parm = {resourceList: [{photoResId: resId}], size: 96}
+        imgList.push($ele);
         try {
-            window.lxpc.exebusinessaction('DownloadResource', handle, '0', JSON.stringify(parm), index, function (status, result, targ) {
+            window.lxpc.exebusinessaction('DownloadResource', 'MemberImage', '0', JSON.stringify(parm), imgList.length, function (status, result, targ) {
                 if (status == 0) {
+                    console.log('获取头像=======================')
+                    console.log(result)
+                    console.log(imgList[targ])
                     if (result.indexOf('\\') > -1 || result.indexOf('/') > -1) {
 
-                        var item = $('#vdo_notConnect li[index="' + targ + '"]');
+                        var item = imgList[targ];
                         var $img = item.find('img')
                         $img.attr('src', result);
                         $img.load(function (e) {
                             $(this).off();
                         })
                         $img.error(function (e) {
+                            $(this).off();
                             this.src = 'images/card_icon.png'
                         })
 
@@ -2041,12 +2026,10 @@
                 VideoMeetingOver(parm);
                 if (initData.meetingQunId) {
                     TerminateVideoConf(function () {
-                        if (initData.isXP) {
+                        if (initData.isXP){
                             var parm = {title: '蓝信', text: '是否解散该群？'}
                             ConfirmMsgBox(parm).then(function (data) {
                                 if (data == '0') {//同意
-                                    var reg = /-(\d+)@/
-                                    var qunId = reg.exec(initData.meetingQunId)[1];
                                     var parm = {qunId: parseFloat(qunId), orgDomain: initData.orgDomain}
                                     DismissQun(parm).then(function (data) {
                                         if (data === 0) {
@@ -2059,8 +2042,8 @@
                             })
                         } else {
                             my_layer({message: '是否解散该群'}, 'confirm', function () {
-                                var reg = /-(\d+)@/
-                                var qunId = reg.exec(initData.meetingQunId)[1];
+//                            var reg = /-(\d+)@/
+//                            var qunId = reg.exec(initData.meetingQunId)[1];
                                 var parm = {qunId: parseFloat(qunId), orgDomain: initData.orgDomain}
                                 DismissQun(parm).then(function (data) {
                                     if (data === 0) {
@@ -2171,11 +2154,11 @@
             }, 3000)
             clearInterval(timer_video)
         } else if (data.statusName == 'closeWnd') {//菜单栏关闭蓝信程序使得推出视频
-            if (initData.isXP){
+            if (initData.isXP) {
                 var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
                 ConfirmMsgBox(parm).then(function (data) {
+                    exitVideoIsManual = true
                     if (data == '0') {//同意
-                        exitVideoIsManual = true
                         exitVideo()
                     }
                 })
@@ -2186,31 +2169,12 @@
                 })
             }
 
-
-
         } else if (data.statusName == 'preCloseWnd') {//切换组织是关闭视频弹窗
 
             exitVideoIsManual = true
             exitVideo();
-//                        if (video_role == 0) {
-//                            var message = Base64.encode('对方已结束通话');
-//                            GenerateVideoMessage({
-//                                sender: initData.curUserUniID,
-//                                messageType: 1,
-//                                dialogId: initData.dialogId,
-//                                message: message
-//                            })
-//                        }
-//
-//                        if (!error.Jufeng) {
-//                            window.lxpc.closewnd();
-//                        } else {
-//                            if (initData.flag == 'videocaller') {//主叫的话得取消视频会话
-//                                var parm = {userUniId: initData.dialogId, callType: callType}
-//                                CancelVideoCall(parm)
-//                            }
-//                            TerminateVideoConf()
-//                        }
+        } else if (data.statusName === 'mediaOption') {
+
         }
 
     }
@@ -2237,9 +2201,9 @@
      * @returns {Promise}
      * @constructor
      */
-    function ControlConfMember(parm){
+    function ControlConfMember(parm) {
 //        var parm ={action:'stop/start',ctrlType:'video/audio/kick',userUniId:''}
-        console.log('控制视频会议成员参数=========',parm)
+        console.log('控制视频会议成员参数=========', parm)
         return new Promise(function (resolve, reject) {
             try {
 
@@ -2253,6 +2217,29 @@
             }
         })
     }
+    // 要求成员加入到当前视频会议’
+    function InvateVideoMeetingMember(parm) {
+        console.log('要求成员加入到当前视频会议========参数', parm)
+//        var parm={qunId:'',userUniIdList:[],invitedGroups:[],recordDomain:'',juFengId:'',passwd:''}
+        return new Promise(function (resolve, reject) {
+            try {
 
+                window.lxpc.exebusinessaction('VideoConf', 'InvateVideoMeetingMember', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
+                    console.log('要求成员加入到当前视频会议========', status)
+                    console.log(jsondata)
+                    if (status == 0) {
+                        resolve(status);
+
+                    } else {
+                        reject(status)
+                    }
+
+                })
+            }
+            catch (e) {
+                reject(e.message)
+            }
+        })
+    }
 
 </script>
