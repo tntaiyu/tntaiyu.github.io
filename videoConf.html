@@ -375,6 +375,11 @@
             $('.vdo_rL_tabC  #vdo_connecting').delegate('i', 'click', function () {
                 if (initData.flag == 'qun_videomeetingcaller') {
                     var $ele = $(this);
+                    if ($ele.data('redo')){
+                        return;
+                    }else {
+                        $ele.data('redo',true)
+                    }
                     var type = this.dataset.type
                     var isOn = this.classList.contains('on');
                     this.classList.toggle('on');
@@ -392,7 +397,34 @@
                     var uniid = $ele.parents('li').attr('uniid');
                     console.log(uniid);
                     var parm = {action: action, ctrlType: ctrType, userUniId: uniid, sessionId: initData.sessionId}
-                    ControlConfMember(parm)
+                    ControlConfMember(parm).then(function(status){
+                        $ele.data('redo',false);
+                        if (status==0){
+                            var $vdo_out = $('.vdo_out[uniid="'+uniid+'"]')
+                            if (type === '2'){
+                                if (isOn){
+                                    $vdo_out.find('.vdo_l_mute').hide()
+                                }else {
+                                    $vdo_out.find('.vdo_l_mute').show()
+                                }
+                            } else if (type === '3'){
+                                if (isOn){
+                                    $vdo_out.find('.vdo_l_bac').hide()
+
+                                }else {
+                                    $vdo_out.find('.vdo_l_bac').show();
+                                    $vdo_out.find('.vdo_tip').html('语音中')
+                                }
+                            } else if (type === '1'){
+
+                                  var curitem= hasJoinList[uniid]
+                                   if (curitem){
+                                       hasJoinList[uniid]=null;
+                                   }
+                            }
+
+                        }
+                    })
                 } else {
                     return;
                 }
@@ -413,28 +445,31 @@
                         recordDomain: initData.recordDomain,
                         juFengId: confId,
                         passwd: initData.password
-                    }
+                    };
+
+
                     InvateVideoMeetingMember(parm).then(function () {
                         $ele.data('redo', false);
-                        var id = initData.userUniIdList.findIndex(function (item) {
-                            return item.userUniId == uniid
-                        });
-                        if (id > -1) {
-                            var curMember = initData.userUniIdList[id];
-                            var vdo = $('.vdo_l .vdo_lD:eq(0)'),
-                                    $scroll = $('.vdo_l .scroll');
-                            var vdo_clone = vdo.clone(true);
-                            vdo_clone.find('.vdo_lD_b').html(curMember.name);
-                            vdo_clone.find('.vdo_tip').html('正在连接');
-                            vdo_clone.find('.vdo_l_bac').hide();
-                            vdo_clone.data('uniid', curMember.userUniId)
-                            vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId)
-                            vdo_clone.find('video').attr('src', '');
-                            $scroll.append(vdo_clone);
-                            myScroll.refresh();
-                        }
-
                     })
+                    var id = initData.userUniIdList.findIndex(function (item) {
+                        return item.userUniId == uniid
+                    });
+                    if (id > -1) {
+                        var curMember = initData.userUniIdList[id];
+                        var vdo = $('.vdo_l .vdo_lD:eq(0)'),
+                            $scroll = $('.vdo_l .scroll');
+                        var vdo_clone = vdo.clone(true);
+                        vdo_clone.find('.vdo_lD_b').html(curMember.name);
+                        vdo_clone.find('.vdo_tip').html('正在连接');
+                        vdo_clone.find('.vdo_l_bac').hide();
+                        vdo_clone.find('.vdo_r_callOutD').show().html('正在呼叫');
+                        vdo_clone.data('uniid', curMember.userUniId)
+                        vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId)
+                        vdo_clone.find('video').attr('src', '');
+                        $scroll.append(vdo_clone);
+                        myScroll.refresh();
+                    }
+
                 } else {
                     return;
                 }
@@ -618,10 +653,9 @@
 
 
                 <div class="vdo_rList disN" style="opacity: 1; right: 0px; display: none">
-                    <!--参会人员-->
-                    <!--<div class="PA42 disN">-->
-                    <!--<div class="vdo_rL_tTit ">已加入(5)</div>-->
-                    <!--</div>-->
+                    <div class="PA42 disN">
+                    <div class="vdo_rL_tTit ">已加入(<span id="topconnectCount">0</span>)</div>
+                    </div>
                     <div class="PA88">
                         <div class="vdo_rL_tBtn"><a href="javascript:;"><i></i>可邀请20人</a></div>
                         <div class="vdo_rL_tTab">
@@ -954,10 +988,12 @@
                 initData.videoId = (data.cameraInfo && data.cameraInfo.length > 0) ? data.cameraInfo[0].devId : null;
                 var ownVideo = document.querySelector('.vdo_l_video');
                 bindVideo(data.ownerWnd, ownVideo);
+
                 $('#vdo_btn_Count').html(1)
                 $('#notConnectCount').html(initData.userUniIdList.length-1)
                 $('#connectCount').html(1)
-                $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd);
+                $('#topconnectCount').html(1)
+                $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd).attr('uniid',initData.curUserUniID);
 //打开视频和音频
                 playMedia(jsondata)
                 var data = JSON.parse(jsondata)
@@ -1007,7 +1043,7 @@
                                 try {
                                     window.lxpc.exebusinessaction('VideoConf', 'CreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                                         if (status == 0) {
-                                            debugger;
+
                                             console.log('CreateVideoMeeting========================', jsondata);
                                             var data = JSON.parse(jsondata);
                                             initData.meetingQunId = data.dialogId;
@@ -1103,8 +1139,9 @@
         bindVideo(data.ownerWnd, ownVideo);
         $('#vdo_btn_Count').html(1)
         $('#notConnectCount').html(initData.userUniIdList.length-1)
-        $('#connectCount').html(1)
-        $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd);
+        $('#connectCount').html(1);
+        $('#topconnectCount').html(1)
+        $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd).attr('uniid',initData.toUserUniId);
 //打开视频和音频
         playMedia(jsondata)
         var data = JSON.parse(jsondata)
@@ -1134,7 +1171,8 @@
     }
     //绑定视频信息
     function bindVideo(Handel, oVideo, mainVideo) {
-
+console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
+console.log(Handel)
         navigator.getUserMedia({
             audio: false,
             video: {
@@ -1158,13 +1196,14 @@
 //                                aspectRatio: 1.3333333333
             }
         }, function (stream) {
-            
+            console.log(oVideo);
+            console.log('KKKKKKKKKKKKKKKKKKKKKKKKK');
             oVideo.onload = function (e) {
+                console.log('ddddddddddddddddddddddddddddddddddddddddddd')
                 window.URL.revokeObjectURL(this.src); // 清除释放
                 $(this).siblings('.vdo_r_callOutD').hide();
                 oVideo.attr('wnd', Handel)
             }
-
             oVideo.src = window.URL.createObjectURL(stream);
             $(oVideo).siblings('.vdo_r_callOutD').hide();
 
@@ -1173,9 +1212,10 @@
         })
     }
     //接收视频信息
+    var hasJoinList = {};
+    var ltarg = 0, JoinCount = 0;
     function ReceiveVideoCallResult() {
-        var hasJoinList = {};
-        var ltarg = 0, JoinCount = 0;
+
         try {
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveVideoCallResult', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
                 console.log('ReceiveVideoCallResult--------------------')
@@ -1187,17 +1227,24 @@
                     if (nflg == 'qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled') {//视频会议
                         if (data.isLeaved == 0) {//加入会议
                             if (nflg == 'qun_videomeetingcaller') {
+                                console.log('1----------------------------------')
                                 if (data.userUniID == initData.curUserUniID) {// 主持人自己
                                     var peerVideo = $('.vdo_l .vdo_lD[uniid="' + data.userUniID + '"] video');
                                     bindVideo(data.peerWnd, peerVideo[0])
+                                    console.log('2===============================================================')
                                 } else {
+                                    console.log('3==================================================================')
+                                    console.log(hasJoinList[data.userUniID])
+                                    console.log(hasJoinList)
                                     if (hasJoinList[data.userUniID]) {
                                         return;
                                     }
+                                    console.log('4=================================')
                                     hasJoinList[data.userUniID]=data;
                                     JoinCount++;
                                     $('#vdo_btn_Count').html(JoinCount + 1)
                                     $('#connectCount').html(JoinCount + 1)
+                                    $('#topconnectCount').html(JoinCount + 1)
                                     $('#notConnectCount').html(initData.userUniIdList.length-(JoinCount + 1))
                                     console.log('进入的标识========');
                                     console.log(ltarg);
@@ -1232,93 +1279,7 @@
                                     }
                                 }
                             } else {
-
-                                var item = hasJoinList[data.userUniID]
-                                if (item) {
-                                    var item = hasJoinList[data.userUniID]
-                                    if (item.mediaOption === data.mediaOption && item.isStart === data.isStart) {
-                                        return;
-                                    }
-                                    var peerVideo = $('.vdo_out[uniid="' + data.userUniID + '"] ').parents('.vdo_lD');
-                                    var userInfo = $('.vdo_rL_tabC .li[uniid="' + data.userUniID + '"] ');
-                                    var $Mick = userInfo.find('.vdo_rL_iMute');
-                                    var $video = userInfo.find('.vdo_rL_iVideo');
-
-                                    if (data.mediaOption === 0) {//正常状态
-//                                        if (data.isStart == 1) {//打开
-//                                            $video.removeClass('on');
-//                                            $Mick.removeClass('on');
-//                                            peerVideo.find('.vdo_l_bac').hide();
-//                                            peerVideo.find('.vdo_l_mute').hide();
-//                                        } else {
-//                                            $video.addClass('on');
-//                                            $Mick.addClass('on')
-//                                            peerVideo.find('.vdo_l_bac').show();
-//                                            peerVideo.find('.vdo_l_mute').show();
-//                                        };
-                                    } else if (data.mediaOption === 1) { // 主持人禁掉或开启某人语音
-                                        if (data.isStart == 1) {//打开
-                                            $Mick.removeClass('on')
-                                            peerVideo.find('.vdo_l_mute').hide();
-                                        } else {
-                                            $Mick.addClass('on')
-                                            peerVideo.find('.vdo_l_mute').show();
-                                        }
-
-                                    } else if (data.mediaOption === 2) {//主持人禁掉或开启某人视频
-                                        if (data.isStart == 1) {//打开
-                                            $video.removeClass('on')
-                                            peerVideo.find('.vdo_l_bac').hide();
-                                        } else {
-                                            $video.addClass('on')
-                                            peerVideo.find('.vdo_l_bac').show();
-                                        }
-                                    } else if (data.mediaOption === 3) {//主持人禁掉或开启某人视频和语音
-                                        if (data.isStart == 1) {//打开
-                                            $video.removeClass('on');
-                                            $Mick.removeClass('on');
-                                            peerVideo.find('.vdo_l_bac').hide();
-                                            peerVideo.find('.vdo_l_mute').hide();
-                                        } else {
-                                            $video.addClass('on');
-                                            $Mick.addClass('on')
-                                            peerVideo.find('.vdo_l_bac').show();
-                                            peerVideo.find('.vdo_l_mute').show();
-                                        }
-                                    }
-
-                                    return;
-                                } else {
-                                    hasJoinList[data.userUniID] = data;
-                                    JoinCount++;
-                                    $('#vdo_btn_Count').html(JoinCount + 1);
-                                    $('#connectCount').html(JoinCount + 1)
-                                    $('#notConnectCount').html(initData.userUniIdList.length-(JoinCount + 1))
-                                    connectList.push(data)
-                                    var curMember = data;
-                                    var index = initData.userUniIdList.findIndex(function (item) {
-                                        return item.userUniId == data.userUniID
-                                    })
-                                    if (index > -1) curMember = initData.userUniIdList[index];
-                                    if (data.userUniID === initData.userUniId) {//主持人
-                                        initData.sessionId = data.sessionId;
-                                        var peerVideo = $('.vdo_r video');
-                                        bindVideo(data.peerWnd, peerVideo[0]);
-                                        var oTime = document.getElementById('vdo_time')
-                                        timer_video = setTimer(oTime);
-                                        var id = initData.userUniIdList.findIndex(function (item, index) {
-                                            return item.userUniId === data.userUniID;
-                                        });
-
-                                        $('.vdo_r .main_name').html(curMember.name)
-                                        $('.vdo_r .main_branch').html(curMember.branchPath)
-                                        bindmemberInfoforCalled(curMember, true);
-                                    } else {
-
-                                        bindmemberInfoforCalled(curMember);
-                                    }
-                                }
-
+                                getJoinMemberVideoInfo(data);
                             }
                         } else {//退出会议
                             if (data.userUniID === initData.userUniId) {//主持人
@@ -1326,8 +1287,10 @@
                                 return;
                             }
                             JoinCount--;
+                            hasJoinList[data.userUniID]=null;
                             $('#vdo_btn_Count').html(JoinCount);
                             $('#connectCount').html(JoinCount);
+                            $('#topconnectCount').html(JoinCount);
                             $('#notConnectCount').html(initData.userUniIdList.length-JoinCount)
                             var peerVideo = $('.vdo_l .vdo_out[uniid="' + data.userUniID + '"] ').parents('.vdo_lD');
                             if (peerVideo.length === 0) {
@@ -1361,6 +1324,89 @@
             })
         } catch (e) {
             console.log(e.message)
+        }
+    }
+    function getJoinMemberVideoInfo(data){
+        var item = hasJoinList[data.userUniID]
+        if (item) {
+            var item = hasJoinList[data.userUniID]
+            if (item.mediaOption === data.mediaOption && item.isStart === data.isStart) {
+                return;
+            }
+            var peerVideo = $('.vdo_out[uniid="' + data.userUniID + '"] ').parents('.vdo_lD');
+            var userInfo = $('.vdo_rL_tabC .li[uniid="' + data.userUniID + '"] ');
+            var $Mick = userInfo.find('.vdo_rL_iMute');
+            var $video = userInfo.find('.vdo_rL_iVideo');
+
+            if (data.mediaOption === 0) {//都没有打开
+                $video.addClass('on');
+                $Mick.addClass('on')
+                peerVideo.find('.vdo_l_bac').show();
+                peerVideo.find('.vdo_l_mute').show();
+                peerVideo.find('.vdo_tip ').html('');
+
+            } else if (data.mediaOption === 1) { // 主持人禁掉或开启某人语音
+                if (data.isStart == 1) {//打开
+                    $Mick.removeClass('on')
+                    peerVideo.find('.vdo_l_mute').hide();
+                } else {
+                    $Mick.addClass('on')
+                    peerVideo.find('.vdo_l_mute').show();
+                }
+
+            } else if (data.mediaOption === 2) {//主持人禁掉或开启某人视频
+                if (data.isStart == 1) {//打开
+                    $video.removeClass('on')
+                    peerVideo.find('.vdo_l_bac').hide();
+                } else {
+                    $video.addClass('on')
+                    peerVideo.find('.vdo_l_bac').show();
+                }
+            } else if (data.mediaOption === 3) {//主持人禁掉或开启某人视频和语音
+                if (data.isStart == 1) {//打开
+                    $video.removeClass('on');
+                    $Mick.removeClass('on');
+                    peerVideo.find('.vdo_l_bac').hide();
+                    peerVideo.find('.vdo_l_mute').hide();
+                    peerVideo.find('.vdo_tip ').html('');
+                } else {
+                    $video.addClass('on');
+                    $Mick.addClass('on')
+                    peerVideo.find('.vdo_l_bac').show();
+                    peerVideo.find('.vdo_l_mute').show();
+                }
+            }
+
+            return;
+        } else {
+            debugger;
+            hasJoinList[data.userUniID] = data;
+            JoinCount++;
+            $('#vdo_btn_Count').html(JoinCount + 1);
+            $('#connectCount').html(JoinCount + 1)
+            $('#topconnectCount').html(JoinCount + 1)
+            $('#notConnectCount').html(initData.userUniIdList.length-(JoinCount + 1))
+            connectList.push(data)
+            var curMember = data;
+            var index = initData.userUniIdList.findIndex(function (item) {
+                return item.userUniId == data.userUniID
+            })
+            if (index > -1) curMember = initData.userUniIdList[index];
+            if (data.userUniID === initData.userUniId) {//主持人
+                initData.sessionId = data.sessionId;
+                var peerVideo = $('.vdo_r video');
+                bindVideo(data.peerWnd, peerVideo[0]);
+                var oTime = document.getElementById('vdo_time')
+                timer_video = setTimer(oTime);
+
+                $('.vdo_r .main_name').html(curMember.name)
+                $('.vdo_r .main_branch').html(curMember.branchPath)
+                bindmemberInfoforCalled(curMember,data, true);
+            } else {
+
+                bindmemberInfoforCalled(curMember,data);
+            }
+
         }
     }
     //绑定设备信息
@@ -1589,9 +1635,9 @@
         try {
             window.lxpc.exebusinessaction('VideoConf', 'VideoMeetingOver', '0', JSON.stringify(parm), 0, function (status, result, targ) {
                 if (status == 0) {
-                    if (video_role === 3) { // 被叫
-                        TerminateVideoConf();
-                    }
+                    // if (video_role === 3) { // 被叫
+                    //     TerminateVideoConf();
+                    // }
                 } else {
                     console.log(status)
                 }
@@ -1644,7 +1690,7 @@
             $('#vdo_btn_AllCount').html(initData.userUniIdList.length)
             ReceiveSelectPeople(initData.id, function (data) {
                 console.log('JJJJJJJJJJJJJJJJJJJJJJJJJJJ')
-                console.log(datalist)
+                console.log(data)
                 var orgList=[],memberlist=[];
                 var datalist =data.userlist
                 for (var i=0;i<datalist.length;i++) {
@@ -1664,16 +1710,32 @@
                     passwd: initData.password,
                     invitedGroups:orgList
                 }
-                InvateVideoMeetingMember(parm).then(function () {
+
+                InvateVideoMeetingMember(parm).then(function (status) {
+                    if (status === 0 ){
+
+                    }
                 })
+                var str= bindmemberInfo(datalist);
+                myScroll.refresh();
+                var vdo_notConnect = document.getElementById('vdo_notConnect')
+                vdo_notConnect.innerHTML = str;
+                myscroll3.refresh();
+                // $('#vdo_btn_AllCount').html(initData.userUniIdList.length + memberlist.length);
+                $('#vdo_btn_Count').html(JoinCount + memberlist.length);
+                $('#connectCount').html(JoinCount);
+                $('#topconnectCount').html(JoinCount);
+                $('#notConnectCount').html(initData.userUniIdList.length-JoinCount + memberlist.length);
+                initData.userUniIdList=initData.userUniIdList.concat(memberlist);
             });
         } else {
             $('.PA88').hide();
+            $('.PA42 ').show();
             $('.notConnectCount').hide();
             $('#vdo_connecting ').removeClass('vdo_qun_call').addClass('vdo_qun_called')
             video_role = 3;
-            var parm = {dialogId: initData.dialogId, juFengId: confId};
-            VideoMeetingOver(parm);
+            // var parm = {dialogId: initData.dialogId, juFengId: confId};
+            // VideoMeetingOver(parm);
         }
     }
     //登录菊峰
@@ -1844,14 +1906,24 @@
             connectCount.innerHTML = 1;
             var notconnectCount = document.getElementById('notConnectCount')
             notconnectCount.innerHTML = datalist.length;
+            var id = datalist.findIndex(function (item,index) {
+                return item.userUniId === initData.curUserUniID
+            })
+            var curitem = datalist[id]
+            hasJoinList[curitem.userUniId] =curitem;
         } else {//被叫
             var parm = {dialogId: initData.dialogId, orgDomain: initData.orgDomain}
             getQunMemberInfo(parm).then(function (datalist) {
                 initData.userUniIdList = datalist;
                 $('#vdo_btn_AllCount').html(datalist.length);
+                var id = datalist.findIndex(function (item,index) {
+                    return item.userUniId === initData.curUserUniID
+                })
+                var curitem = datalist[id]
+                bindmemberInfoforCalled(curitem,null,true);
+                hasJoinList[curitem.userUniId] =curitem;
             })
         }
-
 
     }
     function bindmemberInfo(datalist) {
@@ -1869,7 +1941,7 @@
                 name = curMember.name
             }
             name = XssToString(curMember.name);
-            var tem = `<li index=${i} uniid="${curMember.userUniId}">
+            var tem = `<li uniid="${curMember.userUniId}">
                              <span class="vdo_rL_lBtn2">
                              <i class="vdo_rL_iKick" title="剔除" data-type="1"></i>
                              <i class="vdo_rL_iMute" title="音频已被开启" data-type="2"></i>
@@ -1877,7 +1949,7 @@
                              <i class="vdo_rL_iReCalled" title="重拨" data-type="4"></i>
                              <span class="vdo_noReceive_tip">未接听</span></span>
                              </span>
-                             <img src="images/card_icon.png" data-resid="${curMember.photoResId}" onload="getImge(${i},this)">
+                             <img src="images/card_icon.png" data-resid="${curMember.photoResId}" onload="getImge(this)">
                                     <p>${name}</p></li>`
             if (curMember.userUniId == initData.curUserUniID) {//当前的用户的信息再次不现实，在后边会显示
                 var vdo_Connect = document.getElementById('vdo_connecting')
@@ -1888,6 +1960,7 @@
                 str += tem;
                 var vdo_clone = vdo.clone(true);
                 vdo_clone.find('.vdo_lD_b').html(curMember.name);
+                vdo_clone.find('video').attr('src','');
                 vdo_clone.find('.vdo_tip').html('正在连接');
                 vdo_clone.find('.vdo_l_bac').hide();
                 vdo_clone.data('uniid', curMember.userUniId)
@@ -1897,57 +1970,55 @@
         }
         return str
     }
-    function bindmemberInfoforCalled(data, isNotCreatvideo) {
-        console.log(data);
-        console.log('成员列表')
+    function bindmemberInfoforCalled(data, videoinfo,isNotCreatvideo) {
         var vdo = $('.vdo_l .vdo_lD:eq(0)'),
                 $scroll = $('.vdo_l .scroll');
-        console.log(vdo);
         var str = ''
-        var i = connectList.length - 1;
-        var id = initData.userUniIdList.findIndex(function (item, index) {
-            return item.userUniId === data.userUniID;
-        });
+
+        // var id = initData.userUniIdList.findIndex(function (item, index) {
+        //     return item.userUniId === data.userUniID;
+        // });
         var curMember = data;
         var name =curMember.name
-        if (isNotCreatvideo){
+        if (isNotCreatvideo && videoinfo){
             name = name+'(主持人)'
         }
         name = XssToString(name);
-        if (id > -1) curMember = initData.userUniIdList[id];
-        console.log(curMember);
-        var tem = `<li index=${i} uniid="${curMember.userUniId}">
+        var tem = `<li uniid="${curMember.userUniId}">
                              <span class="vdo_rL_lBtn2">
                              <i class="vdo_rL_iKick" title="剔除" data-type="1"></i>
                              <i class="vdo_rL_iMute" title="音频已被开启" data-type="2"></i>
                              <i class="vdo_rL_iVideo" title="视频已被开启" data-type="3"></i>
                              </span>
-                             <img src="images/card_icon.png" data-resid="${curMember.photoResId}" onload="getImge(${i},this)">
+                             <img src="images/card_icon.png" data-resid="${curMember.photoResId}" onload="getImge(this)">
                                     <p title="${name}">${name}</p></li>`
 
         str += tem;
+        console.log(tem)
         if (!isNotCreatvideo) {
             var vdo_clone = vdo.clone(true);
             vdo_clone.find('.vdo_lD_b').html(curMember.name);
             vdo_clone.find('.vdo_tip').html('正在连接');
+            vdo_clone.find('.video').attr('src','');
             vdo_clone.find('.vdo_l_bac').hide();
             vdo_clone.data('uniid', curMember.userUniId)
             vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId);
-            var peerVideo = vdo_clone.find('video');
-            peerVideo.attr('src','');
             $scroll.append(vdo_clone);
-            bindVideo(data.peerWnd, peerVideo[0])
+            var newvdo=vdo_clone.appendTo($scroll)
+            var peerVideo = newvdo.find('video');
+            console.log(peerVideo)
+            bindVideo(videoinfo.peerWnd, peerVideo[0])
         }
         if (isNotCreatvideo){
-            $('#vdo_connecting').append(str);
-        } else {
             $('#vdo_connecting').prepend(str);
+        } else {
+            $('#vdo_connecting').append(str);
         }
 
         myScroll.refresh();
         myscroll3.refresh();
     }
-    function getImge(index,ele) {
+    function getImge(ele) {
         var $ele=$(ele)
         var resId=$ele.data('resid')
         console.log(resId);
@@ -2173,8 +2244,15 @@
 
             exitVideoIsManual = true
             exitVideo();
-        } else if (data.statusName === 'mediaOption') {
-
+        }  else if (data.statusName === 'NotifyFinishedVideoMeeting'){//群视频会议群主退出
+            if (video_role === 3) { // 被叫
+                TerminateVideoConf();
+            }
+        }
+        else if (data.statusName === 'MtcConfDidLeaveNotification') {// 主持人剔除当前用户
+            if (video_role === 3) { // 被叫
+                TerminateVideoConf();
+            }
         }
 
     }
