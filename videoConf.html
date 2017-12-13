@@ -1374,6 +1374,7 @@ console.log(Handel)
                     $Mick.addClass('on')
                     peerVideo.find('.vdo_l_bac').show();
                     peerVideo.find('.vdo_l_mute').show();
+                    peerVideo.find('.vdo_tip ').html('参会中...');
                 }
             }
 
@@ -1841,9 +1842,11 @@ console.log(Handel)
                 sec = value % 60;
                 result = ToDou(min) + ':' + ToDou(sec)
             } else {
-                h = Math.floor(value / (60 * 60));
-                min = Math.floor(value / (h * 60));
-                sec = value % (min * 60 * 60);
+                h=Math.floor(value/(60*60));
+                value%=60*60;
+                min=Math.floor(value/60);
+                value%=60;
+                sec=value;
 
                 result = ToDou(h) + ':' + ToDou(min) + ':' + ToDou(sec);
 
