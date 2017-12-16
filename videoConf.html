@@ -455,24 +455,24 @@
                     InvateVideoMeetingMember(parm).then(function () {
                         $ele.data('redo', false);
                     })
-                    var id = initData.userUniIdList.findIndex(function (item) {
-                        return item.userUniId == uniid
-                    });
-                    if (id > -1) {
-                        var curMember = initData.userUniIdList[id];
-                        var vdo = $('.vdo_l .vdo_lD:eq(0)'),
-                            $scroll = $('.vdo_l .scroll');
-                        var vdo_clone = vdo.clone(true);
-                        vdo_clone.find('.vdo_lD_b').html(curMember.name);
-                        vdo_clone.find('.vdo_tip').html('正在连接');
-                        vdo_clone.find('.vdo_l_bac').hide();
-                        vdo_clone.find('.vdo_r_callOutD').show().html('正在呼叫');
-                        vdo_clone.data('uniid', curMember.userUniId)
-                        vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId)
-                        vdo_clone.find('video').attr('src', '');
-                        $scroll.append(vdo_clone);
-                        myScroll.refresh();
-                    }
+                    // var id = initData.userUniIdList.findIndex(function (item) {
+                    //     return item.userUniId == uniid
+                    // });
+                    // if (id > -1) {
+                    //     var curMember = initData.userUniIdList[id];
+                    //     var vdo = $('.vdo_l .vdo_lD:eq(0)'),
+                    //         $scroll = $('.vdo_l .scroll');
+                    //     var vdo_clone = vdo.clone(true);
+                    //     vdo_clone.find('.vdo_lD_b').html(curMember.name);
+                    //     vdo_clone.find('.vdo_tip').html('正在连接');
+                    //     vdo_clone.find('.vdo_l_bac').hide();
+                    //     vdo_clone.find('.vdo_r_callOutD').show().html('正在呼叫');
+                    //     vdo_clone.data('uniid', curMember.userUniId)
+                    //     vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId)
+                    //     vdo_clone.find('video').attr('src', '');
+                    //     $scroll.append(vdo_clone);
+                    //     myScroll.refresh();
+                    // }
 
                 } else {
                     return;
@@ -752,6 +752,7 @@
             maxInvertCount=50,
             canInverterCount =0,
             meetingTitle='蓝信视频会议',
+            mainVideo='',
             initVert = null, step = 5; //记录音频
 
     //callType 记录会话的状态
@@ -1011,7 +1012,6 @@
                 $(ownVideo).parents('.vdo_out').addClass('mySelf').data('wnd', data.ownerWnd).attr('uniid',initData.curUserUniID);
 //打开视频和音频
                 playMedia(jsondata);
-
                 settinginfos = data;
                 //绑定获取的可用设备
                 multimediaSeting(data)
@@ -1248,8 +1248,6 @@
                                     $('#vdo_connecting').append($li);
                                     getJoinMemberVideoInfo(data)
 
-
-
                                 }
                             } else {
                                 if(JoinCount==1){
@@ -1340,13 +1338,16 @@
                 if (data.isStart == 1) {//打开
                     $video.removeClass('on')
                     // peerVideo.find('.vdo_l_bac').hide();
-                    if(peerVideo.length==0){
-                        var index = initData.userUniIdList.findIndex(function (item) {
-                            return item.userUniId == data.userUniID
-                        })
-                        if(index>-1){
-                            var peerVideo= bindleftVideo(initData.userUniIdList[index],data);
-                            bindVideo(data.peerWnd, peerVideo[0]);
+                    if(data.peerWnd){
+                        if(peerVideo.length==0){
+                            var index = initData.userUniIdList.findIndex(function (item) {
+                                return item.userUniId == data.userUniID
+                            })
+                            if(index>-1){
+
+                                var peerVideo= bindleftVideo(initData.userUniIdList[index],data);
+                                bindVideo(data.peerWnd, peerVideo[0]);
+                            }
                         }
                     }
                 } else {
@@ -1362,16 +1363,19 @@
                     // peerVideo.find('.vdo_l_bac').hide();
                     // peerVideo.find('.vdo_l_mute').hide();
                     // peerVideo.find('.vdo_tip ').html('');
+                    if(data.peerWnd){
+                        if(peerVideo.length==0){
+                            var index = initData.userUniIdList.findIndex(function (item) {
+                                return item.userUniId == data.userUniID
+                            })
+                            if(index>-1){
 
-                    if(peerVideo.length==0){
-                        var index = initData.userUniIdList.findIndex(function (item) {
-                            return item.userUniId == data.userUniID
-                        })
-                        if(index>-1){
-                           var peerVideo= bindleftVideo(initData.userUniIdList[index],data);
-                            bindVideo(data.peerWnd, peerVideo[0]);
+                                var peerVideo= bindleftVideo(initData.userUniIdList[index],data);
+                                bindVideo(data.peerWnd, peerVideo[0]);
+                            }
                         }
                     }
+
 
                 } else {
                     $video.addClass('on');
@@ -1540,13 +1544,19 @@
     function changeVideo(ele) {
         var $ele = $(ele)
         var vdo_outL = $ele.find('.vdo_out');
-        var vdo_outR = $('.vdo_r .vdo_out')
+        var vdo_outR = $('.vdo_r .vdo_out');
+        var userUniId_L=vdo_outL.attr('uniid');
         var $main = vdo_outR.clone(true);
         var $vdo_L = vdo_outL.clone();
         $('.vdo_r ').prepend($vdo_L);
         $ele.append($main)
         vdo_outL.remove();
-        vdo_outR.remove()
+        vdo_outR.remove();
+        var $li=$('#vdo_connecting li[uniid="'+userUniId_L+'"]');
+        var $li_main=$('#vdo_connecting li:first');
+        var tem=$li.clone(true);
+        $li.replaceWith($li_main);
+        $('#vdo_connecting').prepend(tem);
     }
     //打开登菊峰并打开本机的视频和音频设备
     function openMedia(jsondata) {
@@ -1729,6 +1739,7 @@
             $('.notConnectCount').show();
             $('#vdo_connecting ').addClass('vdo_qun_call').removeClass('vdo_qun_called');
             document.title=meetingTitle;
+            mainVideo=initData.curUserUniID
             // $('#vdo_btn_AllCount').html(initData.userUniIdList.length)
             ReceiveSelectPeople(initData.id, function (data) {
                 var orgList=[],memberlist=[];
@@ -1777,7 +1788,7 @@
             $('.notConnectCount').hide();
             $('#vdo_connecting ').removeClass('vdo_qun_call').addClass('vdo_qun_called')
             video_role = 3;
-
+            mainVideo=initData.userUniId
             var parm = {userUniId: initData.dialogId, dialogType: 2, orgDomain: initData.orgDomain};
             senderId += 1
             QuerySenderInfo(parm, senderId).then(function (result) {
@@ -1807,7 +1818,14 @@
 
                     if (status == 0) {
                         var data = JSON.parse(jsondata);
-                        data.flag = initData.flag
+                        data.flag = initData.flag;
+                        if (video_role==2){//视频会议主叫
+                            data.userUniId=initData.curUserUniID
+                        }else if (video_role==3){//视频会议被叫
+                            data.userUniId=initData.userUniId
+                        }
+
+                        console.log('登陆菊峰参数========',data)
                         window.lxpc.exebusinessaction('VideoConf', 'LoginJusTalk', '0', JSON.stringify(data), 0, function (status, jsondata, targ) {
 
                             if (status == 0) {
@@ -1964,6 +1982,7 @@
             getQunMemberInfo(parm).then(function (datalist) {
                 initData.userUniIdList = datalist;
                 $('#vdo_btn_AllCount').html(datalist.length);
+
             })
         }
 
@@ -2056,19 +2075,20 @@
         str += tem;
 
         if (!isNotCreatvideo) {
-            var vdo_clone = vdo.clone(true);
-            vdo_clone.find('.vdo_lD_b').html(curMember.name);
-            vdo_clone.find('.vdo_tip').html('正在连接');
-            vdo_clone.find('.video').attr('src','');
-            vdo_clone.find('.vdo_l_bac').hide();
-            vdo_clone.data('uniid', curMember.userUniId)
-            vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId);
-            vdo_clone.show();
-            $scroll.append(vdo_clone);
-            var newvdo=vdo_clone.appendTo($scroll)
-            var peerVideo = newvdo.find('video');
-            console.log(peerVideo)
-            bindVideo(videoinfo.peerWnd, peerVideo[0])
+            if(videoinfo.peerWnd){
+                var vdo_clone = vdo.clone(true);
+                vdo_clone.find('.vdo_lD_b').html(curMember.name);
+                vdo_clone.find('.vdo_tip').html('正在连接');
+                vdo_clone.find('.video').attr('src','');
+                vdo_clone.find('.vdo_l_bac').hide();
+                vdo_clone.data('uniid', curMember.userUniId)
+                vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId);
+                vdo_clone.show();
+                $scroll.append(vdo_clone);
+                var newvdo=vdo_clone.appendTo($scroll)
+                var peerVideo = newvdo.find('video');
+                bindVideo(videoinfo.peerWnd, peerVideo[0])
+            }
         }
         if(video_role==3){
             if (isNotCreatvideo){
@@ -2090,16 +2110,17 @@
         if (!resId){return;}
         var parm = {resourceList: [{photoResId: resId}], size: 96}
         imgList.push($ele);
+        var itarg=imgList.length-1
         try {
-            window.lxpc.exebusinessaction('DownloadResource', 'MemberImage', '0', JSON.stringify(parm), imgList.length, function (status, result, targ) {
+            window.lxpc.exebusinessaction('DownloadResource', 'MemberImage', '0', JSON.stringify(parm),itarg , function (status, result, targ) {
                 if (status == 0) {
                     console.log('获取头像=======================')
                     console.log(result)
-                    console.log(imgList[targ])
+                    console.log(imgList[targ-1])
                     if (result.indexOf('\\') > -1 || result.indexOf('/') > -1) {
 
                         var item = imgList[targ];
-                        var $img = item.find('img')
+                        var $img = item
                         $img.attr('src', result);
                         $img.load(function (e) {
                             $(this).off();
