@@ -752,7 +752,7 @@
             maxInvertCount=50,
             canInverterCount =0,
             meetingTitle='蓝信视频会议',
-            mainVideo='',
+            mainVideo='',//记录主窗口
             initVert = null, step = 5; //记录音频
 
     //callType 记录会话的状态
@@ -1556,6 +1556,7 @@
         var $li_main=$('#vdo_connecting li:first');
         var tem=$li.clone(true);
         $li.replaceWith($li_main);
+        mainVideo=userUniId_L;
         $('#vdo_connecting').prepend(tem);
     }
     //打开登菊峰并打开本机的视频和音频设备
@@ -2105,8 +2106,6 @@
     function getImge(ele) {
         var $ele=$(ele)
         var resId=$ele.data('resid')
-        console.log(resId);
-        console.log('ffffffffffffffffffffffffff');
         if (!resId){return;}
         var parm = {resourceList: [{photoResId: resId}], size: 96}
         imgList.push($ele);
@@ -2114,9 +2113,6 @@
         try {
             window.lxpc.exebusinessaction('DownloadResource', 'MemberImage', '0', JSON.stringify(parm),itarg , function (status, result, targ) {
                 if (status == 0) {
-                    console.log('获取头像=======================')
-                    console.log(result)
-                    console.log(imgList[targ-1])
                     if (result.indexOf('\\') > -1 || result.indexOf('/') > -1) {
 
                         var item = imgList[targ];
