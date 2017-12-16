@@ -1376,3 +1376,11 @@
     /*background-position: 0 -16px;*/
 
 }
+.vdo_l_wait_member {
+    position: absolute;
+    top: 50%;
+    text-align: center;
+    left: 0;
+    right: 0;
+    color: #fff;
+}
