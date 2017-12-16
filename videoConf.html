@@ -751,7 +751,9 @@
             imgId=-1,
             maxInvertCount=50,
             canInverterCount =0,
+            meetingTitle='蓝信视频会议',
             initVert = null, step = 5; //记录音频
+
     //callType 记录会话的状态
     $(function () {
         var parm = {};
@@ -1031,14 +1033,14 @@
     }
     //验证视频会议
     function MtcCreateVideoMeeting(parm) {
-        var parm = {displayName: '蓝信视频会议', title: '视频会议', password: '123'}
+        var parm = {displayName: meetingTitle, title: '视频会议', password: '123'}
         try {
             window.lxpc.exebusinessaction('VideoConf', 'MtcCreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                 if (status == 0) {
                     var data = JSON.parse(jsondata);
                     confId = data.confId;
                     initData.password = data.password;
-                    var parm1 = {displayName: '蓝信视频会议', juFengId: confId, password: data.password}
+                    var parm1 = {displayName: meetingTitle, juFengId: confId, password: data.password}
                     try {
                         window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
                             if (status == 0) {
@@ -1051,12 +1053,13 @@
                                     juFengId: confId,
                                     passwd: data.password,
                                     userUniIdList: userlist,
-                                    invitedGroups: initData.invitedGroups
+                                    invitedGroups: initData.invitedGroups,
+                                    name:meetingTitle
                                 };
                                 try {
                                     window.lxpc.exebusinessaction('VideoConf', 'CreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                                         if (status == 0) {
-                                            console.log('CreateVideoMeeting=========================================')
+                                           console.log('CreateVideoMeeting=========================================')
                                            console.log(jsondata)
                                            var result=JSON.parse(jsondata);
                                             var qun=result.qun
@@ -1117,7 +1120,7 @@
             userUniId: initData.toUserUniId
         }
 
-        initData.displayName = '蓝信视频会议';
+        initData.displayName = meetingTitle;
         var parm1 = initData
         console.log(parm1)
         try {
@@ -1232,23 +1235,6 @@
                                     bindVideo(data.peerWnd, peerVideo[0])
 
                                 } else {
-                                    // if (hasJoinList[data.userUniID]) {
-                                    //     return;
-                                    // }
-                                    // hasJoinList[data.userUniID]=data;
-                                    // JoinCount++;
-                                    // notJointCount--;
-                                    // $('#vdo_btn_Count').html(JoinCount)
-                                    // $('#connectCount').html(JoinCount)
-                                    // $('#topconnectCount').html(JoinCount)
-                                    // $('#notConnectCount').html(notJointCount);
-                                    //
-                                    // var index = initData.userUniIdList.findIndex(function (item) {
-                                    //     return item.userUniId == data.userUniID
-                                    // })
-                                    // var curItem=initData.userUniIdList[index]
-
-
                                     if (JoinCount == 1) {
                                         $('.vdo_l_wait_member').hide();
                                         initData.sessionId = data.sessionId;
@@ -1742,6 +1728,7 @@
             $('.PA88').show();
             $('.notConnectCount').show();
             $('#vdo_connecting ').addClass('vdo_qun_call').removeClass('vdo_qun_called');
+            document.title=meetingTitle;
             // $('#vdo_btn_AllCount').html(initData.userUniIdList.length)
             ReceiveSelectPeople(initData.id, function (data) {
                 var orgList=[],memberlist=[];
@@ -1790,6 +1777,23 @@
             $('.notConnectCount').hide();
             $('#vdo_connecting ').removeClass('vdo_qun_call').addClass('vdo_qun_called')
             video_role = 3;
+
+            var parm = {userUniId: initData.dialogId, dialogType: 2, orgDomain: initData.orgDomain};
+            senderId += 1
+            QuerySenderInfo(parm, senderId).then(function (result) {
+                var data = result.info,
+                    targ = result.index;
+                if (Object.prototype.toString.call(data) == '[object Array]') {
+                    if (data.length > 0) {
+
+                        var item = data[0];
+                        var name = item.name;
+                        document.title=meetingTitle=name;
+                    }
+                }
+            })
+
+
         }
         $('.vdo_btn_mic').hide();
         $('.vdo_btn_camera').hide();
@@ -1954,33 +1958,12 @@
         var datalist = [];
         var str = ''
         if (initData.flag == 'qun_videomeetingcaller') {//主叫
-            // datalist = initData.userUniIdList;
-            // var str = bindmemberInfo(datalist);
-            // myScroll.refresh();
-            // var vdo_notConnect = document.getElementById('vdo_notConnect')
-            // vdo_notConnect.innerHTML = str;
-            // myscroll3.refresh();
-            // var connectCount = document.getElementById('connectCount')
-            // connectCount.innerHTML = 1;
-            // var notconnectCount = document.getElementById('notConnectCount')
-            // notconnectCount.innerHTML = datalist.length;
-            // var id = datalist.findIndex(function (item,index) {
-            //     return item.userUniId === initData.curUserUniID
-            // })
-            // var curitem = datalist[id]
-            // hasJoinList[curitem.userUniId] =curitem;
+
         } else {//被叫
             var parm = {dialogId: initData.dialogId, orgDomain: initData.orgDomain}
             getQunMemberInfo(parm).then(function (datalist) {
                 initData.userUniIdList = datalist;
                 $('#vdo_btn_AllCount').html(datalist.length);
-
-                // var id = datalist.findIndex(function (item,index) {
-                //     return item.userUniId === initData.curUserUniID
-                // })
-                // var curitem = datalist[id]
-                // bindmemberInfoforCalled(curitem,null,true);
-                // hasJoinList[curitem.userUniId] =curitem;
             })
         }
 
