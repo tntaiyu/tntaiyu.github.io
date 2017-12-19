@@ -614,11 +614,13 @@
     float: right;
     padding-top: 9px;
 }
-
-.vdo_rL_lBtn2 i {
-    margin: 0 6px;
+.vdo_rL_lBtn2 i{
     overflow: hidden;
     vertical-align: middle;
+}
+#vdo_connecting .vdo_rL_lBtn2 i {
+    margin: 0 6px;
+
 }
 .vdo_rL_iReCalled {
     width: 24px;
