@@ -297,7 +297,7 @@
     display: flex;
 }
 .PA88 {
-    flex-shrink: 1;
+    flex-shrink: 0;
     flex-grow: 0;
 
 }
@@ -368,17 +368,17 @@
     border-bottom: 2px solid #628BD6;
 }
 
-.PA88 ~ .vdo_rL_tabC {
+/*.PA88 ~ .vdo_rL_tabC {*/
 
-    /*top: 88px;*/
+    /*!*top: 88px;*!*/
 
-}
+/*}*/
 
-.PA42 ~ .vdo_rL_tabC {
+/*.PA42 ~ .vdo_rL_tabC {*/
 
-    top: 42px;
+    /*top: 42px;*/
 
-}
+/*}*/
 
 .vdo_rL_tabC {
     /*left: 0;*/
@@ -386,9 +386,10 @@
     /*bottom: 0;*/
     /*position: absolute;*/
     /*overflow: hidden;*/
+    flex-shrink: 1;
     flex-grow: 1;
-    flex-shrink: 0;
-
+    position: relative;
+    overflow-y: hidden;
 }
 
 /*.vdo_rL_tabC{*/
