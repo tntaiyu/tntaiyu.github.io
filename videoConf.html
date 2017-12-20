@@ -1408,6 +1408,7 @@
             var userInfo = $('.vdo_rL_tabC li[uniid="' + data.userUniID + '"] ');
             var $Mick = userInfo.find('.vdo_rL_iMute');
             var $video = userInfo.find('.vdo_rL_iVideo');
+            var isMyinfo = data.userUniID==initData.myInfo.userUniId;
 
             if (data.mediaOption === 0) {//都没有打开
                 $video.addClass('on');
@@ -1420,15 +1421,23 @@
                 if (data.isStart == 1) {//打开
                     if(video_role==3){
                         tips='音频已被开启'
+                        if(isMyinfo){
+                            showtips('主持人取消了您的静音，您可以讲话了')
+                        }
                     }else{
                         tips='点击禁言'
+
                     }
                     $Mick.removeClass('on').attr('title',tips)
                     peerVideo.find('.vdo_l_mute').hide();
                     audioCount++;
+
                 } else {
                     if(video_role==3){
                        tips='主持人未开启音频'
+                        if(isMyinfo){
+                            showtips('您已被主持人静音')
+                        }
                     }else{
                         tips='恢复通话'
                     }
@@ -1441,6 +1450,9 @@
                 if (data.isStart == 1) {//打开
                     if(video_role==3){
                         tips='视频已被开启'
+                        if(isMyinfo){
+                            showtips('主持人开启了您的视频，别人能看到你了')
+                        }
                     }else{
                         tips='关闭视频'
                     }
@@ -1474,6 +1486,9 @@
 
                     if(video_role==3){
                         tips='主持人未开启视频'
+                        if(isMyinfo){
+                            showtips('主持人关闭了您的视频')
+                        }
                     }else{
                         tips='打开视频'
                     }
@@ -1487,6 +1502,9 @@
                     if(video_role==3){
                         tips='视频已被开启'
                         tipAuto='音频已被开启'
+                        if(isMyinfo){
+                            showtips('主持人开启了您的视频，别人能看到你了')
+                        }
                     }else{
                         tips='关闭视频'
                         tipAuto='点击禁言'
@@ -1512,6 +1530,9 @@
                     if(video_role==3){
                         tips='主持人未开启视频'
                         tipAuto='主持人未开启音频'
+                        if(isMyinfo){
+                            showtips('主持人关闭了您的视频')
+                        }
                     }else{
                         tips='打开视频'
                         tipAuto='恢复通话'
