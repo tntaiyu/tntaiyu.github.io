@@ -422,7 +422,7 @@
 
     display: inline-block;
 }
-#vdo_notConnect li:hover .vdo_rL_iReCalled {
+#vdo_notConnect li:not(.recalling):hover .vdo_rL_iReCalled {
     display: inline-block;
 }
 
@@ -628,6 +628,7 @@
     height: 24px;
     margin-top: -4px;
     background: url(../images/video_icon.png) 0 -120px no-repeat;
+    margin: 0 6px;
 }
 .vdo_rL_iReCalled:hover{
     background-position: -24px -120px;
@@ -686,11 +687,11 @@
     background-position: 0px -24px;
 }
 
-.vdo_qun_call .vdo_rL_iMute.on:hover {
+.vdo_qun_call .vdo_rL_iMute.on:not(.no):hover {
     background-position: -24px -24px;
 }
 
-.vdo_qun_call .vdo_rL_iMute.on:active {
+.vdo_qun_call .vdo_rL_iMute.on:not(.no):active {
     background-position: -48px -24px;
 }
 
@@ -724,11 +725,11 @@
     background-position: 0px -72px;;
 }
 
-.vdo_qun_call .vdo_rL_iVideo.on:hover {
+.vdo_qun_call .vdo_rL_iVideo.on:not(.no):hover {
     background-position: -24px -72px;
 }
 
-.vdo_qun_call .vdo_rL_iVideo.on:active {
+.vdo_qun_call .vdo_rL_iVideo.on:not(.no):active {
     background-position: -48px -72px;
 }
 .vdo_btn {
