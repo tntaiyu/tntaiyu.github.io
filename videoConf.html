@@ -297,22 +297,22 @@
                         ControlAudio(parm).then(function (data) {
                         })
 
-                        var slider = initVert.slider;
-                        var handel = initVert.handle;
-                        var obtm = slider.querySelector('.range-quantity')
-//                        var step = (initVert.slider.offsetHeight - handel.offsetHeight) / (option.max - option.min);
-                        vert.value = 0;
-                        handel.style.bottom = 0 + 'px';
-                        obtm.style.height = 0 + 'px';
+                        // var slider = initVert.slider;
+                        // var handel = initVert.handle;
+                        // var obtm = slider.querySelector('.range-quantity')
+                        // vert.value = 0;
+                        // handel.style.bottom = 0 + 'px';
+                        // obtm.style.height = 0 + 'px';
 
                     }
-                    vert.value = 0;
+                    // vert.value = 0;
                 } else {
                     this.setAttribute('title','点击静音')
                     if (audioInputId) {
 
                         var parm = {action: "volume", audioInputId: audioInputId, volumePercent: parseInt(vert.value)}
                         ControlAudio(parm).then(function (data) {
+
                         })
                     }
                 }
@@ -453,6 +453,10 @@
                                }
                                videoCount--;
                                audioCount--;
+                               var videoRoleId=videoRoleList.indexOf(uniid)
+                               if(videoRoleId>-1)videoRoleList.splice(videoRoleId,1)
+                               var audioRoleId=audioRoleList.indexOf(uniid);
+                               if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
 
                            } else{
                                var id=initData.userUniIdList.findIndex(function(item){return item.userUniId==uniid});
@@ -481,6 +485,8 @@
                                        }
                                    }
                                    videoCount++;
+                                   var videoRoleId=videoRoleList.indexOf(uniid)
+                                   if(videoRoleId==-1)videoRoleList.push(videoRoleId,1)
                                }
                            }
                        }else if(type==2){
@@ -492,6 +498,8 @@
                                    $mute.addClass('on').attr('title','恢复扬声器')
                                }
                                audioCount--;
+                               var audioRoleId=audioRoleList.indexOf(uniid);
+                               if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
                            }else{
                                $('#vdo_btn_mute').removeClass('on')
                                if($Out.length>0){
@@ -499,6 +507,8 @@
                                    $mute.removeClass('on').attr('title','点击静音')
                                }
                                audioCount++;
+                               var audioRoleId=audioRoleList.indexOf(uniid);
+                               if(audioRoleId>-1)audioRoleList.push(uniid)
                            }
                        }
                     }
@@ -525,11 +535,13 @@
                         juFengId: confId,
                         passwd: initData.password
                     };
-                    $li.find('.vdo_noReceive_tip').html('未接听')
+                    $li.find('.vdo_noReceive_tip').html('呼叫中');
+                    $li.addClass('recalling');
                     InvateVideoMeetingMember(parm).then(function () {
                         $ele.data('redo', false);
 
                     })
+
 
                 } else {
                     return;
@@ -544,7 +556,7 @@
                         orgDomain: initData.orgDomain,
                         existUserList: initData.userUniIdList,
                         initdatas: initData,
-                        option: {maxLength: initData.vedioMeetingMaxNumOfPeople,title:'视频会议邀请',tipMsg:'人数超限，最多支持'+initData.vedioMeetingMaxNumOfPeople+'人参与视频会议'}
+                        option: {maxLength: initData.vedioMeetingMaxNumOfPeople,title:'视频会议邀请',tipMsg:'视频会议人数上限为'+initData.vedioMeetingMaxNumOfPeople+'人'}
                     }
                     SelectPeople(initData.id, parm)
                 }
@@ -816,7 +828,9 @@
             meetingTitle='蓝信视频会议',
             mainVideo='',//记录主窗口
             videoCount=0,//记录已接入视频的人数
+            videoRoleList=[],//记录已接入视频的人员信息
             audioCount=0,//记录已接入音频的人数
+            audioRoleList=[],//记录已接入音频的人员信息
             initVert = null, step = 5; //记录音频
 
     //callType 记录会话的状态
@@ -831,7 +845,7 @@
                     initData = JSON.parse(jsondata);
                     console.log('初始化数据================================')
                     console.log(jsondata)
-                    replayAudioTip(1)//语音提示正在呼叫
+
                     var peerDialogId = tmpdata['dialogId']
                     var nflag = tmpdata['flag']
                     var tmpparm = {userUniId: peerDialogId};
@@ -845,7 +859,7 @@
                         initSettingforMetting(nflag)
                     } else {
                         if (nflag == 'videocaller') {//个人发起
-
+                            replayAudioTip(1)//语音提示正在呼叫
                             video_role = 0
 //                            VideoCall(tmpparm)
 //                            openMedia();
@@ -1104,14 +1118,16 @@
         try {
             window.lxpc.exebusinessaction('VideoConf', 'MtcCreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                 if (status == 0) {
-                    console.log(jsondata)
+
                     var data = JSON.parse(jsondata);
                     confId = data.confId;
                     initData.password = data.password;
                     var parm1 = {displayName: meetingTitle, juFengId: confId, password: data.password}
+                    console.log('00000000000000000000000000000',jsondata)
                     try {
                         window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
                             if (status == 0) {
+                                initData.sessionId=JSON.parse(jsondata).sessionId
                                 var userlist = []
                                 for (var i = 0; i < initData.userUniIdList.length; i++) {
                                     var cur = initData.userUniIdList[i]
@@ -1124,12 +1140,14 @@
                                     invitedGroups: initData.invitedGroups,
                                     name:meetingTitle
                                 };
+
                                 console.log('CreateVideoMeeting===========================================')
                                 console.log(parm)
                                 try {
                                     window.lxpc.exebusinessaction('VideoConf', 'CreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
                                         console.log('CreateVideoMeeting===',status,jsondata);
                                         if (status == 0) {
+                                            console.log('2222222222',jsondata)
                                            var result=JSON.parse(jsondata);
                                             var qun=result.qun
                                             initData.meetingQunId = qun.dialogId;
@@ -1148,7 +1166,9 @@
                                             $('#vdo_btn_AllCount').html(initData.userUniIdList.length);
                                            var index= datalist.findIndex(function(item,index){return item.userUniId == initData.curUserUniID})
                                             videoCount++;
-                                           videoCount++;
+                                            videoRoleList.push(initData.curUserUniID)
+                                           audioCount++;
+                                            audioRoleList.push(initData.curUserUniID)
                                            if (index>-1){
                                                initData.hostInfo=datalist[index];
                                                initData.myInfo=datalist[index];
@@ -1198,7 +1218,8 @@
             window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
                 if (status == 0) {
                     console.log('MtcJoinVideoMeeting=========================')
-                    console.log(jsondata)
+                    console.log(jsondata);
+                    initData.sessionId=JSON.parse(jsondata).sessionId
                     ResponseVideoMeeting(parm)
                 }
             })
@@ -1298,6 +1319,8 @@
                 if (status == 0) {
                     var nflg = initData.flag
                     var data = JSON.parse(jsondata);
+                    console.log(videoRoleList)
+                    console.log(audioRoleList)
                     if (nflg == 'qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled') {//视频会议
                         if (data.isLeaved == 0) {//加入会议
 
@@ -1307,19 +1330,28 @@
                                 } else {
                                     if (ltarg == 0) {
                                         $('.vdo_l_wait_member').hide();
-                                        initData.sessionId = data.sessionId;
                                         var oTime = document.getElementById('vdo_time');
                                         timer_video = setTimer(oTime);
                                         replayAudioTip(3);
                                         $('.vdo_l_wait_member').hide();
                                         ltarg++;
                                     }
-
                                     var $li = $('#vdo_notConnect li[uniid="' + data.userUniID + '"]');
                                     $('#vdo_connecting').append($li);
                                     myscroll3.refresh()
-                                    $li.find('.vdo_noReceive_tip').html('未接听')
-                                    getJoinMemberVideoInfo(data)
+                                    getJoinMemberVideoInfo(data);
+                                    var $video=$li.find('.vdo_rL_iVideo'),
+                                        $Mute=$li.find('.vdo_rL_iMute')
+                                    if(videoRoleList.length>5){
+                                        $video.addClass('no')
+                                    }else{
+                                        $video.removeClass('no')
+                                    }
+                                    if(audioRoleList.length>16){
+                                        $Mute.addClasses('no')
+                                    }else{
+                                        $Mute.removeClass('no')
+                                    }
 
                                 }
                             } else {
@@ -1336,7 +1368,11 @@
                             JoinCount--;
                             notJointCount =initData.userUniIdList.length-JoinCount;
                             videoCount--;
+                            var videoRoleId=videoRoleList.indexOf(data.userUniID);
+                            if(videoRoleId>-1) videoRoleList.splice(videoRoleId,1);
                             audioCount--;
+                            var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                            if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
                             var tem=hasJoinList[data.userUniID];
                             hasJoinList[data.userUniID]=null;
                             $('#vdo_btn_Count').html(JoinCount);
@@ -1364,6 +1400,7 @@
 
                                 $('#vdo_notConnect').append($li);
                                 myscroll3.refresh();
+                                $li.removeClass('recalling');
                             }else{
                                 $li.remove();
                             }
@@ -1411,11 +1448,20 @@
             var isMyinfo = data.userUniID==initData.myInfo.userUniId;
 
             if (data.mediaOption === 0) {//都没有打开
-                $video.addClass('on');
-                $Mick.addClass('on')
-                peerVideo.find('.vdo_l_bac').show();
-                peerVideo.find('.vdo_l_mute').show();
-                peerVideo.find('.vdo_tip ').html('');
+                // $video.addClass('on');
+                // $Mick.addClass('on')
+                // peerVideo.find('.vdo_l_bac').show();
+                // peerVideo.find('.vdo_l_mute').show();
+                // peerVideo.find('.vdo_tip ').html('');
+                if(peerVideo.length>0){
+                    peerVideo.remove()
+                }
+                videoCount--;
+                audioCount--;
+                var videoRoleId=videoRoleList.indexOf(data.userUniID)
+                if(videoRoleId>-1)videoRoleList.splice(videoRoleId,1)
+                var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
 
             } else if (data.mediaOption === 1) { // 主持人禁掉或开启某人语音
                 if (data.isStart == 1) {//打开
@@ -1431,6 +1477,8 @@
                     $Mick.removeClass('on').attr('title',tips)
                     peerVideo.find('.vdo_l_mute').hide();
                     audioCount++;
+                    var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                    if(audioRoleId==-1)audioRoleList.push(data.userUniID)
 
                 } else {
                     if(video_role==3){
@@ -1444,6 +1492,8 @@
                     $Mick.addClass('on').attr('title',tips)
                     peerVideo.find('.vdo_l_mute').show();
                     audioCount--;
+                    var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                    if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
                 }
 
             } else if (data.mediaOption === 2) {//主持人禁掉或开启某人视频
@@ -1480,6 +1530,8 @@
                         }
                     }
                     videoCount++;
+                    var videoRoleId=videoRoleList.indexOf(data.userUniID)
+                    if(videoRoleId==-1)videoRoleList.push(data.userUniID)
 
                 } else {
                     peerVideo.remove();
@@ -1494,6 +1546,8 @@
                     }
                     $video.addClass('on').attr('title',tips)
                     videoCount--;
+                    var videoRoleId=videoRoleList.indexOf(data.userUniID)
+                    if(videoRoleId>-1) videoRoleList.splice(index,1)
 
                 }
             } else if (data.mediaOption === 3) {//主持人禁掉或开启某人视频和语音
@@ -1525,6 +1579,10 @@
                     }
                     videoCount++;
                     audioCount++;
+                    var videoRoleId=videoRoleList.indexOf(data.userUniID)
+                    if(videoRoleId==-1)videoRoleList.push(data.userUniID)
+                    var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                    if(audioRoleId==-1)audioRoleList.push(data.userUniID)
 
                 } else {
                     if(video_role==3){
@@ -1545,6 +1603,10 @@
                     peerVideo.remove();
                     videoCount--;
                     audioCount--;
+                    var videoRoleId=videoRoleList.indexOf(data.userUniID)
+                    if(videoRoleId>-1)videoRoleList.splice(videoRoleId,1)
+                    var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                    if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
                 }
             }
 
@@ -1565,7 +1627,6 @@
                 curMember = initData.userUniIdList[index];
                 if (data.userUniID === initData.hostInfo.userUniId) {//主持人
 
-                    initData.hostInfo=curMember;
                     if((data.mediaOption==2||data.mediaOption==3)&&data.isStart==1){
                         var peerVideo = $('.vdo_r video');
                         bindVideo(data.peerWnd, peerVideo[0]);
@@ -1573,10 +1634,15 @@
                         mainVideo=data.userUniID;
                         if(data.mediaOption==2){
                             videoCount++;
+
                         }else{
                             videoCount++;
                             audioCount++;
+                            var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                            if(audioRoleId==-1)audioRoleList.push(data.userUniID)
                         }
+                        var videoRoleId=videoRoleList.indexOf(data.userUniID)
+                        if(videoRoleId==-1)videoRoleList.push(data.userUniID)
 
                     }
                     bindmemberInfoforCalled(curMember,data, true);
@@ -1588,14 +1654,20 @@
                 } else {
                     if((data.mediaOption==2||data.mediaOption==3)&&data.isStart==1){
                         if(data.mediaOption==2){
-                            audioCount++;
+                            videoCount++;
                         }else{
                             videoCount++;
                             audioCount++;
+                            var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                            if(audioRoleId==-1)audioRoleList.push(data.userUniID)
                         }
+                        var videoRoleId=videoRoleList.indexOf(data.userUniID)
+                        if(videoRoleId==-1)videoRoleList.push(data.userUniID)
                         bindmemberInfoforCalled(curMember,data);
                     } else if (data.mediaOption==1&&data.isStart==1){
                         audioCount++;
+                        var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                        if(audioRoleId==-1)audioRoleList.push(data.userUniID)
                         bindmemberInfoforCalled(curMember,data,true);
                     }else{
                         bindmemberInfoforCalled(curMember,data,true);
@@ -1623,10 +1695,16 @@
                                 }else{
                                     videoCount++;
                                     audioCount++;
+                                    var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                                    if(audioRoleId==-1)audioRoleList.push(data.userUniID)
                                 }
+                                var videoRoleId=videoRoleList.indexOf(data.userUniID)
+                                if(videoRoleId==-1)videoRoleList.push(data.userUniID)
                                 bindmemberInfoforCalled(info[0],data);
                             } else if (data.mediaOption==1&&data.isStart==1){
                                 audioCount++;
+                                var audioRoleId=audioRoleList.indexOf(data.userUniID);
+                                if(audioRoleId==-1)audioRoleList.push(data.userUniID)
                                 bindmemberInfoforCalled(curMember[0],data,true);
                             }else{
                                 bindmemberInfoforCalled(curMember[0],data,true);
@@ -1670,9 +1748,7 @@
             $('.vdo_btn_mic  ').removeClass('no')
         }
         if (data.cameraInfo.length == 0 || data.audioInputInfo.length == 0 || data.audioOutputInfo.length == 0) {
-            if(!initData.isXP){
                 $('.vdo_btn_l').show()
-            }
         } else {
             $('.vdo_btn_l').hide()
         }
@@ -2122,9 +2198,10 @@
     //d定时器
     function setTimer(oTime) {
         var value = 0
-        var sec = 0, min = 0, h = 0, result = '00:00'
+        var sec = 0, min = 0, h = 0, result = '00:00',tem=0;
         return setInterval(function () {
             value++;
+            tem=value;
             if (value < 60) {
                 //result= '00:'+(value<10?('0'+value):value);
                 result = '00:' + ToDou(value);
@@ -2133,11 +2210,11 @@
                 sec = value % 60;
                 result = ToDou(min) + ':' + ToDou(sec)
             } else {
-                h=Math.floor(value/(60*60));
-                value%=60*60;
-                min=Math.floor(value/60);
-                value%=60;
-                sec=value;
+                h=Math.floor(tem/(60*60));
+                tem%=60*60;
+                min=Math.floor(tem/60);
+                tem%=60;
+                sec=tem;
 
                 result = ToDou(h) + ':' + ToDou(min) + ':' + ToDou(sec);
 
@@ -2266,7 +2343,7 @@
         var str = ''
         var curMember = data;
         var name =curMember.name
-        if (isNotCreatvideo && videoinfo){
+        if (videoinfo&&videoinfo.userUniID==initData.hostInfo.userUniId){
             name = name+'(主持人)'
         }
         name = XssToString(name);
@@ -2673,7 +2750,11 @@
                             notJointCount++;
                             audioCount--;
                             videoCount--;
-                            $li.find('.vdo_noReceive_tip').html(rtip);
+                            var videoRoleId=videoRoleList.indexOf(data.userUniId)
+                            if(videoRoleId>-1)videoRoleList.splice(videoRoleId,1)
+                            var audioRoleId=audioRoleList.indexOf(data.userUniId);
+                            if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
+                            $li.removeClass('recalling').find('.vdo_noReceive_tip').html(rtip);
                             $('#vdo_notConnect').append($li);
                             $('#vdo_btn_Count').html(JoinCount)
                             $('#connectCount').html(JoinCount)
