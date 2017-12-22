@@ -444,7 +444,7 @@
                                    if ($('.vdo_l .vdo_lD').length==1){
                                        $Out.hide()
                                    }else{
-                                       mainVideo='';
+                                       // mainVideo='';
                                        $Out.remove()
                                    }
 
@@ -457,7 +457,7 @@
                                if(videoRoleId>-1)videoRoleList.splice(videoRoleId,1)
                                var audioRoleId=audioRoleList.indexOf(uniid);
                                if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
-
+                               if(mainVideo == uniid)  setMainVideo();
                            } else{
                                var id=initData.userUniIdList.findIndex(function(item){return item.userUniId==uniid});
                                if(id>-1){
@@ -574,18 +574,7 @@
             $(".vdo_btn_quit").click(function () {
                 debugger;
                 console.log('登陆菊峰失败===================================' + error.Jufeng)
-                exitVideoIsManual = true
-                if (initData.isXP) {
-                    var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
-                    ConfirmMsgBox(parm).then(function (data) {
-                        if (data == '0') {//同意
-                            exitVideo()
-                        }
-                    })
-                } else {
-                    my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', exitVideo)
-                }
-
+                layOutMsgBOx();
             })
 
         })
@@ -1172,6 +1161,7 @@
                                            if (index>-1){
                                                initData.hostInfo=datalist[index];
                                                initData.myInfo=datalist[index];
+                                               connectList[datalist[index].userUniId]=datalist[index]
                                                $('.vdo_r .main_name').html(initData.hostInfo.name)
                                                $('.vdo_r .main_branch').html(initData.hostInfo.branchPath)
                                            }
@@ -1366,6 +1356,7 @@
                                 return;
                             }
                             JoinCount--;
+                            connectList[data.userUniID]=null;
                             notJointCount =initData.userUniIdList.length-JoinCount;
                             videoCount--;
                             var videoRoleId=videoRoleList.indexOf(data.userUniID);
@@ -1384,11 +1375,9 @@
 
                             } else{
 
-                                if (mainVideo === data.userUniID) {
-                                    peerVideo = document.querySelector('.vdo_r .vdo_out');
-                                    peerVideo = $(peerVideo)
-                                    peerVideo.remove();
-                                    mainVideo='';
+                                if (mainVideo === data.userUniID) {//主窗口显示的人员离开视频会议
+                                    setMainVideo();
+
                                 } else {
                                     var peerVideo = $('.vdo_out[uniid="' + data.userUniID + '"] ').parents('.vdo_lD');
                                     peerVideo.remove();
@@ -1396,6 +1385,7 @@
                             }
 
                             var $li = $('#vdo_connecting li[uniid="' + data.userUniID + '"]');
+                            $li.find('.vdo_noReceive_tip').html('挂断');
                             if(video_role==2){
 
                                 $('#vdo_notConnect').append($li);
@@ -1404,6 +1394,8 @@
                             }else{
                                 $li.remove();
                             }
+
+
                         }
 
                     } else {//视频通话
@@ -1448,11 +1440,6 @@
             var isMyinfo = data.userUniID==initData.myInfo.userUniId;
 
             if (data.mediaOption === 0) {//都没有打开
-                // $video.addClass('on');
-                // $Mick.addClass('on')
-                // peerVideo.find('.vdo_l_bac').show();
-                // peerVideo.find('.vdo_l_mute').show();
-                // peerVideo.find('.vdo_tip ').html('');
                 if(peerVideo.length>0){
                     peerVideo.remove()
                 }
@@ -1461,7 +1448,8 @@
                 var videoRoleId=videoRoleList.indexOf(data.userUniID)
                 if(videoRoleId>-1)videoRoleList.splice(videoRoleId,1)
                 var audioRoleId=audioRoleList.indexOf(data.userUniID);
-                if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
+                if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1);
+                if(mainVideo === data.userUniID)  setMainVideo();
 
             } else if (data.mediaOption === 1) { // 主持人禁掉或开启某人语音
                 if (data.isStart == 1) {//打开
@@ -1548,7 +1536,7 @@
                     videoCount--;
                     var videoRoleId=videoRoleList.indexOf(data.userUniID)
                     if(videoRoleId>-1) videoRoleList.splice(index,1)
-
+                    if(mainVideo === data.userUniID)  setMainVideo();
                 }
             } else if (data.mediaOption === 3) {//主持人禁掉或开启某人视频和语音
                 if (data.isStart == 1) {//打开
@@ -1606,7 +1594,8 @@
                     var videoRoleId=videoRoleList.indexOf(data.userUniID)
                     if(videoRoleId>-1)videoRoleList.splice(videoRoleId,1)
                     var audioRoleId=audioRoleList.indexOf(data.userUniID);
-                    if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
+                    if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1);
+                    if(mainVideo === data.userUniID)  setMainVideo();
                 }
             }
 
@@ -1625,6 +1614,7 @@
             })
             if (index > -1) {
                 curMember = initData.userUniIdList[index];
+                connectList[data.userUniID]=curMember
                 if (data.userUniID === initData.hostInfo.userUniId) {//主持人
 
                     if((data.mediaOption==2||data.mediaOption==3)&&data.isStart==1){
@@ -1689,6 +1679,7 @@
                         if (info.length > 0) {
                             info[0].userUniId=data.userUniID;
                             initData.userUniIdList.push(info[0]);
+                            connectList[data.userUniID]=info[0]
                             if((data.mediaOption==2||data.mediaOption==3)&&data.isStart==1){
                                 if(data.mediaOption==2){
                                     videoCount++;
@@ -1719,6 +1710,41 @@
 
         }
     }
+
+    function setMainVideo() {
+        var peerVideo = $('.vdo_r .vdo_out')
+        peerVideo.remove();
+        var $outL = $('.vdo_l .vdo_out:eq(1)');
+        if($outL.length>0){
+           var newMainVideo= $outL.attr('uniid')
+        }
+        var $ParetL = $outL.parents('.vdo_lD')
+        $('.vdo_r').prepend($outL);
+        $ParetL.remove();
+        var outLFirst = $('.vdo_l .vdo_out:eq(1)');
+        if (videoRoleList.length > 1) {
+            if (mainVideo != '') {
+                $oldLi = $('#vdo_connecting li[uniid="' + mainVideo + '"]');
+                var $audio=$('#vdo_connecting li:eq('+(audioRoleList.length)+')');
+                if (audioRoleList.indexOf(mainVideo) > -1) {
+                    if($audio.length>0){
+                        $audio.before($oldLi)
+                    }
+                }else{
+                    if($audio.length>0){
+                        $audio.after($oldLi)
+                    }
+                }
+            }
+            mainVideo = newMainVideo;
+            // var $li = $('#vdo_connecting li[uniid="' + mainVideo + '"]')
+            // $('#vdo_connecting').prepend($li);
+        } else {
+            mainVideo = ''
+        }
+
+    }
+
     //绑定设备信息
     function multimediaSeting(data) {
         var camerli = $('.set1');
@@ -2152,17 +2178,8 @@
                     console.log(result)
                     result = JSON.parse(result);
                     if (result.action == 'close') {
-                        exitVideoIsManual = true;
-                        if (initData.isXP) {
-                            var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
-                            ConfirmMsgBox(parm).then(function (data) {
-                                if (data == '0') {//同意
-                                    exitVideo()
-                                }
-                            })
-                        } else {
-                            my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', exitVideo)
-                        }
+
+                        layOutMsgBOx()
                     } else if (result.action == 'ReceiveVideoConfStatus') {// 接收由extendFrame 注册ReceiveVideoConfStatus 返回的数据
                         ReceiveVideoConfStatus(result.data)
                     }
@@ -2193,6 +2210,33 @@
 
 
         })
+    }
+
+    function layOutMsgBOx(){
+        var msgTip=''
+        if(video_role==0||video_role==1){
+            msgTip='您确定要退出此次视频通话？'
+        }else if(video_role==2){
+            msgTip='您是会议主持人，您确定要结束本次会议吗？'
+        }else{
+            msgTip='您确定要退出此次视频会议么？'
+        }
+
+
+        if (initData.isXP) {
+            var parm = {title: '蓝信', text: msgTip}
+            ConfirmMsgBox(parm).then(function (data) {
+                if (data == '0') {//同意
+                    exitVideoIsManual = true
+                    exitVideo()
+                }
+            })
+        } else {
+            my_layer({message: msgTip}, 'confirm', function(){
+                exitVideoIsManual = true
+                exitVideo();
+            })
+        }
     }
 
     //d定时器
@@ -2470,7 +2514,7 @@
                 if (initData.meetingQunId) {
                     TerminateVideoConf(function () {
                         if (initData.isXP){
-                            var parm = {title: '蓝信', text: '是否解散该群？'}
+                            var parm = {title: '蓝信', text: '视频会议已结束，您是否要解散视频会议群？'}
                             ConfirmMsgBox(parm).then(function (data) {
                                 if (data == '0') {//同意
                                     var parm = {qunId: parseFloat(qunId), orgDomain: initData.orgDomain}
@@ -2484,9 +2528,7 @@
                                 }
                             })
                         } else {
-                            my_layer({message: '是否解散该群'}, 'confirm', function () {
-//                            var reg = /-(\d+)@/
-//                            var qunId = reg.exec(initData.meetingQunId)[1];
+                            my_layer({message: '视频会议已结束，您是否要解散视频会议群？'}, 'confirm', function () {
                                 var parm = {qunId: parseFloat(qunId), orgDomain: initData.orgDomain}
                                 DismissQun(parm).then(function (data) {
                                     if (data === 0) {
@@ -2597,20 +2639,21 @@
             }, 3000)
             clearInterval(timer_video)
         } else if (data.statusName == 'closeWnd') {//菜单栏关闭蓝信程序使得推出视频
-            if (initData.isXP) {
-                var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
-                ConfirmMsgBox(parm).then(function (data) {
-                    exitVideoIsManual = true
-                    if (data == '0') {//同意
-                        exitVideo()
-                    }
-                })
-            }else{
-                my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
-                    exitVideoIsManual = true
-                    exitVideo()
-                })
-            }
+            // if (initData.isXP) {
+            //     var parm = {title: '蓝信', text: '您确定要退出此次视频通话？'}
+            //     ConfirmMsgBox(parm).then(function (data) {
+            //         exitVideoIsManual = true
+            //         if (data == '0') {//同意
+            //             exitVideo()
+            //         }
+            //     })
+            // }else{
+            //     my_layer({message: '您确定要退出此次视频通话？'}, 'confirm', function () {
+            //         exitVideoIsManual = true
+            //         exitVideo()
+            //     })
+            // }
+            layOutMsgBOx()
 
         } else if (data.statusName == 'preCloseWnd') {//切换组织是关闭视频弹窗
 
@@ -2744,21 +2787,28 @@
                         setTimeout(function () {
                             vdo_parent.remove();
                         }, 2000);
-                        var $li=$('#vdo_connecting li[uniid="'+data.userUniId+'"]');
+                        var $li=$('.vdo_rL_tabC li[uniid="'+data.userUniId+'"]');
                         if($li.length>0){
                             JoinCount--;
                             notJointCount++;
                             audioCount--;
                             videoCount--;
+
                             var videoRoleId=videoRoleList.indexOf(data.userUniId)
                             if(videoRoleId>-1)videoRoleList.splice(videoRoleId,1)
                             var audioRoleId=audioRoleList.indexOf(data.userUniId);
-                            if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1)
+                            if(audioRoleId>-1)audioRoleList.splice(audioRoleId,1);
+                            if(mainVideo === data.userUniId)  setMainVideo();
                             $li.removeClass('recalling').find('.vdo_noReceive_tip').html(rtip);
-                            $('#vdo_notConnect').append($li);
+
+
                             $('#vdo_btn_Count').html(JoinCount)
                             $('#connectCount').html(JoinCount)
                             $('#notConnectCount').html(notJointCount)
+                            if(connectList[data.userUniID]){
+                                $('#vdo_notConnect').append($li);
+                            }
+                            connectList[data.userUniID]=null;
                         }
                     }
                 } else {
