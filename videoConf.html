@@ -387,14 +387,14 @@
             $('.vdo_rL_tabC  #vdo_connecting').delegate('i', 'click', function (e) {
                 mystopPropagation(e)
                 if (initData.flag == 'qun_videomeetingcaller') {
-                    if(this.classList.contains('no')) return;
+                    if (this.classList.contains('no')) return;
                     var $ele = $(this);
                     if ($ele.data('redo')) {
                         return;
                     } else {
                         $ele.data('redo', true)
                     }
-console.log(audioRoleList)
+                    console.log(audioRoleList)
                     console.log(videoRoleList)
                     var type = this.dataset.type;
                     var $li = $ele.parents('li')
@@ -409,25 +409,25 @@ console.log(audioRoleList)
 
                     } else if (type === '2') {
                         ctrType = 'audio';
-                        if(isOn){
-                            if(audioRoleList.length == 15){
+                        if (isOn) {
+                            if (audioRoleList.length == 15) {
                                 $('#vdo_connecting .vdo_rL_iMute.on').addClass('no');
                             }
-                        }else{
+                        } else {
                             if (audioRoleList.length == 16) {
                                 $('#vdo_connecting .vdo_rL_iMute.on').removeClass('no');
-                        }
+                            }
                         }
 
 
                     } else if (type === '3') {
                         ctrType = 'video'
-                        if(isOn){
-                            if(videoRoleList.length==4){
+                        if (isOn) {
+                            if (videoRoleList.length == 4) {
                                 $('#vdo_connecting .vdo_rL_iVideo.on').addClass('no');
                             }
-                        }else{
-                            if(videoRoleList.length==5){
+                        } else {
+                            if (videoRoleList.length == 5) {
                                 $('#vdo_connecting .vdo_rL_iMute.on').removeClass('no');
                             }
                         }
@@ -438,32 +438,34 @@ console.log(audioRoleList)
                         $ele.data('redo', false);
 
                         if (status == 0) {
-                            var $vdo_out = $('.vdo_out[uniid="' + uniid + '"]')
-                            if (type === '2') {
-                                if (isOn) {
-                                    $vdo_out.find('.vdo_l_mute').hide();
-                                } else {
-                                    $vdo_out.find('.vdo_l_mute').show();
-                                }
-                            } else if (type === '3') {
-                                if (isOn) {
-                                    $vdo_out.find('.vdo_l_bac').hide()
-                                } else {
-                                    $vdo_out.find('.vdo_l_bac').show();
-                                    $vdo_out.find('.vdo_tip').html('语音中');
-                                }
-                            } else if (type === '1') {
-                                var curitem = hasJoinList[uniid]
-                                if (curitem) {
-                                    hasJoinList[uniid] = null;
-                                }
-                            }
+                            // var $vdo_out = $('.vdo_out[uniid="' + uniid + '"]')
+                            // if (type === '2') {
+                            //     if (isOn) {
+                            //         $vdo_out.find('.vdo_l_mute').hide();
+                            //     } else {
+                            //         $vdo_out.find('.vdo_l_mute').show();
+                            //     }
+                            // } else if (type === '3') {
+                            //     if (isOn) {
+                            //         $vdo_out.find('.vdo_l_bac').hide()
+                            //     } else {
+                            //         $vdo_out.find('.vdo_l_bac').show();
+                            //         $vdo_out.find('.vdo_tip').html('语音中');
+                            //     }
+                            // } else
+                            // if (type === '1') {
+                            //     var curitem = hasJoinList[uniid]
+                            //     if (curitem) {
+                            //         hasJoinList[uniid] = null;
+                            //     }
+                            // }
 
                         }
                     })
                     if (uniid == initData.curUserUniID) {//主持人
                         var $Out = $('.vdo_out[uniid="' + uniid + '"]');
                         var $mute = $('#vdo_btn_mute')
+                        var videoStatus={}
                         if (type == 3) {
                             if (!isOn) {
                                 $li.find('.vdo_rL_iMute').addClass('on');
@@ -479,12 +481,9 @@ console.log(audioRoleList)
                                 } else {
                                     $Out.parents('.vdo_lD').remove();
                                 }
-                                videoCount--;
-                                audioCount--;
-                                var videoRoleId = videoRoleList.indexOf(uniid)
-                                if (videoRoleId > -1) videoRoleList.splice(videoRoleId, 1)
-                                var audioRoleId = audioRoleList.indexOf(uniid);
-                                if (audioRoleId > -1) audioRoleList.splice(audioRoleId, 1)
+                                videoStatus={isLeaved:0,isStart:0,mediaOption:3,userUniID:uniid,peerWnd:initData.ownerWnd};
+                                setVideoOrAudioAuthority(videoStatus)
+
                                 if (mainVideo == uniid) setMainVideo();
                             } else {
                                 var id = initData.userUniIdList.findIndex(function (item) {
@@ -514,9 +513,8 @@ console.log(audioRoleList)
                                             $mute.removeClass('on').attr('title', '点击静音')
                                         }
                                     }
-                                    videoCount++;
-                                    var videoRoleId = videoRoleList.indexOf(uniid)
-                                    if (videoRoleId == -1) videoRoleList.push(videoRoleId, 1)
+                                    videoStatus={isLeaved:0,isStart:1,mediaOption:2,userUniID:uniid,peerWnd:initData.ownerWnd};
+                                    setVideoOrAudioAuthority(videoStatus)
                                 }
                             }
                         } else if (type == 2) {
@@ -527,20 +525,19 @@ console.log(audioRoleList)
                                     $Out.find('.vdo_l_mute').show()
                                     $mute.addClass('on').attr('title', '恢复扬声器')
                                 }
-                                audioCount--;
-                                var audioRoleId = audioRoleList.indexOf(uniid);
-                                if (audioRoleId > -1) audioRoleList.splice(audioRoleId, 1)
+                                videoStatus={isLeaved:0,isStart:0,mediaOption:1,userUniID:uniid,peerWnd:initData.ownerWnd};
+                                setVideoOrAudioAuthority(videoStatus)
                             } else {
                                 $('#vdo_btn_mute').removeClass('on')
                                 if ($Out.length > 0) {
                                     $Out.find('.vdo_l_mute').hide()
                                     $mute.removeClass('on').attr('title', '点击静音')
                                 }
-                                audioCount++;
-                                var audioRoleId = audioRoleList.indexOf(uniid);
-                                if (audioRoleId > -1) audioRoleList.push(uniid)
+                                videoStatus={isLeaved:0,isStart:1,mediaOption:1,userUniID:uniid,peerWnd:initData.ownerWnd};
+                                setVideoOrAudioAuthority(videoStatus)
                             }
                         }
+
                     }
                 } else {
                     return;
@@ -776,23 +773,23 @@ console.log(audioRoleList)
                             <div class="vdo_rL_tCon ">
                                 <ul class="vdo_rL_list vdo_qun_call" id="vdo_connecting">
                                     <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iKick" title="断开"></i><i-->
-                                            <!--class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                            <!--class="vdo_rL_iVideo" title="视频已被开启"></i><i class="vdo_rL_iReCalled"-->
-                                                                                        <!--title="重拨"></i><span-->
-                                            <!--class="vdo_noReceive_tip">已挂断</span></span></span><img-->
-                                            <!--src="images/card_icon.png">-->
-                                        <!--<p>莉莉(主持人)</p></li>-->
+                                    <!--class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                    <!--class="vdo_rL_iVideo" title="视频已被开启"></i><i class="vdo_rL_iReCalled"-->
+                                    <!--title="重拨"></i><span-->
+                                    <!--class="vdo_noReceive_tip">已挂断</span></span></span><img-->
+                                    <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
                                 </ul>
                             </div>
                             <div class="vdo_rL_tCon disN">
                                 <ul class="vdo_rL_list" id="vdo_notConnect">
                                     <!--<li><span class="vdo_rL_lBtn2"><i class="vdo_rL_iKick" title="断开"></i><i-->
-                                            <!--class="vdo_rL_iMute" title="音频已被开启"></i><i-->
-                                            <!--class="vdo_rL_iVideo" title="视频已被开启"></i><i class="vdo_rL_iReCalled"-->
-                                                                                        <!--title="重拨"></i><span-->
-                                            <!--class="vdo_noReceive_tip">已挂断</span></span></span><img-->
-                                            <!--src="images/card_icon.png">-->
-                                        <!--<p>莉莉(主持人)</p></li>-->
+                                    <!--class="vdo_rL_iMute" title="音频已被开启"></i><i-->
+                                    <!--class="vdo_rL_iVideo" title="视频已被开启"></i><i class="vdo_rL_iReCalled"-->
+                                    <!--title="重拨"></i><span-->
+                                    <!--class="vdo_noReceive_tip">已挂断</span></span></span><img-->
+                                    <!--src="images/card_icon.png">-->
+                                    <!--<p>莉莉(主持人)</p></li>-->
                                 </ul>
                             </div>
                         </div>
@@ -1171,7 +1168,7 @@ console.log(audioRoleList)
 
                                 try {
                                     window.lxpc.exebusinessaction('VideoConf', 'CreateVideoMeeting', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-                                        console.log('CreateVideoMeeting===', status, jsondata);
+                                        console.log('CreateVideoMeeting===');
                                         if (status == 0) {
 
                                             var result = JSON.parse(jsondata);
@@ -1307,21 +1304,17 @@ console.log(audioRoleList)
                 mandatory: {
                     chromeMediaSource: 'desktop',
                     chromeMediaSourceId: 'window:' + Handel + ':0',
-//                                        minAspectRatio: 1.333, maxAspectRatio: 1.334,
-//                                        aspectRatio: 1.3333333333,
-//                                        minWidth: 143.333,
-//                                        minHeight: 107.5,
-//                                        maxWidth: 4000,
-//                                        maxHeight: 3000,
-//                                        minAspectRatio:1.3333, maxAspectRatio: 1.3334
-//                                        aspectRatio: 1.3333333333
+                    maxWidth: 2560,
+                    maxHeight: 1920,
+                    maxFrameRate:60
+
                 },
-                optional: [],
-//                                width: {min: 1024, ideal: 1280, max: 1920},
-//                                height: {min: 776, ideal: 720, max: 1080}
-//                                    width: 108,
-//                                    height:143.333,
-//                                aspectRatio: 1.3333333333
+                optional: [
+                    {minFrameRate:60},
+                    {minWidth: 2560},
+                    {minHeight: 1920}
+                ],
+
             }
         }, function (stream) {
 
@@ -1352,8 +1345,8 @@ console.log(audioRoleList)
                 if (status == 0) {
                     var nflg = initData.flag
                     var data = JSON.parse(jsondata);
-                    console.log('videoRole',videoRoleList)
-                    console.log('audio',audioRoleList)
+                    console.log('videoRole', videoRoleList)
+                    console.log('audio', audioRoleList)
                     if (nflg == 'qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled') {//视频会议
                         if (data.isLeaved == 0) {//加入会议
 
@@ -1369,9 +1362,8 @@ console.log(audioRoleList)
                                         $('.vdo_l_wait_member').hide();
                                         ltarg++;
                                     }
-                                    var $li = $('#vdo_notConnect li[uniid="' + data.userUniID + '"]');
-                                    $('#vdo_connecting').append($li);
-                                    myscroll3.refresh()
+
+
                                     getJoinMemberVideoInfo(data, $li);
 
                                 }
@@ -1455,10 +1447,11 @@ console.log(audioRoleList)
         debugger;
         var item = hasJoinList[data.userUniID];
         var tips = '';
-        if ($li && $li.length > 0) {
-            var $video = $li.find('.vdo_rL_iVideo'),
-                $Mute = $li.find('.vdo_rL_iMute')
-        }
+
+        var userInfo = $('.vdo_rL_tabC li[uniid="' + data.userUniID + '"] ');
+        var $Mick = userInfo.find('.vdo_rL_iMute');
+        var $video = userInfo.find('.vdo_rL_iVideo');
+
         if (item) {
             var item = hasJoinList[data.userUniID]
             if (item.mediaOption === data.mediaOption && item.isStart === data.isStart) {
@@ -1470,54 +1463,40 @@ console.log(audioRoleList)
             if (peerVideo.length == 0) {
                 peerVideo = $vdo_out
             }
-            var userInfo = $('.vdo_rL_tabC li[uniid="' + data.userUniID + '"] ');
-            var $Mick = userInfo.find('.vdo_rL_iMute');
-            var $video = userInfo.find('.vdo_rL_iVideo');
+
             var isMyinfo = data.userUniID == initData.myInfo.userUniId;
 
             if (data.mediaOption === 0) {//都没有打开
                 if (peerVideo.length > 0) {
                     peerVideo.remove()
                 }
-                videoCount--;
-                audioCount--;
-                var videoRoleId = videoRoleList.indexOf(data.userUniID)
-                if (videoRoleId > -1) videoRoleList.splice(videoRoleId, 1)
-                var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                if (audioRoleId > -1) audioRoleList.splice(audioRoleId, 1);
                 if (mainVideo === data.userUniID) setMainVideo();
-
             } else if (data.mediaOption === 1) { // 主持人禁掉或开启某人语音
                 if (data.isStart == 1) {//打开
                     if (video_role == 3) {
                         tips = '音频已被开启'
                         if (isMyinfo) {
-                            showtips('主持人取消了您的静音，您可以讲话了')
+                            showtips('主持人取消了您的静音，您可以讲话了',null,{top:'-30%'})
                         }
                     } else {
                         tips = '点击禁言'
 
                     }
-                    $Mick.removeClass('on').attr('title', tips)
+                    $Mick.attr('title', tips)
                     peerVideo.find('.vdo_l_mute').hide();
-                    audioCount++;
-                    var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                    if (audioRoleId == -1) audioRoleList.push(data.userUniID)
-
                 } else {
                     if (video_role == 3) {
                         tips = '主持人未开启音频'
                         if (isMyinfo) {
-                            showtips('您已被主持人静音')
+                            showtips('您已被主持人静音',null,{top:'-30%'})
                         }
                     } else {
                         tips = '恢复通话'
                     }
-                    $Mick.addClass('on').attr('title', tips)
+                    $Mick.attr('title', tips)
                     peerVideo.find('.vdo_l_mute').show();
-                    audioCount--;
-                    var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                    if (audioRoleId > -1) audioRoleList.splice(audioRoleId, 1)
+
+
                 }
 
             } else if (data.mediaOption === 2) {//主持人禁掉或开启某人视频
@@ -1530,10 +1509,10 @@ console.log(audioRoleList)
                     } else {
                         tips = '关闭视频'
                     }
-                    $video.removeClass('on').attr('title', tips)
+                    $video.attr('title', tips)
                     // peerVideo.find('.vdo_l_bac').hide();
                     if (data.peerWnd) {
-                        if (peerVideo.length == 0) {
+                        if(peerVideo.length == 0){
                             var index = initData.userUniIdList.findIndex(function (item) {
                                 return item.userUniId == data.userUniID
                             })
@@ -1551,11 +1530,10 @@ console.log(audioRoleList)
 
                                 bindVideo(data.peerWnd, peerVideo[0]);
                             }
+
                         }
                     }
-                    videoCount++;
-                    var videoRoleId = videoRoleList.indexOf(data.userUniID)
-                    if (videoRoleId == -1) videoRoleList.push(data.userUniID)
+
 
                 } else {
                     peerVideo.remove();
@@ -1568,11 +1546,9 @@ console.log(audioRoleList)
                     } else {
                         tips = '打开视频'
                     }
-                    $video.addClass('on').attr('title', tips)
-                    videoCount--;
-                    var videoRoleId = videoRoleList.indexOf(data.userUniID)
-                    if (videoRoleId > -1) videoRoleList.splice(index, 1)
+                    $video.attr('title', tips)
                     if (mainVideo === data.userUniID) setMainVideo();
+
                 }
             } else if (data.mediaOption === 3) {//主持人禁掉或开启某人视频和语音
                 if (data.isStart == 1) {//打开
@@ -1587,8 +1563,8 @@ console.log(audioRoleList)
                         tips = '关闭视频'
                         tipAuto = '点击禁言'
                     }
-                    $video.removeClass('on').attr('title', tips);
-                    $Mick.removeClass('on').attr('title', tipAuto);
+                    $video.attr('title', tips);
+                    $Mick.attr('title', tipAuto);
                     if (data.peerWnd) {
                         if (peerVideo.length == 0) {
                             var index = initData.userUniIdList.findIndex(function (item) {
@@ -1601,12 +1577,6 @@ console.log(audioRoleList)
                             }
                         }
                     }
-                    videoCount++;
-                    audioCount++;
-                    var videoRoleId = videoRoleList.indexOf(data.userUniID)
-                    if (videoRoleId == -1) videoRoleList.push(data.userUniID)
-                    var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                    if (audioRoleId == -1) audioRoleList.push(data.userUniID)
 
                 } else {
                     if (video_role == 3) {
@@ -1619,22 +1589,14 @@ console.log(audioRoleList)
                         tips = '打开视频'
                         tipAuto = '恢复通话'
                     }
-                    $video.addClass('on').attr('title', tips);
-                    $Mick.addClass('on').attr('title', tipAuto)
-                    peerVideo.find('.vdo_l_bac').show();
-                    peerVideo.find('.vdo_l_mute').show();
-                    peerVideo.find('.vdo_tip ').html('参会中...');
+                    $video.attr('title', tips);
+                    $Mick.attr('title', tipAuto)
                     peerVideo.remove();
-                    videoCount--;
-                    audioCount--;
-                    var videoRoleId = videoRoleList.indexOf(data.userUniID)
-                    if (videoRoleId > -1) videoRoleList.splice(videoRoleId, 1)
-                    var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                    if (audioRoleId > -1) audioRoleList.splice(audioRoleId, 1);
                     if (mainVideo === data.userUniID) setMainVideo();
+
                 }
             }
-
+            setVideoOrAudioAuthority(data)
             return;
         } else {
             hasJoinList[data.userUniID] = data;
@@ -1659,17 +1621,7 @@ console.log(audioRoleList)
                             bindVideo(data.peerWnd, peerVideo[0]);
                             $('.vdo_r .vdo_out').attr('uniid', data.userUniID);
                             mainVideo = data.userUniID;
-                            if (data.mediaOption == 2) {
-                                videoCount++;
 
-                            } else {
-                                videoCount++;
-                                audioCount++;
-                                var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                                if (audioRoleId == -1) audioRoleList.push(data.userUniID)
-                            }
-                            var videoRoleId = videoRoleList.indexOf(data.userUniID)
-                            if (videoRoleId == -1) videoRoleList.push(data.userUniID)
                         }
                     }
                     bindmemberInfoforCalled(curMember, data, true);
@@ -1677,46 +1629,19 @@ console.log(audioRoleList)
                     $('.vdo_r .main_name').html(curMember.name)
                     $('.vdo_r .main_branch').html(curMember.branchPath);
 
-
                 } else {
                     if ((data.mediaOption == 2 || data.mediaOption == 3)) {
                         if (data.isStart == 1) {
-                            if (data.mediaOption == 2) {
-                                videoCount++;
-                            } else {
-                                videoCount++;
-                                audioCount++;
-                                var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                                if (audioRoleId == -1) audioRoleList.push(data.userUniID)
-                            }
-                            var videoRoleId = videoRoleList.indexOf(data.userUniID)
-                            if (videoRoleId == -1) videoRoleList.push(data.userUniID)
                             bindmemberInfoforCalled(curMember, data);
-                        } else {
-                            if (data.mediaOption == 2) {
-                                if ($video) $video.addClass('on no')
-                            } else {
-                                if ($video) $video.addClass('on no')
-                                if ($Mute) $Mute.addClass('on no')
-                            }
                         }
 
                     } else if (data.mediaOption == 1) {
                         if (data.isStart == 1) {
-                            audioCount++;
-                            var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                            if (audioRoleId == -1) audioRoleList.push(data.userUniID)
                             bindmemberInfoforCalled(curMember, data, true);
-                        } else {
-                            if ($Mute) $Mute.addClass('on no')
                         }
-
                     } else {
-                        if ($video) $video.addClass('on no')
-                        if ($Mute) $Mute.addClass('on no')
                         bindmemberInfoforCalled(curMember, data, true);
                     }
-
                 }
                 if (ltarg == 0) {
                     var oTime = document.getElementById('vdo_time')
@@ -1736,39 +1661,17 @@ console.log(audioRoleList)
                             connectList[data.userUniID] = info[0]
                             if ((data.mediaOption == 2 || data.mediaOption == 3)) {
                                 if (data.isStart == 1) {
-                                    if (data.mediaOption == 2) {
-                                        videoCount++;
-                                    } else {
-                                        videoCount++;
-                                        audioCount++;
-                                        var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                                        if (audioRoleId == -1) audioRoleList.push(data.userUniID)
-                                    }
-                                    var videoRoleId = videoRoleList.indexOf(data.userUniID)
-                                    if (videoRoleId == -1) videoRoleList.push(data.userUniID)
+
                                     bindmemberInfoforCalled(info[0], data);
-                                } else {
-                                    if (data.mediaOption == 2) {
-                                        if ($video) $video.addClass('on no')
-                                    } else {
-                                        if ($video) $video.addClass('on no')
-                                        if ($Mute) $Mute.addClass('on no')
-                                    }
                                 }
 
                             } else if (data.mediaOption == 1) {
                                 if (data.isStart == 1) {
-                                    audioCount++;
-                                    var audioRoleId = audioRoleList.indexOf(data.userUniID);
-                                    if (audioRoleId == -1) audioRoleList.push(data.userUniID)
-                                    bindmemberInfoforCalled(curMember[0], data, true);
-                                } else {
-                                    if ($Mute) $Mute.addClass('on no')
-                                }
 
+                                    bindmemberInfoforCalled(curMember[0], data, true);
+                                }
                             } else {
-                                if ($video) $video.addClass('on no')
-                                if ($Mute) $Mute.addClass('on no')
+
                                 bindmemberInfoforCalled(curMember[0], data, true);
                             }
 
@@ -1778,11 +1681,248 @@ console.log(audioRoleList)
                 })
             }
 
+            setVideoOrAudioAuthority(data)
+        }
+    }
+//主持人对与会成员食品和语音权限设置
+    function setVideoOrAudioAuthority(data){
+        var userInfo = $('.vdo_rL_tabC li[uniid="' + data.userUniID + '"] ');
+        var $Mick = userInfo.find('.vdo_rL_iMute');
+        var $video = userInfo.find('.vdo_rL_iVideo');
+        if(video_role==2){
+            var userInfo = $('.vdo_rL_tabC li[uniid="' + data.userUniID + '"] ');
+            var $Mick = userInfo.find('.vdo_rL_iMute');
+            var $video = userInfo.find('.vdo_rL_iVideo');
+            var audioRoleId = audioRoleList.indexOf(data.userUniID);
+            var videoRoleId = videoRoleList.indexOf(data.userUniID);
+            var noVideoList=$('#vdo_connecting .vdo_rL_iVideo.on')
+            var noAudioList=$('#vdo_connecting .vdo_rL_iMute.on')
+            console.log('GGGGGGGGGGGGGGGGGGGG==============================================')
+            console.log(data)
+            console.log(audioRoleList)
+            console.log(videoRoleList)
 
+                if(!hasJoinList[data.userUniID]){
+                    var $li = $('#vdo_notConnect li[uniid="' + data.userUniID + '"]');
+                    $('#vdo_connecting').append($li);
+                    myscroll3.refresh()
+                }
+
+            if(data.mediaOption==3){
+                if (data.isStart == 1) {
+                    $Mick.removeClass('on');
+                    $video.removeClass('on');
+                    videoCount++;
+                    audioCount++;
+
+                    if(videoRoleList.length>0){
+                        var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
+                        $Videoli.after(userInfo)
+                    } else{
+                        $('#vdo_connecting').prepend(userInfo)
+                    }
+                    if (audioRoleId == -1) audioRoleList.push(data.userUniID);
+                    if (videoRoleId == -1) videoRoleList.push(data.userUniID);
+                    if(videoRoleList.length==5){
+                        noVideoList.addClass('no');
+                    }
+                    if(audioRoleList.length==16){
+                        noAudioList.addClass('no');
+                    }
+
+                }else{
+                    $Mick.addClass('on');
+                    $video.addClass('on');
+
+                    if(videoRoleList.length!=0||audioRoleList.length!=0){
+                        $('#vdo_connecting').append(userInfo)
+                    }
+
+                    videoCount--;
+                    audioCount--;
+                    if (audioRoleId > -1) {
+                        if(audioRoleList.length==16){
+                            noAudioList.removeClass('no');
+                        }
+                        audioRoleList.splice(audioRoleId,1);
+                    }else{
+                        $Mick.addClass('no');
+                    }
+
+                    if (videoRoleId > -1){
+                        if(videoRoleList.length==4){
+                            noVideoList.removeClass('on');
+                        }
+                        videoRoleList.splice(videoRoleId,1);
+                    } else{
+                        $video.addClass('no');
+                    }
+
+
+                }
+            }
+            else if ((data.mediaOption == 2)) {
+                if (data.isStart == 1) {
+                    $video.removeClass('on');
+                    if(videoRoleList.length>0){
+                        var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
+                        $Videoli.after(userInfo)
+                    } else{
+                        $('#vdo_connecting').prepend(userInfo)
+                    }
+
+                     videoCount++;
+                    if (videoRoleId == -1) videoRoleList.push(data.userUniID)
+                    if(videoRoleList.length==5){
+                        noVideoList.addClass('no');
+                    }
+
+                } else {
+                    $video.addClass('on');
+
+                    if(audioRoleList.length!=0||videoRoleList.length!=0){
+                        if(audioRoleId>-1){
+                            var $Audioli=$('#vdo_connecting li:eq('+(audioRoleList.length-1)+')');
+                            $Audioli.after(userInfo)
+                        }else{
+                            $('#vdo_connecting').append(userInfo)
+                        }
+                    }
+
+                    videoCount--;
+                    if (videoRoleId > -1) {
+                        if(videoRoleList.length==5){
+                            noVideoList.removeClass('no');
+                        }
+                        videoRoleList.splice(videoRoleId,1)
+                    } else{
+                        if(videoRoleList.length==5){
+                            $video.addClass('no')
+                        }
+                    }
+
+                }
+
+
+            } else if (data.mediaOption == 1) {
+
+                if (data.isStart == 1) {
+                    $Mick.removeClass('on');
+                    if(audioRoleList.length>0){
+                        var $Audioli=$('#vdo_connecting li:eq('+(audioRoleList.length-1)+')');
+                        $Audioli.after(userInfo)
+                    } else if(videoRoleList.length>0){
+                        var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
+                        $Videoli.after(userInfo)
+                    }else{
+                        $('#vdo_connecting').prepend(userInfo)
+                    }
+                    audioCount++;
+                    var audioRoleId = audioRoleList.indexOf(data.userUniID);
+                    if (audioRoleId == -1){
+                        audioRoleList.push(data.userUniID);
+                    }
+                    if(audioRoleList.length==16){
+                        noAudioList.addClass('no');
+                    }
+
+                } else {
+                    $Mick.addClass('on');
+                    if(audioRoleList.length!=0||videoRoleList.length!=0){
+                      if(videoRoleId>-1){
+                          var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
+                          $Videoli.after(userInfo)
+                      }else{
+                          $('#vdo_connecting').append(userInfo)
+                      }
+                    }
+                    audioCount--;
+                    var audioRoleId = audioRoleList.indexOf(data.userUniID);
+                    if (audioRoleId > -1) {
+                        if(audioRoleList.length==16){
+                            noAudioList.removeClass('no');
+                        }
+                        audioRoleList.splice(audioRoleId,1);
+
+                    } else{
+                        if(audioRoleList.length==16){
+                            $Mick.addClass('no');
+                        }
+                    }
+                }
+            } else if(data.mediaOption==0){
+                $Mick.addClass('on');
+                $video.addClass('on');
+                if(audioRoleList.length>0){
+                    var $Audioli=$('#vdo_connecting li:eq('+(audioRoleList.length-1)+')');
+                    $Audioli.after(userInfo)
+                } else{
+                    $('#vdo_connecting').append(userInfo)
+                }
+                videoCount--;
+                audioCount--;
+                if(audioRoleId > -1){
+
+                    if(audioRoleList.length==16){
+                        noAudioList.removeClass('no');
+                    }
+                    audioRoleList.splice(audioRoleId,1);
+                }else{
+                    if(audioRoleList.length==16){
+                        $video.addClass('no');
+                    }
+                }
+                if(videoRoleId>-1){
+
+                    if(videoRoleList.length==5){
+                        noVideoList.removeClass('no');
+                    }
+                    videoRoleList.splice(videoRoleId,1)
+                }else{
+                    if(videoRoleList.length==5){
+                        $Mick.addClass('no');
+                    }
+                }
+
+            }
+        }else if(video_role==3){
+            if(data.mediaOption==3){
+                if (data.isStart == 1) {
+                    $Mick.removeClass('on');
+                    $video.removeClass('on');
+
+                }else{
+                    $Mick.addClass('on');
+                    $video.addClass('on');
+                }
+            }
+            else if ((data.mediaOption == 2)) {
+                if (data.isStart == 1) {
+                    $video.removeClass('on');
+
+                } else {
+                    $video.addClass('on');
+                }
+
+
+            } else if (data.mediaOption == 1) {
+
+                if (data.isStart == 1) {
+                    $Mick.removeClass('on');
+
+                } else {
+                    $Mick.addClass('on');
+                }
+
+            } else if(data.mediaOption==0){
+                $Mick.addClass('on');
+                $video.addClass('on');
+            }
         }
     }
 
     function setMainVideo() {
+        debugger;
         var peerVideo = $('.vdo_r .vdo_out')
         peerVideo.remove();
         var $outL = $('.vdo_l .vdo_out:eq(1)');
@@ -1792,27 +1932,31 @@ console.log(audioRoleList)
         var $ParetL = $outL.parents('.vdo_lD')
         $('.vdo_r').prepend($outL);
         $ParetL.remove();
-        var outLFirst = $('.vdo_l .vdo_out:eq(1)');
-        if (videoRoleList.length > 1) {
+        // var outLFirst = $('.vdo_l .vdo_out:eq(1)');
+        // if (videoRoleList.length > 0) {
             if (mainVideo != '') {
                 $oldLi = $('#vdo_connecting li[uniid="' + mainVideo + '"]');
-                var $audio = $('#vdo_connecting li:eq(' + (audioRoleList.length) + ')');
+
                 if (audioRoleList.indexOf(mainVideo) > -1) {
-                    if ($audio.length > 0) {
-                        $audio.before($oldLi)
+
+                    var $audio = $('#vdo_connecting li:eq(' + (audioRoleList.length-1) + ')');
+
+
+                    if($audio.length>0){
+                        $audio.after($oldLi)
+                    }else {
+                       $('#vdo_connecting').append($oldLi)
                     }
                 } else {
-                    if ($audio.length > 0) {
-                        $audio.after($oldLi)
-                    }
+
+                        $('#vdo_connecting').append($oldLi)
+
                 }
+                mainVideo= newMainVideo||''
+            }else{
+                mainVideo = newMainVideo||'';
             }
-            mainVideo = newMainVideo;
-            // var $li = $('#vdo_connecting li[uniid="' + mainVideo + '"]')
-            // $('#vdo_connecting').prepend($li);
-        } else {
-            mainVideo = ''
-        }
+
 
     }
 
@@ -2438,7 +2582,7 @@ console.log(audioRoleList)
             if (curMember.userUniId == initData.curUserUniID) {//当前的用户的信息再次不现实，在后边会显示
                 var vdo_Connect = document.getElementById('vdo_connecting')
                 vdo_Connect.innerHTML = tem;
-                hasJoinList[curMember.userUniId] = curMember;
+                // hasJoinList[curMember.userUniId] = curMember;
             } else {
 
                 str += tem;
@@ -2462,8 +2606,17 @@ console.log(audioRoleList)
                 vdo_clone.find('.vdo_l_mute').show();
             }
         }
-        vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId);
-        var newvideo = vdo_clone.appendTo($scroll);
+        var $out=vdo_clone.find('.vdo_out');
+        $out.attr('uniid', curMember.userUniId);
+        if(mainVideo==''){
+            var newvideo = $out.prependTo('.vdo_r');
+            mainVideo=curMember.userUniId;
+            var $li=$('#vdo_connecting li[uniid="'+curMember.userUniId+'"]');
+            $('#vdo_connecting').prepend($li);
+        }else{
+            var newvideo = vdo_clone.appendTo($scroll);
+        }
+
         newvideo.show();
         var $video = newvideo.find('video')
         return $video;
@@ -2906,7 +3059,7 @@ console.log(audioRoleList)
                         }, 2000);
                         var $li = $('.vdo_rL_tabC li[uniid="' + data.userUniId + '"]');
                         if ($li.length > 0) {
-                            if (connectList[data.userUniID]) {
+                            if (hasJoinList[data.userUniID]) {
                                 $('#vdo_notConnect').append($li);
                                 JoinCount--;
                                 notJointCount++;
@@ -2921,7 +3074,7 @@ console.log(audioRoleList)
                                 $('#vdo_btn_Count').html(JoinCount)
                                 $('#connectCount').html(JoinCount)
                                 $('#notConnectCount').html(notJointCount);
-                                 connectList[data.userUniID] = null;
+                                hasJoinList[data.userUniID] = null;
                             }
                             $li.removeClass('recalling').find('.vdo_noReceive_tip').html(rtip);
                         }
