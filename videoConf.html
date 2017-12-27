@@ -1819,8 +1819,9 @@
                 if (data.isStart == 1) {
                     $Mick.removeClass('on');
                     if(videoRoleId>-1){
-                        var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
-                        $Videoli.after(userInfo)
+                        // return;
+                        // var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
+                        // $Videoli.after(userInfo)
                     }else{
                         if(videoRoleList.length>0){
                             var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
@@ -1847,8 +1848,8 @@
                     $Mick.addClass('on');
                     if(audioRoleList.length!=0||videoRoleList.length!=0){
                       if(videoRoleId>-1){
-                          var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
-                          $Videoli.after(userInfo)
+                          // var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
+                          // $Videoli.after(userInfo)
                       }else{
                           $('#vdo_connecting').append(userInfo)
                       }
