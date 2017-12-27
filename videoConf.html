@@ -394,8 +394,7 @@
                     } else {
                         $ele.data('redo', true)
                     }
-                    console.log(audioRoleList)
-                    console.log(videoRoleList)
+
                     var type = this.dataset.type;
                     var $li = $ele.parents('li')
                     var uniid = $li.attr('uniid');
@@ -1243,8 +1242,11 @@
             window.lxpc.exebusinessaction('VideoConf', 'MtcJoinVideoMeeting', '0', JSON.stringify(parm1), 0, function (status, jsondata, targ) {
                 if (status == 0) {
 
-                    initData.sessionId = JSON.parse(jsondata).sessionId
-                    ResponseVideoMeeting(parm)
+                    var sessionId=initData.sessionId = JSON.parse(jsondata).sessionId;
+                    ResponseVideoMeeting(parm);
+                    var obj={isLeaved:0,isStart:1,mediaOption:0,sessionId:sessionId,userUniID:initData.toUserUniId};
+
+                    getJoinMemberVideoInfo(obj);
                 }
             })
         } catch (e) {
@@ -1302,15 +1304,15 @@
                 mandatory: {
                     chromeMediaSource: 'desktop',
                     chromeMediaSourceId: 'window:' + Handel + ':0',
-                    maxWidth: 1920,
-                    maxHeight: 1080,
+                    maxWidth: 2560,
+                    maxHeight: 1920,
                     maxFrameRate:60
 
                 },
                 optional: [
                     {minFrameRate:60},
-                    {minWidth: 1920},
-                    {minHeight: 1080}
+                    {minWidth: 2560},
+                    {minHeight: 1920}
                 ],
 
             }
@@ -1343,8 +1345,7 @@
                 if (status == 0) {
                     var nflg = initData.flag
                     var data = JSON.parse(jsondata);
-                    console.log('videoRole', videoRoleList)
-                    console.log('audio', audioRoleList)
+
                     if (nflg == 'qun_videomeetingcaller' || nflg == 'to_be_videomeetingcalled') {//视频会议
                         if (data.isLeaved == 0) {//加入会议
 
@@ -1442,7 +1443,7 @@
 
     //视频会议被叫被推送的数据
     function getJoinMemberVideoInfo(data, $li) {
-        debugger;
+
         var item = hasJoinList[data.userUniID];
         var tips = '';
 
@@ -1687,25 +1688,17 @@
         var userInfo = $('.vdo_rL_tabC li[uniid="' + data.userUniID + '"] ');
         var $Mick = userInfo.find('.vdo_rL_iMute');
         var $video = userInfo.find('.vdo_rL_iVideo');
-        if(video_role==2){
-            var userInfo = $('.vdo_rL_tabC li[uniid="' + data.userUniID + '"] ');
-            var $Mick = userInfo.find('.vdo_rL_iMute');
-            var $video = userInfo.find('.vdo_rL_iVideo');
+
             var audioRoleId = audioRoleList.indexOf(data.userUniID);
             var videoRoleId = videoRoleList.indexOf(data.userUniID);
             var noVideoList=$('#vdo_connecting .vdo_rL_iVideo.on')
             var noAudioList=$('#vdo_connecting .vdo_rL_iMute.on')
-            console.log('GGGGGGGGGGGGGGGGGGGG==============================================')
-            console.log(data)
-            console.log(audioRoleList)
-            console.log(videoRoleList)
-
                 if(!hasJoinList[data.userUniID]){
                     var $li = $('#vdo_notConnect li[uniid="' + data.userUniID + '"]');
                     $('#vdo_connecting').append($li);
                     myscroll3.refresh()
                 }
-//type  0 都没有 1只有音频 2 只有视频 3 音频视频都有
+
             if(data.mediaOption==3){
                 if (data.isStart == 1) {
                     $Mick.removeClass('on');
@@ -1713,21 +1706,27 @@
                     videoCount++;
                     audioCount++;
 
-                    if(videoRoleList.length>0){
-                        var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
-                        $Videoli.after(userInfo)
-                    } else{
+                    if ((mainVideo == data.userUniID) || mainVideo == '') {
+
                         $('#vdo_connecting').prepend(userInfo)
+                    } else {
+                        if (videoRoleList.length > 0) {
+                            var $Videoli = $('#vdo_connecting li:eq(' + (videoRoleList.length - 1) + ')');
+                            $Videoli.after(userInfo)
+                        } else {
+                            $('#vdo_connecting').prepend(userInfo)
+                        }
                     }
+
                     if (audioRoleId == -1) audioRoleList.push(data.userUniID);
                     if (videoRoleId == -1) videoRoleList.push(data.userUniID);
+
                     if(videoRoleList.length==5){
                         noVideoList.addClass('no');
                     }
                     if(audioRoleList.length==16){
                         noAudioList.addClass('no');
                     }
-                    userInfo.data('type',3)
 
                 }else{
                     $Mick.addClass('on');
@@ -1763,19 +1762,25 @@
 
                     }
 
-                    userInfo.data('type',0)
+
                 }
             }
             else if ((data.mediaOption == 2)) {
                 if (data.isStart == 1) {
                     $video.removeClass('on');
-                    if(videoRoleList.length>0){
-                        var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
-                        $Videoli.after(userInfo)
-                    } else{
-                        $('#vdo_connecting').prepend(userInfo)
-                    }
 
+
+                        if(mainVideo==data.userUniID||mainVideo==''){
+
+                            $('#vdo_connecting').prepend(userInfo)
+                        }else{
+                            if(videoRoleList.length>0){
+                                var $Videoli=$('#vdo_connecting li:eq('+(videoRoleList.length-1)+')');
+                                $Videoli.after(userInfo)
+                            } else{
+                                $('#vdo_connecting').prepend(userInfo)
+                            }
+                    }
                      videoCount++;
                     if (videoRoleId == -1) videoRoleList.push(data.userUniID)
                     if(videoRoleList.length==5){
@@ -1824,6 +1829,7 @@
                             var $Audioli=$('#vdo_connecting li:eq('+(audioRoleList.length-1)+')');
                             $Audioli.after(userInfo)
                         } else{
+
                             $('#vdo_connecting').prepend(userInfo)
                         }
                     }
@@ -1898,40 +1904,7 @@
                 }
 
             }
-        }else if(video_role==3){
-            if(data.mediaOption==3){
-                if (data.isStart == 1) {
-                    $Mick.removeClass('on');
-                    $video.removeClass('on');
 
-                }else{
-                    $Mick.addClass('on');
-                    $video.addClass('on');
-                }
-            }
-            else if ((data.mediaOption == 2)) {
-                if (data.isStart == 1) {
-                    $video.removeClass('on');
-
-                } else {
-                    $video.addClass('on');
-                }
-
-
-            } else if (data.mediaOption == 1) {
-
-                if (data.isStart == 1) {
-                    $Mick.removeClass('on');
-
-                } else {
-                    $Mick.addClass('on');
-                }
-
-            } else if(data.mediaOption==0){
-                $Mick.addClass('on');
-                $video.addClass('on');
-            }
-        }
     }
 
     function setMainVideo() {
@@ -2555,7 +2528,7 @@
         } else {//被叫
             var parm = {dialogId: initData.dialogId, orgDomain: initData.orgDomain}
             getQunMemberInfo(parm).then(function (datalist) {
-                console.log(datalist)
+
                 initData.userUniIdList = datalist;
                 $('#vdo_btn_AllCount').html(datalist.length);
                 initData.userUniIdList.forEach(function (item) {
@@ -2695,9 +2668,18 @@
             }
         }
         if (video_role == 3) {
+
             if (isNotCreatvideo) {
-                $('#vdo_connecting').prepend(str);
+
+                if(videoinfo && videoinfo.userUniID == initData.hostInfo.userUniId){
+                    $('#vdo_connecting').prepend(str);
+
+                }else{
+                    $('#vdo_connecting').append(str);
+                }
+
             } else {
+
                 $('#vdo_connecting').append(str);
             }
         }
@@ -2844,8 +2826,7 @@
                 window.lxpc.exebusinessaction('QunCard', 'GetQunMemberInfo', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
 
                     if (status == 0) {
-                        console.log('查询群成员结果=====================')
-                        console.log(jsondata)
+
                         var result = JSON.parse(jsondata)
                         resolve(result)
 
@@ -3006,8 +2987,7 @@
             try {
 
                 window.lxpc.exebusinessaction('VideoConf', 'InvateVideoMeetingMember', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-                    console.log('要求成员加入到当前视频会议========', status)
-                    console.log(jsondata)
+
                     if (status == 0) {
                         resolve(JSON.parse(jsondata || 'null'));
 
