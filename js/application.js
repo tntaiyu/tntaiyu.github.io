@@ -5,6 +5,26 @@ $(function () {
     String.prototype.trim = function () {
         return this.replace(/(^\s*)|(\s*$)/g, "");
     }
+     var $max= $('.Winmax')
+    try {
+        window.lxpc.exebusinessaction('RegCallback', 'UpdateWindowState', '0', JSON.stringify({}), 0, function (status, data, targ) {
+
+            if (status == 0) {
+                if(data=='restore'){
+                    $max.removeClass('Winreback').addClass('Winmax')
+                }else if(data=='max'){
+                    $max.removeClass('Winmax').addClass('Winreback')
+                }
+
+            }else{
+                console.log(status)
+            }
+        })
+    }catch (e){
+        console.log(e.message)
+    }
+
+
 })
 
 
@@ -18,172 +38,173 @@ function mystopPropagation(e) {
 }
 
 
-var Base64 = {
-    // ????
-    table: [
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-        'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-        'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-        'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-        'w', 'x', 'y', 'z', '0', '1', '2', '3',
-        '4', '5', '6', '7', '8', '9', '+', '/'
-    ],
-    UTF16ToUTF8: function (str) {
-        var res = [], len = str.length;
-        for (var i = 0; i < len; i++) {
-            var code = str.charCodeAt(i);
-            if (code > 0x0000 && code <= 0x007F) {
-                // ????????????????0x0000?????????????
-                // U+00000000 ?C U+0000007F  0xxxxxxx
-                res.push(str.charAt(i));
-            } else if (code >= 0x0080 && code <= 0x07FF) {
-                // ????
-                // U+00000080 ?C U+000007FF  110xxxxx 10xxxxxx
-                // 110xxxxx
-                var byte1 = 0xC0 | ((code >> 6) & 0x1F);
-                // 10xxxxxx
-                var byte2 = 0x80 | (code & 0x3F);
-                res.push(
-                    String.fromCharCode(byte1),
-                    String.fromCharCode(byte2)
-                );
-            } else if (code >= 0x0800 && code <= 0xFFFF) {
-                // ?????
-                // U+00000800 ?C U+0000FFFF  1110xxxx 10xxxxxx 10xxxxxx
-                // 1110xxxx
-                var byte1 = 0xE0 | ((code >> 12) & 0x0F);
-                // 10xxxxxx
-                var byte2 = 0x80 | ((code >> 6) & 0x3F);
-                // 10xxxxxx
-                var byte3 = 0x80 | (code & 0x3F);
-                res.push(
-                    String.fromCharCode(byte1),
-                    String.fromCharCode(byte2),
-                    String.fromCharCode(byte3)
-                );
-            } else if (code >= 0x00010000 && code <= 0x001FFFFF) {
-                // ?????
-                // U+00010000 ?C U+001FFFFF  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-            } else if (code >= 0x00200000 && code <= 0x03FFFFFF) {
-                // ?????
-                // U+00200000 ?C U+03FFFFFF  111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-            } else /** if (code >= 0x04000000 && code <= 0x7FFFFFFF)*/ {
-                // ?????
-                // U+04000000 ?C U+7FFFFFFF  1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-            }
-        }
-
-        return res.join('');
-    },
-    UTF8ToUTF16: function (str) {
-        var res = [], len = str.length;
-        var i = 0;
-        for (var i = 0; i < len; i++) {
-            var code = str.charCodeAt(i);
-            // ?????????????ж?
-            if (((code >> 7) & 0xFF) == 0x0) {
-                // ?????
-                // 0xxxxxxx
-                res.push(str.charAt(i));
-            } else if (((code >> 5) & 0xFF) == 0x6) {
-                // ????
-                // 110xxxxx 10xxxxxx
-                var code2 = str.charCodeAt(++i);
-                var byte1 = (code & 0x1F) << 6;
-                var byte2 = code2 & 0x3F;
-                var utf16 = byte1 | byte2;
-                res.push(String.fromCharCode(utf16));
-            } else if (((code >> 4) & 0xFF) == 0xE) {
-                // ?????
-                // 1110xxxx 10xxxxxx 10xxxxxx
-                var code2 = str.charCodeAt(++i);
-                var code3 = str.charCodeAt(++i);
-                var byte1 = (code << 4) | ((code2 >> 2) & 0x0F);
-                var byte2 = ((code2 & 0x03) << 6) | (code3 & 0x3F);
-                utf16 = ((byte1 & 0x00FF) << 8) | byte2
-                res.push(String.fromCharCode(utf16));
-            } else if (((code >> 3) & 0xFF) == 0x1E) {
-                // ?????
-                // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-            } else if (((code >> 2) & 0xFF) == 0x3E) {
-                // ?????
-                // 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-            } else /** if (((code >> 1) & 0xFF) == 0x7E)*/ {
-                // ?????
-                // 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-            }
-        }
-
-        return res.join('');
-    },
-    encode: function (str) {
-        if (!str) {
-            return '';
-        }
-        var utf8 = this.UTF16ToUTF8(str); // ???UTF8
-        var i = 0; // ????????
-        var len = utf8.length;
-        var res = [];
-        while (i < len) {
-            var c1 = utf8.charCodeAt(i++) & 0xFF;
-            res.push(this.table[c1 >> 2]);
-            // ?????2??=
-            if (i == len) {
-                res.push(this.table[(c1 & 0x3) << 4]);
-                res.push('==');
-                break;
-            }
-            var c2 = utf8.charCodeAt(i++);
-            // ?????1??=
-            if (i == len) {
-                res.push(this.table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);
-                res.push(this.table[(c2 & 0x0F) << 2]);
-                res.push('=');
-                break;
-            }
-            var c3 = utf8.charCodeAt(i++);
-            res.push(this.table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);
-            res.push(this.table[((c2 & 0x0F) << 2) | ((c3 & 0xC0) >> 6)]);
-            res.push(this.table[c3 & 0x3F]);
-        }
-
-        return res.join('');
-    },
-    decode: function (str) {
-        if (!str) {
-            return '';
-        }
-
-        var len = str.length;
-        var i = 0;
-        var res = [];
-
-        while (i < len) {
-            code1 = this.table.indexOf(str.charAt(i++));
-            code2 = this.table.indexOf(str.charAt(i++));
-            code3 = this.table.indexOf(str.charAt(i++));
-            code4 = this.table.indexOf(str.charAt(i++));
-
-            c1 = (code1 << 2) | (code2 >> 4);
-            c2 = ((code2 & 0xF) << 4) | (code3 >> 2);
-            c3 = ((code3 & 0x3) << 6) | code4;
-
-            res.push(String.fromCharCode(c1));
-
-            if (code3 != 64) {
-                res.push(String.fromCharCode(c2));
-            }
-            if (code4 != 64) {
-                res.push(String.fromCharCode(c3));
-            }
-
-        }
-
-        return this.UTF8ToUTF16(res.join(''));
-    }
-};
+//var Base64 = {
+//    // ????
+//    table: [
+//        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+//        'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+//        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+//        'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+//        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+//        'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+//        'w', 'x', 'y', 'z', '0', '1', '2', '3',
+//        '4', '5', '6', '7', '8', '9', '+', '/'
+//    ],
+//    UTF16ToUTF8: function (str) {
+//        var res = [], len = str.length;
+//        for (var i = 0; i < len; i++) {
+//            var code = str.charCodeAt(i);
+//            if (code > 0x0000 && code <= 0x007F) {
+//                // ????????????????0x0000?????????????
+//                // U+00000000 ?C U+0000007F  0xxxxxxx
+//                res.push(str.charAt(i));
+//            } else if (code >= 0x0080 && code <= 0x07FF) {
+//                // ????
+//                // U+00000080 ?C U+000007FF  110xxxxx 10xxxxxx
+//                // 110xxxxx
+//                var byte1 = 0xC0 | ((code >> 6) & 0x1F);
+//                // 10xxxxxx
+//                var byte2 = 0x80 | (code & 0x3F);
+//                res.push(
+//                    String.fromCharCode(byte1),
+//                    String.fromCharCode(byte2)
+//                );
+//            } else if (code >= 0x0800 && code <= 0xFFFF) {
+//                // ?????
+//                // U+00000800 ?C U+0000FFFF  1110xxxx 10xxxxxx 10xxxxxx
+//                // 1110xxxx
+//                var byte1 = 0xE0 | ((code >> 12) & 0x0F);
+//                // 10xxxxxx
+//                var byte2 = 0x80 | ((code >> 6) & 0x3F);
+//                // 10xxxxxx
+//                var byte3 = 0x80 | (code & 0x3F);
+//                res.push(
+//                    String.fromCharCode(byte1),
+//                    String.fromCharCode(byte2),
+//                    String.fromCharCode(byte3)
+//                );
+//            } else if (code >= 0x00010000 && code <= 0x001FFFFF) {
+//                // ?????
+//                // U+00010000 ?C U+001FFFFF  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+//            } else if (code >= 0x00200000 && code <= 0x03FFFFFF) {
+//                // ?????
+//                // U+00200000 ?C U+03FFFFFF  111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+//            } else /** if (code >= 0x04000000 && code <= 0x7FFFFFFF)*/ {
+//                // ?????
+//                // U+04000000 ?C U+7FFFFFFF  1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+//            }
+//        }
+//
+//        return res.join('');
+//    },
+//    UTF8ToUTF16: function (str) {
+//        var res = [], len = str.length;
+//        var i = 0;
+//        for (var i = 0; i < len; i++) {
+//            var code = str.charCodeAt(i);
+//            // ?????????????ж?
+//            if (((code >> 7) & 0xFF) == 0x0) {
+//                // ?????
+//                // 0xxxxxxx
+//                res.push(str.charAt(i));
+//            } else if (((code >> 5) & 0xFF) == 0x6) {
+//                // ????
+//                // 110xxxxx 10xxxxxx
+//                var code2 = str.charCodeAt(++i);
+//                var byte1 = (code & 0x1F) << 6;
+//                var byte2 = code2 & 0x3F;
+//                var utf16 = byte1 | byte2;
+//                res.push(String.fromCharCode(utf16));
+//            } else if (((code >> 4) & 0xFF) == 0xE) {
+//                // ?????
+//                // 1110xxxx 10xxxxxx 10xxxxxx
+//                var code2 = str.charCodeAt(++i);
+//                var code3 = str.charCodeAt(++i);
+//                var byte1 = (code << 4) | ((code2 >> 2) & 0x0F);
+//                var byte2 = ((code2 & 0x03) << 6) | (code3 & 0x3F);
+//                utf16 = ((byte1 & 0x00FF) << 8) | byte2
+//                res.push(String.fromCharCode(utf16));
+//            } else if (((code >> 3) & 0xFF) == 0x1E) {
+//                // ?????
+//                // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+//            } else if (((code >> 2) & 0xFF) == 0x3E) {
+//                // ?????
+//                // 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+//            } else /** if (((code >> 1) & 0xFF) == 0x7E)*/ {
+//                // ?????
+//                // 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+//            }
+//        }
+//
+//        return res.join('');
+//    },
+//    encode: function (str) {
+//        if (!str) {
+//            return '';
+//        }
+//        var utf8 = this.UTF16ToUTF8(str); // ???UTF8
+//        var i = 0; // ????????
+//        var len = utf8.length;
+//        var res = [];
+//        while (i < len) {
+//            var c1 = utf8.charCodeAt(i++) & 0xFF;
+//            res.push(this.table[c1 >> 2]);
+//            // ?????2??=
+//            if (i == len) {
+//                res.push(this.table[(c1 & 0x3) << 4]);
+//                res.push('==');
+//                break;
+//            }
+//            var c2 = utf8.charCodeAt(i++);
+//            // ?????1??=
+//            if (i == len) {
+//                res.push(this.table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);
+//                res.push(this.table[(c2 & 0x0F) << 2]);
+//                res.push('=');
+//                break;
+//            }
+//            var c3 = utf8.charCodeAt(i++);
+//            res.push(this.table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);
+//            res.push(this.table[((c2 & 0x0F) << 2) | ((c3 & 0xC0) >> 6)]);
+//            res.push(this.table[c3 & 0x3F]);
+//        }
+//
+//        return res.join('');
+//    },
+//    decode: function (str) {
+//        if (!str) {
+//            return '';
+//        }
+//
+//        var len = str.length;
+//        var i = 0;
+//        var res = [];
+//
+//        while (i < len) {
+//            code1 = this.table.indexOf(str.charAt(i++));
+//            code2 = this.table.indexOf(str.charAt(i++));
+//            code3 = this.table.indexOf(str.charAt(i++));
+//            code4 = this.table.indexOf(str.charAt(i++));
+//
+//            c1 = (code1 << 2) | (code2 >> 4);
+//            c2 = ((code2 & 0xF) << 4) | (code3 >> 2);
+//            c3 = ((code3 & 0x3) << 6) | code4;
+//
+//            res.push(String.fromCharCode(c1));
+//
+//            if (code3 != 64) {
+//                res.push(String.fromCharCode(c2));
+//            }
+//            if (code4 != 64) {
+//                res.push(String.fromCharCode(c3));
+//            }
+//
+//        }
+//        console.log(res)
+//
+//        return this.UTF8ToUTF16(res.join(''));
+//    }
+//};
 function FormatTime(datetime, sformate, option) {
 
     var res = null;
@@ -296,14 +317,6 @@ function TitleTools() {
             }
             catch (e) {
 
-            }
-        } else {
-            try {
-
-                window.lxpc.closewnd();
-            }
-            catch (e) {
-                console.log(e.message)
             }
         }
 
@@ -553,7 +566,7 @@ function EncodeUtf8(str) {
 
 };
 function init_File(parm, targ, $down, $saveAs, cb) {
-    console.log(JSON.stringify(parm))
+
     if (!parm.fileResId) {
         return;
     }
@@ -972,7 +985,7 @@ function scrollSetings() {
         bounce: false,
         interactiveScrollbars: true,
         shrinkScrollbars: 'scale',
-        preventDefault: false,
+        preventDefault: true,
         momentum: false,
         disableMouse: true,
         disablePointer: true
@@ -1123,11 +1136,13 @@ var utils = (function () {
 })()
 
 //toast提示
-function showtips(tipContent, request) {
+function showtips(tipContent, request,option) {
     var otip = document.createElement('div');
     otip.className = 'tips';
-
-    otip.innerHTML = ' <div class="tips_b"></div><div class="tips_c">' + settrans(tipContent) + '</div>';
+    var defaultOpt={top:0};
+    option =Object.assign(defaultOpt,option)
+    otip.style.top=option.top;
+    otip.innerHTML = ' <div class="tips_b" ></div><div class="tips_c">' + settrans(tipContent) + '</div>';
     var oitem = document.body.appendChild(otip)
 
     if (request && request.prototype.toString.call(request)) {
@@ -1140,12 +1155,12 @@ function showtips(tipContent, request) {
                 var otitle = oitem.querySelector('.tips_c');
 
                 otitle.innerHTML = content
-                setTimeout(function () {
+                 setTimeout(function () {
                     $(oitem).animate({opacity: 0}, 1500, function () {
                         $(this).remove();
 
                     })
-                }, 1500)
+                 }, 1500)
 
 
             }
@@ -1228,14 +1243,16 @@ $(function () {
 //}
 //html 转移成字符串
 function XssToString(content) {
-    if (content == '' || !content) {
+
+    if (content == '' || !content ) {
         return content
     }
+
     if (Object.prototype.toString.call(content) != '[object String]') {
+
         return content;
     }
-
-    content = content.replace(/"/g, "&quot;");
+    content= content.replace(/&/g,'&amp;').replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
     content = content.replace(/'/g, "&#39;");
 
     var options = {
@@ -1250,7 +1267,7 @@ function XssToString(content) {
     return filterXSS(content, options)
 }
 //根据文件的类型设置不同的背景图片
-function getFileIcon(strType) {
+function getFileIcon(strType, filename) {
     if (!strType) {
         return;
     }
@@ -1265,7 +1282,6 @@ function getFileIcon(strType) {
         } else {
             strType = ''
         }
-
     }
 
     var path = ''
@@ -1295,6 +1311,11 @@ function getFileIcon(strType) {
             path = './images/html.png'
             break;
         case 'zip':
+        case 'jar':
+        case '7z':
+        case 'iso':
+        case 'cab':
+        case 'rar':
             path = './images/zip.png'
             break;
         case 'js':
@@ -1316,9 +1337,26 @@ function getFileIcon(strType) {
         case 'image':
         case 'gif':
         case 'bmp':
-
-
             path = './images/ic_file_jpg@1x.png'
+            break;
+        case 'octet-stream':
+        case 'x-rar-compressed':
+            if(filename){
+               var nameArry = filename.split('.');
+               if(nameArry.length>1){
+                 var fileType= nameArry[nameArry.length-1];
+                 var ziplist=['7z','iso','cab','rar','zip','jar']
+                 if(ziplist.indexOf(fileType)>-1){
+                     path='./images/zip.png'
+                 } else{
+                     path = './images/ml_file_default.png';
+                 }
+               }else{
+                   path = './images/ml_file_default.png';
+               }
+            } else{
+                path = './images/ml_file_default.png';
+            }
             break;
         default:
             path = './images/ml_file_default.png';
@@ -1474,22 +1512,22 @@ function openEmail(parm) {
 }
 
 //取消下载
- function StopDownloadReource (parm) {
+function StopDownloadReource(parm) {
     //var parm={stopResMark:[{ 'ec006816-8f3d-4309-be04-3dc3ed61ab7b':45645}]}
 
-     try {
-         window.lxpc.exebusinessaction('DownloadResource', 'StopDownloadReource', '0', JSON.stringify(parm), 0, function (status, result, targ) {
+    try {
+        window.lxpc.exebusinessaction('DownloadResource', 'StopDownloadReource', '0', JSON.stringify(parm), 0, function (status, result, targ) {
 
-         })
+        })
 
-     } catch (e) {
-         console.log(e.message)
-     }
+    } catch (e) {
+        console.log(e.message)
+    }
 
 }
 
 //停止上传
- function StopUploadReource (parm) {
+function StopUploadReource(parm) {
     //var parm = {stopResMark: stoptarg}
     //var parm={stopResMark:[{ 'ec006816-8f3d-4309-be04-3dc3ed61ab7b':45645}]}
 
@@ -1503,22 +1541,32 @@ function openEmail(parm) {
     }
 }
 //解析URL参数
-function getUrlParm(){
-    var url = location.search; //获取url中"?"符后的字串
+function getUrlParm(url) {
+    //var url = location.search; //获取url中"?"符后的字串
     var theRequest = new Object();
     if (url.indexOf("?") != -1) {
         var str = url.substr(1);
         strs = str.split("&");
-        for(var i = 0; i < strs.length; i ++) {
-            theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+        for (var i = 0; i < strs.length; i++) {
+            theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
         }
     }
     return theRequest;
 }
-
+/**
+ *
+ * @param name
+ * @returns {null}
+ */
+//function getQueryString(name) {
+//    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+//    var r = window.location.search.substr(1).match(reg);
+//    if (r != null) return unescape(r[2]);
+//    return null;
+//}
 
 //接受转发联系人
- function ReceiveSelectPeople (handle, cb) {
+function ReceiveSelectPeople(handle, cb) {
     var _this = this;
 
     try {
@@ -1547,41 +1595,863 @@ function getUrlParm(){
 
 
 }
-function SelectPeople(handle,parm){
+function SelectPeople(handle, parm) {
     try {
-    //var code = _this.initInfo.code;
-    //var parm = {fromCode: code, orgDomain: _this.initInfo.orgDomain}
-    window.lxpc.exebusinessaction(handle, 'onlySelectPeople', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-        if (status == 0) {
+        //var code = _this.initInfo.code;
+
+        //var parm = {fromCode: code, orgDomain: _this.initInfo.orgDomain,option:{bothTab: false,
+        //    showType: 2,//1是显示组织联系人 2，显示组织结构
+        //        onlyPer: true,maxLength:1}}
+        window.lxpc.exebusinessaction(handle, 'onlySelectPeople', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
+            if (status == 0) {
+
+
+            } else {
+
+                my_layer({message: '网络异常'}, 'warn')
+            }
+
+        })
+
+
+    } catch (e) {
+        my_layer({message: '调用接口错误，错误码' + e.message})
+    }
+}
+
+
+//接受iframe
+function ReceiveIframeWebCall(handel, cb) {
+
+    try {
+        window.lxpc.exebusinessaction(handel, 'ReceiveIframeWebCall', '0', JSON.stringify({}), 0, function (status, result, targ) {
+            if (status == 0) {
+
+                var data = JSON.parse(result)
+
+                if (Object.prototype.toString.call(cb) == '[object Function]') {
+                    cb(data)
+                }
+
+            }
+        })
+    } catch (e) {
+
+    }
+}
+//iframe数据交互
+function IframeWebCall(handel,parm) {
+
+    try {
+        window.lxpc.exebusinessaction(handel, 'IframeWebCall', '0', JSON.stringify(parm), 0, function (status, Notice, targ) {
+            if (status == 0) {
+
+            } else {
+
+
+            }
+        });
+
+
+    } catch (e) {
+        console.log(e.message)
+    }
+}
+//获取emoji表情
+$(function () {
+    emojiList = {};
+    emojiId = -1;
+
+})
+
+function decodeToEmoji(str) {//解码
+
+    var emojiCollection = ['0023-20E3', '002A-20E3', '0030-20E3', '0031-20E3', '0032-20E3', '0033-20E3', '0034-20E3', '0035-20E3', '0036-20E3', '0037-20E3', '0038-20E3', '0039-20E3', '00A9', '00AE', '1F004', '1F0CF', '1F170', '1F171', '1F17E', '1F17F', '1F18E', '1F191', '1F192', '1F193', '1F194', '1F195', '1F196', '1F197', '1F198', '1F199', '1F19A', '1F1E6', '1F1E6-1F1E8', '1F1E6-1F1E9', '1F1E6-1F1EA', '1F1E6-1F1EB', '1F1E6-1F1EC', '1F1E6-1F1EE', '1F1E6-1F1F1', '1F1E6-1F1F2', '1F1E6-1F1F4', '1F1E6-1F1F6', '1F1E6-1F1F7', '1F1E6-1F1F8', '1F1E6-1F1F9', '1F1E6-1F1FA', '1F1E6-1F1FC', '1F1E6-1F1FD', '1F1E6-1F1FF', '1F1E7', '1F1E7-1F1E6', '1F1E7-1F1E7', '1F1E7-1F1E9', '1F1E7-1F1EA', '1F1E7-1F1EB', '1F1E7-1F1EC', '1F1E7-1F1ED', '1F1E7-1F1EE', '1F1E7-1F1EF', '1F1E7-1F1F1', '1F1E7-1F1F2', '1F1E7-1F1F3', '1F1E7-1F1F4', '1F1E7-1F1F6', '1F1E7-1F1F7', '1F1E7-1F1F8', '1F1E7-1F1F9', '1F1E7-1F1FB', '1F1E7-1F1FC', '1F1E7-1F1FE', '1F1E7-1F1FF', '1F1E8', '1F1E8-1F1E6', '1F1E8-1F1E8', '1F1E8-1F1E9', '1F1E8-1F1EB', '1F1E8-1F1EC', '1F1E8-1F1ED', '1F1E8-1F1EE', '1F1E8-1F1F0', '1F1E8-1F1F1', '1F1E8-1F1F2', '1F1E8-1F1F3', '1F1E8-1F1F4', '1F1E8-1F1F5', '1F1E8-1F1F7', '1F1E8-1F1FA', '1F1E8-1F1FB', '1F1E8-1F1FC', '1F1E8-1F1FD', '1F1E8-1F1FE', '1F1E8-1F1FF', '1F1E9', '1F1E9-1F1EA', '1F1E9-1F1EC', '1F1E9-1F1EF', '1F1E9-1F1F0', '1F1E9-1F1F2', '1F1E9-1F1F4', '1F1E9-1F1FF', '1F1EA', '1F1EA-1F1E6', '1F1EA-1F1E8', '1F1EA-1F1EA', '1F1EA-1F1EC', '1F1EA-1F1ED', '1F1EA-1F1F7', '1F1EA-1F1F8', '1F1EA-1F1F9', '1F1EA-1F1FA', '1F1EB', '1F1EB-1F1EE', '1F1EB-1F1EF', '1F1EB-1F1F0', '1F1EB-1F1F2', '1F1EB-1F1F4', '1F1EB-1F1F7', '1F1EC', '1F1EC-1F1E6', '1F1EC-1F1E7', '1F1EC-1F1E9', '1F1EC-1F1EA', '1F1EC-1F1EB', '1F1EC-1F1EC', '1F1EC-1F1ED', '1F1EC-1F1EE', '1F1EC-1F1F1', '1F1EC-1F1F2', '1F1EC-1F1F3', '1F1EC-1F1F5', '1F1EC-1F1F6', '1F1EC-1F1F7', '1F1EC-1F1F8', '1F1EC-1F1F9', '1F1EC-1F1FA', '1F1EC-1F1FC', '1F1EC-1F1FE', '1F1ED', '1F1ED-1F1F0', '1F1ED-1F1F2', '1F1ED-1F1F3', '1F1ED-1F1F7', '1F1ED-1F1F9', '1F1ED-1F1FA', '1F1EE', '1F1EE-1F1E8', '1F1EE-1F1E9', '1F1EE-1F1EA', '1F1EE-1F1F1', '1F1EE-1F1F2', '1F1EE-1F1F3', '1F1EE-1F1F4', '1F1EE-1F1F6', '1F1EE-1F1F7', '1F1EE-1F1F8', '1F1EE-1F1F9', '1F1EF', '1F1EF-1F1EA', '1F1EF-1F1F2', '1F1EF-1F1F4', '1F1EF-1F1F5', '1F1F0', '1F1F0-1F1EA', '1F1F0-1F1EC', '1F1F0-1F1ED', '1F1F0-1F1EE', '1F1F0-1F1F2', '1F1F0-1F1F3', '1F1F0-1F1F5', '1F1F0-1F1F7', '1F1F0-1F1FC', '1F1F0-1F1FE', '1F1F0-1F1FF', '1F1F1', '1F1F1-1F1E6', '1F1F1-1F1E7', '1F1F1-1F1E8', '1F1F1-1F1EE', '1F1F1-1F1F0', '1F1F1-1F1F7', '1F1F1-1F1F8', '1F1F1-1F1F9', '1F1F1-1F1FA', '1F1F1-1F1FB', '1F1F1-1F1FE', '1F1F2', '1F1F2-1F1E6', '1F1F2-1F1E8', '1F1F2-1F1E9', '1F1F2-1F1EA', '1F1F2-1F1EB', '1F1F2-1F1EC', '1F1F2-1F1ED', '1F1F2-1F1F0', '1F1F2-1F1F1', '1F1F2-1F1F2', '1F1F2-1F1F3', '1F1F2-1F1F4', '1F1F2-1F1F5', '1F1F2-1F1F6', '1F1F2-1F1F7', '1F1F2-1F1F8', '1F1F2-1F1F9', '1F1F2-1F1FA', '1F1F2-1F1FB', '1F1F2-1F1FC', '1F1F2-1F1FD', '1F1F2-1F1FE', '1F1F2-1F1FF', '1F1F3', '1F1F3-1F1E6', '1F1F3-1F1E8', '1F1F3-1F1EA', '1F1F3-1F1EB', '1F1F3-1F1EC', '1F1F3-1F1EE', '1F1F3-1F1F1', '1F1F3-1F1F4', '1F1F3-1F1F5', '1F1F3-1F1F7', '1F1F3-1F1FA', '1F1F3-1F1FF', '1F1F4', '1F1F4-1F1F2', '1F1F5', '1F1F5-1F1E6', '1F1F5-1F1EA', '1F1F5-1F1EB', '1F1F5-1F1EC', '1F1F5-1F1ED', '1F1F5-1F1F0', '1F1F5-1F1F1', '1F1F5-1F1F2', '1F1F5-1F1F3', '1F1F5-1F1F7', '1F1F5-1F1F8', '1F1F5-1F1F9', '1F1F5-1F1FC', '1F1F5-1F1FE', '1F1F6', '1F1F6-1F1E6', '1F1F7', '1F1F7-1F1EA', '1F1F7-1F1F4', '1F1F7-1F1F8', '1F1F7-1F1FA', '1F1F7-1F1FC', '1F1F8', '1F1F8-1F1E6', '1F1F8-1F1E7', '1F1F8-1F1E8', '1F1F8-1F1E9', '1F1F8-1F1EA', '1F1F8-1F1EC', '1F1F8-1F1ED', '1F1F8-1F1EE', '1F1F8-1F1EF', '1F1F8-1F1F0', '1F1F8-1F1F1', '1F1F8-1F1F2', '1F1F8-1F1F3', '1F1F8-1F1F4', '1F1F8-1F1F7', '1F1F8-1F1F8', '1F1F8-1F1F9', '1F1F8-1F1FB', '1F1F8-1F1FD', '1F1F8-1F1FE', '1F1F8-1F1FF', '1F1F9', '1F1F9-1F1E6', '1F1F9-1F1E8', '1F1F9-1F1E9', '1F1F9-1F1EB', '1F1F9-1F1EC', '1F1F9-1F1ED', '1F1F9-1F1EF', '1F1F9-1F1F0', '1F1F9-1F1F1', '1F1F9-1F1F2', '1F1F9-1F1F3', '1F1F9-1F1F4', '1F1F9-1F1F7', '1F1F9-1F1F9', '1F1F9-1F1FB', '1F1F9-1F1FC', '1F1F9-1F1FF', '1F1FA', '1F1FA-1F1E6', '1F1FA-1F1EC', '1F1FA-1F1F2', '1F1FA-1F1F8', '1F1FA-1F1FE', '1F1FA-1F1FF', '1F1FB', '1F1FB-1F1E6', '1F1FB-1F1E8', '1F1FB-1F1EA', '1F1FB-1F1EC', '1F1FB-1F1EE', '1F1FB-1F1F3', '1F1FB-1F1FA', '1F1FC', '1F1FC-1F1EB', '1F1FC-1F1F8', '1F1FD', '1F1FD-1F1F0', '1F1FE', '1F1FE-1F1EA', '1F1FE-1F1F9', '1F1FF', '1F1FF-1F1E6', '1F1FF-1F1F2', '1F1FF-1F1FC', '1F201', '1F202', '1F21A', '1F22F', '1F232', '1F233', '1F234', '1F235', '1F236', '1F237', '1F238', '1F239', '1F23A', '1F250', '1F251', '1F300', '1F301', '1F302', '1F303', '1F304', '1F305', '1F306', '1F307', '1F308', '1F309', '1F30A', '1F30B', '1F30C', '1F30D', '1F30E', '1F30F', '1F310', '1F311', '1F312', '1F313', '1F314', '1F315', '1F316', '1F317', '1F318', '1F319', '1F31A', '1F31B', '1F31C', '1F31D', '1F31E', '1F31F', '1F320', '1F321', '1F324', '1F325', '1F326', '1F327', '1F328', '1F329', '1F32A', '1F32B', '1F32C', '1F32D', '1F32E', '1F32F', '1F330', '1F331', '1F332', '1F333', '1F334', '1F335', '1F336', '1F337', '1F338', '1F339', '1F33A', '1F33B', '1F33C', '1F33D', '1F33E', '1F33F', '1F340', '1F341', '1F342', '1F343', '1F344', '1F345', '1F346', '1F347', '1F348', '1F349', '1F34A', '1F34B', '1F34C', '1F34D', '1F34E', '1F34F', '1F350', '1F351', '1F352', '1F353', '1F354', '1F355', '1F356', '1F357', '1F358', '1F359', '1F35A', '1F35B', '1F35C', '1F35D', '1F35E', '1F35F', '1F360', '1F361', '1F362', '1F363', '1F364', '1F365', '1F366', '1F367', '1F368', '1F369', '1F36A', '1F36B', '1F36C', '1F36D', '1F36E', '1F36F', '1F370', '1F371', '1F372', '1F373', '1F374', '1F375', '1F376', '1F377', '1F378', '1F379', '1F37A', '1F37B', '1F37C', '1F37D', '1F37E', '1F37F', '1F380', '1F381', '1F382', '1F383', '1F384', '1F385', '1F385-1F3FB', '1F385-1F3FC', '1F385-1F3FD', '1F385-1F3FE', '1F385-1F3FF', '1F386', '1F387', '1F388', '1F389', '1F38A', '1F38B', '1F38C', '1F38D', '1F38E', '1F38F', '1F390', '1F391', '1F392', '1F393', '1F396', '1F397', '1F399', '1F39A', '1F39B', '1F39E', '1F39F', '1F3A0', '1F3A1', '1F3A2', '1F3A3', '1F3A4', '1F3A5', '1F3A6', '1F3A7', '1F3A8', '1F3A9', '1F3AA', '1F3AB', '1F3AC', '1F3AD', '1F3AE', '1F3AF', '1F3B0', '1F3B1', '1F3B2', '1F3B3', '1F3B4', '1F3B5', '1F3B6', '1F3B7', '1F3B8', '1F3B9', '1F3BA', '1F3BB', '1F3BC', '1F3BD', '1F3BE', '1F3BF', '1F3C0', '1F3C1', '1F3C2', '1F3C3', '1F3C3-1F3FB', '1F3C3-1F3FC', '1F3C3-1F3FD', '1F3C3-1F3FE', '1F3C3-1F3FF', '1F3C4', '1F3C4-1F3FB', '1F3C4-1F3FC', '1F3C4-1F3FD', '1F3C4-1F3FE', '1F3C4-1F3FF', '1F3C5', '1F3C6', '1F3C7', '1F3C7-1F3FB', '1F3C7-1F3FC', '1F3C7-1F3FD', '1F3C7-1F3FE', '1F3C7-1F3FF', '1F3C8', '1F3C9', '1F3CA', '1F3CA-1F3FB', '1F3CA-1F3FC', '1F3CA-1F3FD', '1F3CA-1F3FE', '1F3CA-1F3FF', '1F3CB', '1F3CB-1F3FB', '1F3CB-1F3FC', '1F3CB-1F3FD', '1F3CB-1F3FE', '1F3CB-1F3FF', '1F3CC', '1F3CD', '1F3CE', '1F3CF', '1F3D0', '1F3D1', '1F3D2', '1F3D3', '1F3D4', '1F3D5', '1F3D6', '1F3D7', '1F3D8', '1F3D9', '1F3DA', '1F3DB', '1F3DC', '1F3DD', '1F3DE', '1F3DF', '1F3E0', '1F3E1', '1F3E2', '1F3E3', '1F3E4', '1F3E5', '1F3E6', '1F3E7', '1F3E8', '1F3E9', '1F3EA', '1F3EB', '1F3EC', '1F3ED', '1F3EE', '1F3EF', '1F3F0', '1F3F3', '1F3F4', '1F3F5', '1F3F7', '1F3F8', '1F3F9', '1F3FA', '1F400', '1F401', '1F402', '1F403', '1F404', '1F405', '1F406', '1F407', '1F408', '1F409', '1F40A', '1F40B', '1F40C', '1F40D', '1F40E', '1F40F', '1F410', '1F411', '1F412', '1F413', '1F414', '1F415', '1F416', '1F417', '1F418', '1F419', '1F41A', '1F41B', '1F41C', '1F41D', '1F41E', '1F41F', '1F420', '1F421', '1F422', '1F423', '1F424', '1F425', '1F426', '1F427', '1F428', '1F429', '1F42A', '1F42B', '1F42C', '1F42D', '1F42E', '1F42F', '1F430', '1F431', '1F432', '1F433', '1F434', '1F435', '1F436', '1F437', '1F438', '1F439', '1F43A', '1F43B', '1F43C', '1F43D', '1F43E', '1F43F', '1F440', '1F441', '1F441-1F5E8', '1F442', '1F442-1F3FB', '1F442-1F3FC', '1F442-1F3FD', '1F442-1F3FE', '1F442-1F3FF', '1F443', '1F443-1F3FB', '1F443-1F3FC', '1F443-1F3FD', '1F443-1F3FE', '1F443-1F3FF', '1F444', '1F445', '1F446', '1F446-1F3FB', '1F446-1F3FC', '1F446-1F3FD', '1F446-1F3FE', '1F446-1F3FF', '1F447', '1F447-1F3FB', '1F447-1F3FC', '1F447-1F3FD', '1F447-1F3FE', '1F447-1F3FF', '1F448', '1F448-1F3FB', '1F448-1F3FC', '1F448-1F3FD', '1F448-1F3FE', '1F448-1F3FF', '1F449', '1F449-1F3FB', '1F449-1F3FC', '1F449-1F3FD', '1F449-1F3FE', '1F449-1F3FF', '1F44A', '1F44A-1F3FB', '1F44A-1F3FC', '1F44A-1F3FD', '1F44A-1F3FE', '1F44A-1F3FF', '1F44B', '1F44B-1F3FB', '1F44B-1F3FC', '1F44B-1F3FD', '1F44B-1F3FE', '1F44B-1F3FF', '1F44C', '1F44C-1F3FB', '1F44C-1F3FC', '1F44C-1F3FD', '1F44C-1F3FE', '1F44C-1F3FF', '1F44D', '1F44D-1F3FB', '1F44D-1F3FC', '1F44D-1F3FD', '1F44D-1F3FE', '1F44D-1F3FF', '1F44E', '1F44E-1F3FB', '1F44E-1F3FC', '1F44E-1F3FD', '1F44E-1F3FE', '1F44E-1F3FF', '1F44F', '1F44F-1F3FB', '1F44F-1F3FC', '1F44F-1F3FD', '1F44F-1F3FE', '1F44F-1F3FF', '1F450', '1F450-1F3FB', '1F450-1F3FC', '1F450-1F3FD', '1F450-1F3FE', '1F450-1F3FF', '1F451', '1F452', '1F453', '1F454', '1F455', '1F456', '1F457', '1F458', '1F459', '1F45A', '1F45B', '1F45C', '1F45D', '1F45E', '1F45F', '1F460', '1F461', '1F462', '1F463', '1F464', '1F465', '1F466', '1F466-1F3FB', '1F466-1F3FC', '1F466-1F3FD', '1F466-1F3FE', '1F466-1F3FF', '1F467', '1F467-1F3FB', '1F467-1F3FC', '1F467-1F3FD', '1F467-1F3FE', '1F467-1F3FF', '1F468', '1F468-1F3FB', '1F468-1F3FC', '1F468-1F3FD', '1F468-1F3FE', '1F468-1F3FF', '1F468-1F468-1F466', '1F468-1F468-1F466-1F466', '1F468-1F468-1F467', '1F468-1F468-1F467-1F466', '1F468-1F468-1F467-1F467', '1F468-1F469-1F466-1F466', '1F468-1F469-1F467', '1F468-1F469-1F467-1F466', '1F468-1F469-1F467-1F467', '1F468-2764-1F468', '1F468-2764-1F48B-1F468', '1F469', '1F469-1F3FB', '1F469-1F3FC', '1F469-1F3FD', '1F469-1F3FE', '1F469-1F3FF', '1F469-1F469-1F466', '1F469-1F469-1F466-1F466', '1F469-1F469-1F467', '1F469-1F469-1F467-1F466', '1F469-1F469-1F467-1F467', '1F469-2764-1F469', '1F469-2764-1F48B-1F469', '1F46A', '1F46B', '1F46C', '1F46D', '1F46E', '1F46E-1F3FB', '1F46E-1F3FC', '1F46E-1F3FD', '1F46E-1F3FE', '1F46E-1F3FF', '1F46F', '1F470', '1F470-1F3FB', '1F470-1F3FC', '1F470-1F3FD', '1F470-1F3FE', '1F470-1F3FF', '1F471', '1F471-1F3FB', '1F471-1F3FC', '1F471-1F3FD', '1F471-1F3FE', '1F471-1F3FF', '1F472', '1F472-1F3FB', '1F472-1F3FC', '1F472-1F3FD', '1F472-1F3FE', '1F472-1F3FF', '1F473', '1F473-1F3FB', '1F473-1F3FC', '1F473-1F3FD', '1F473-1F3FE', '1F473-1F3FF', '1F474', '1F474-1F3FB', '1F474-1F3FC', '1F474-1F3FD', '1F474-1F3FE', '1F474-1F3FF', '1F475', '1F475-1F3FB', '1F475-1F3FC', '1F475-1F3FD', '1F475-1F3FE', '1F475-1F3FF', '1F476', '1F476-1F3FB', '1F476-1F3FC', '1F476-1F3FD', '1F476-1F3FE', '1F476-1F3FF', '1F477', '1F477-1F3FB', '1F477-1F3FC', '1F477-1F3FD', '1F477-1F3FE', '1F477-1F3FF', '1F478', '1F478-1F3FB', '1F478-1F3FC', '1F478-1F3FD', '1F478-1F3FE', '1F478-1F3FF', '1F479', '1F47A', '1F47B', '1F47C', '1F47C-1F3FB', '1F47C-1F3FC', '1F47C-1F3FD', '1F47C-1F3FE', '1F47C-1F3FF', '1F47D', '1F47E', '1F47F', '1F480', '1F481', '1F481-1F3FB', '1F481-1F3FC', '1F481-1F3FD', '1F481-1F3FE', '1F481-1F3FF', '1F482', '1F482-1F3FB', '1F482-1F3FC', '1F482-1F3FD', '1F482-1F3FE', '1F482-1F3FF', '1F483', '1F483-1F3FB', '1F483-1F3FC', '1F483-1F3FD', '1F483-1F3FE', '1F483-1F3FF', '1F484', '1F485', '1F485-1F3FB', '1F485-1F3FC', '1F485-1F3FD', '1F485-1F3FE', '1F485-1F3FF', '1F486', '1F486-1F3FB', '1F486-1F3FC', '1F486-1F3FD', '1F486-1F3FE', '1F486-1F3FF', '1F487', '1F487-1F3FB', '1F487-1F3FC', '1F487-1F3FD', '1F487-1F3FE', '1F487-1F3FF', '1F488', '1F489', '1F48A', '1F48B', '1F48C', '1F48D', '1F48E', '1F48F', '1F490', '1F491', '1F492', '1F493', '1F494', '1F495', '1F496', '1F497', '1F498', '1F499', '1F49A', '1F49B', '1F49C', '1F49D', '1F49E', '1F49F', '1F4A0', '1F4A1', '1F4A2', '1F4A3', '1F4A4', '1F4A5', '1F4A6', '1F4A7', '1F4A8', '1F4A9', '1F4AA', '1F4AA-1F3FB', '1F4AA-1F3FC', '1F4AA-1F3FD', '1F4AA-1F3FE', '1F4AA-1F3FF', '1F4AB', '1F4AC', '1F4AD', '1F4AE', '1F4AF', '1F4B0', '1F4B1', '1F4B2', '1F4B3', '1F4B4', '1F4B5', '1F4B6', '1F4B7', '1F4B8', '1F4B9', '1F4BA', '1F4BB', '1F4BC', '1F4BD', '1F4BE', '1F4BF', '1F4C0', '1F4C1', '1F4C2', '1F4C3', '1F4C4', '1F4C5', '1F4C6', '1F4C7', '1F4C8', '1F4C9', '1F4CA', '1F4CB', '1F4CC', '1F4CD', '1F4CE', '1F4CF', '1F4D0', '1F4D1', '1F4D2', '1F4D3', '1F4D4', '1F4D5', '1F4D6', '1F4D7', '1F4D8', '1F4D9', '1F4DA', '1F4DB', '1F4DC', '1F4DD', '1F4DE', '1F4DF', '1F4E0', '1F4E1', '1F4E2', '1F4E3', '1F4E4', '1F4E5', '1F4E6', '1F4E7', '1F4E8', '1F4E9', '1F4EA', '1F4EB', '1F4EC', '1F4ED', '1F4EE', '1F4EF', '1F4F0', '1F4F1', '1F4F2', '1F4F3', '1F4F4', '1F4F5', '1F4F6', '1F4F7', '1F4F8', '1F4F9', '1F4FA', '1F4FB', '1F4FC', '1F4FD', '1F4FF', '1F500', '1F501', '1F502', '1F503', '1F504', '1F505', '1F506', '1F507', '1F508', '1F509', '1F50A', '1F50B', '1F50C', '1F50D', '1F50E', '1F50F', '1F510', '1F511', '1F512', '1F513', '1F514', '1F515', '1F516', '1F517', '1F518', '1F519', '1F51A', '1F51B', '1F51C', '1F51D', '1F51E', '1F51F', '1F520', '1F521', '1F522', '1F523', '1F524', '1F525', '1F526', '1F527', '1F528', '1F529', '1F52A', '1F52B', '1F52C', '1F52D', '1F52E', '1F52F', '1F530', '1F531', '1F532', '1F533', '1F534', '1F535', '1F536', '1F537', '1F538', '1F539', '1F53A', '1F53B', '1F53C', '1F53D', '1F549', '1F54A', '1F54B', '1F54C', '1F54D', '1F54E', '1F550', '1F551', '1F552', '1F553', '1F554', '1F555', '1F556', '1F557', '1F558', '1F559', '1F55A', '1F55B', '1F55C', '1F55D', '1F55E', '1F55F', '1F560', '1F561', '1F562', '1F563', '1F564', '1F565', '1F566', '1F567', '1F56F', '1F570', '1F573', '1F574', '1F575', '1F575-1F3FB', '1F575-1F3FC', '1F575-1F3FD', '1F575-1F3FE', '1F575-1F3FF', '1F576', '1F577', '1F578', '1F579', '1F57A', '1F57A-1F3FB', '1F57A-1F3FC', '1F57A-1F3FD', '1F57A-1F3FE', '1F57A-1F3FF', '1F587', '1F58A', '1F58B', '1F58C', '1F58D', '1F590', '1F590-1F3FB', '1F590-1F3FC', '1F590-1F3FD', '1F590-1F3FE', '1F590-1F3FF', '1F595', '1F595-1F3FB', '1F595-1F3FC', '1F595-1F3FD', '1F595-1F3FE', '1F595-1F3FF', '1F596', '1F596-1F3FB', '1F596-1F3FC', '1F596-1F3FD', '1F596-1F3FE', '1F596-1F3FF', '1F5A4', '1F5A5', '1F5A8', '1F5B1', '1F5B2', '1F5BC', '1F5C2', '1F5C3', '1F5C4', '1F5D1', '1F5D2', '1F5D3', '1F5DC', '1F5DD', '1F5DE', '1F5E1', '1F5E3', '1F5E8', '1F5EF', '1F5F3', '1F5FA', '1F5FB', '1F5FC', '1F5FD', '1F5FE', '1F5FF', '1F600', '1F601', '1F602', '1F603', '1F604', '1F605', '1F606', '1F607', '1F608', '1F609', '1F60A', '1F60B', '1F60C', '1F60D', '1F60E', '1F60F', '1F610', '1F611', '1F612', '1F613', '1F614', '1F615', '1F616', '1F617', '1F618', '1F619', '1F61A', '1F61B', '1F61C', '1F61D', '1F61E', '1F61F', '1F620', '1F621', '1F622', '1F623', '1F624', '1F625', '1F626', '1F627', '1F628', '1F629', '1F62A', '1F62B', '1F62C', '1F62D', '1F62E', '1F62F', '1F630', '1F631', '1F632', '1F633', '1F634', '1F635', '1F636', '1F637', '1F638', '1F639', '1F63A', '1F63B', '1F63C', '1F63D', '1F63E', '1F63F', '1F640', '1F641', '1F642', '1F643', '1F644', '1F645', '1F645-1F3FB', '1F645-1F3FC', '1F645-1F3FD', '1F645-1F3FE', '1F645-1F3FF', '1F646', '1F646-1F3FB', '1F646-1F3FC', '1F646-1F3FD', '1F646-1F3FE', '1F646-1F3FF', '1F647', '1F647-1F3FB', '1F647-1F3FC', '1F647-1F3FD', '1F647-1F3FE', '1F647-1F3FF', '1F648', '1F649', '1F64A', '1F64B', '1F64B-1F3FB', '1F64B-1F3FC', '1F64B-1F3FD', '1F64B-1F3FE', '1F64B-1F3FF', '1F64C', '1F64C-1F3FB', '1F64C-1F3FC', '1F64C-1F3FD', '1F64C-1F3FE', '1F64C-1F3FF', '1F64D', '1F64D-1F3FB', '1F64D-1F3FC', '1F64D-1F3FD', '1F64D-1F3FE', '1F64D-1F3FF', '1F64E', '1F64E-1F3FB', '1F64E-1F3FC', '1F64E-1F3FD', '1F64E-1F3FE', '1F64E-1F3FF', '1F64F', '1F64F-1F3FB', '1F64F-1F3FC', '1F64F-1F3FD', '1F64F-1F3FE', '1F64F-1F3FF', '1F680', '1F681', '1F682', '1F683', '1F684', '1F685', '1F686', '1F687', '1F688', '1F689', '1F68A', '1F68B', '1F68C', '1F68D', '1F68E', '1F68F', '1F690', '1F691', '1F692', '1F693', '1F694', '1F695', '1F696', '1F697', '1F698', '1F699', '1F69A', '1F69B', '1F69C', '1F69D', '1F69E', '1F69F', '1F6A0', '1F6A1', '1F6A2', '1F6A3', '1F6A3-1F3FB', '1F6A3-1F3FC', '1F6A3-1F3FD', '1F6A3-1F3FE', '1F6A3-1F3FF', '1F6A4', '1F6A5', '1F6A6', '1F6A7', '1F6A8', '1F6A9', '1F6AA', '1F6AB', '1F6AC', '1F6AD', '1F6AE', '1F6AF', '1F6B0', '1F6B1', '1F6B2', '1F6B3', '1F6B4', '1F6B4-1F3FB', '1F6B4-1F3FC', '1F6B4-1F3FD', '1F6B4-1F3FE', '1F6B4-1F3FF', '1F6B5', '1F6B5-1F3FB', '1F6B5-1F3FC', '1F6B5-1F3FD', '1F6B5-1F3FE', '1F6B5-1F3FF', '1F6B6', '1F6B6-1F3FB', '1F6B6-1F3FC', '1F6B6-1F3FD', '1F6B6-1F3FE', '1F6B6-1F3FF', '1F6B7', '1F6B8', '1F6B9', '1F6BA', '1F6BB', '1F6BC', '1F6BD', '1F6BE', '1F6BF', '1F6C0', '1F6C0-1F3FB', '1F6C0-1F3FC', '1F6C0-1F3FD', '1F6C0-1F3FE', '1F6C0-1F3FF', '1F6C1', '1F6C2', '1F6C3', '1F6C4', '1F6C5', '1F6CB', '1F6CC', '1F6CD', '1F6CE', '1F6CF', '1F6D0', '1F6D1', '1F6D2', '1F6E0', '1F6E1', '1F6E2', '1F6E3', '1F6E4', '1F6E5', '1F6E9', '1F6EB', '1F6EC', '1F6F0', '1F6F3', '1F6F4', '1F6F5', '1F6F6', '1F910', '1F911', '1F912', '1F913', '1F914', '1F915', '1F916', '1F917', '1F918', '1F918-1F3FB', '1F918-1F3FC', '1F918-1F3FD', '1F918-1F3FE', '1F918-1F3FF', '1F919', '1F919-1F3FB', '1F919-1F3FC', '1F919-1F3FD', '1F919-1F3FE', '1F919-1F3FF', '1F91A', '1F91A-1F3FB', '1F91A-1F3FC', '1F91A-1F3FD', '1F91A-1F3FE', '1F91A-1F3FF', '1F91B', '1F91B-1F3FB', '1F91B-1F3FC', '1F91B-1F3FD', '1F91B-1F3FE', '1F91B-1F3FF', '1F91C', '1F91C-1F3FB', '1F91C-1F3FC', '1F91C-1F3FD', '1F91C-1F3FE', '1F91C-1F3FF', '1F91D', '1F91D-1F3FB', '1F91D-1F3FC', '1F91D-1F3FD', '1F91D-1F3FE', '1F91D-1F3FF', '1F91E', '1F91E-1F3FB', '1F91E-1F3FC', '1F91E-1F3FD', '1F91E-1F3FE', '1F91E-1F3FF', '1F920', '1F921', '1F922', '1F923', '1F924', '1F925', '1F926', '1F926-1F3FB', '1F926-1F3FC', '1F926-1F3FD', '1F926-1F3FE', '1F926-1F3FF', '1F927', '1F930', '1F930-1F3FB', '1F930-1F3FC', '1F930-1F3FD', '1F930-1F3FE', '1F930-1F3FF', '1F933', '1F933-1F3FB', '1F933-1F3FC', '1F933-1F3FD', '1F933-1F3FE', '1F933-1F3FF', '1F934', '1F934-1F3FB', '1F934-1F3FC', '1F934-1F3FD', '1F934-1F3FE', '1F934-1F3FF', '1F935', '1F935-1F3FB', '1F935-1F3FC', '1F935-1F3FD', '1F935-1F3FE', '1F935-1F3FF', '1F936', '1F936-1F3FB', '1F936-1F3FC', '1F936-1F3FD', '1F936-1F3FE', '1F936-1F3FF', '1F937', '1F937-1F3FB', '1F937-1F3FC', '1F937-1F3FD', '1F937-1F3FE', '1F937-1F3FF', '1F938', '1F938-1F3FB', '1F938-1F3FC', '1F938-1F3FD', '1F938-1F3FE', '1F938-1F3FF', '1F939', '1F939-1F3FB', '1F939-1F3FC', '1F939-1F3FD', '1F939-1F3FE', '1F939-1F3FF', '1F93A', '1F93B', '1F93B-1F3FB', '1F93B-1F3FC', '1F93B-1F3FD', '1F93B-1F3FE', '1F93B-1F3FF', '1F93C', '1F93C-1F3FB', '1F93C-1F3FC', '1F93C-1F3FD', '1F93C-1F3FE', '1F93C-1F3FF', '1F93D', '1F93D-1F3FB', '1F93D-1F3FC', '1F93D-1F3FD', '1F93D-1F3FE', '1F93D-1F3FF', '1F93E', '1F93E-1F3FB', '1F93E-1F3FC', '1F93E-1F3FD', '1F93E-1F3FE', '1F93E-1F3FF', '1F93F', '1F940', '1F942', '1F943', '1F944', '1F945', '1F946', '1F947', '1F948', '1F949', '1F950', '1F951', '1F952', '1F953', '1F954', '1F955', '1F956', '1F957', '1F958', '1F959', '1F95A', '1F95B', '1F95C', '1F95D', '1F95E', '1F960', '1F961', '1F980', '1F981', '1F982', '1F983', '1F984', '1F985', '1F986', '1F987', '1F988', '1F989', '1F98A', '1F98B', '1F98C', '1F98D', '1F98E', '1F98F', '1F990', '1F991', '1F9C0', '203C', '2049', '2122', '2139', '2194', '2195', '2196', '2197', '2198', '2199', '21A9', '21AA', '231A', '231B', '2328', '23CF', '23E9', '23EA', '23EB', '23EC', '23ED', '23EE', '23EF', '23F0', '23F1', '23F2', '23F3', '23F8', '23F9', '23FA', '24C2', '25AA', '25AB', '25B6', '25C0', '25FB', '25FC', '25FD', '25FE', '2600', '2601', '2602', '2603', '2604', '260E', '2611', '2614', '2615', '2618', '261D', '261D-1F3FB', '261D-1F3FC', '261D-1F3FD', '261D-1F3FE', '261D-1F3FF', '2620', '2622', '2623', '2626', '262A', '262E', '262F', '2638', '2639', '263A', '2648', '2649', '264A', '264B', '264C', '264D', '264E', '264F', '2650', '2651', '2652', '2653', '2660', '2663', '2665', '2666', '2668', '267B', '267F', '2692', '2693', '2694', '2696', '2697', '2699', '269B', '269C', '26A0', '26A1', '26AA', '26AB', '26B0', '26B1', '26BD', '26BE', '26C4', '26C5', '26C8', '26CE', '26CF', '26D1', '26D3', '26D4', '26E9', '26EA', '26F0', '26F1', '26F2', '26F3', '26F4', '26F5', '26F7', '26F8', '26F9', '26F9-1F3FB', '26F9-1F3FC', '26F9-1F3FD', '26F9-1F3FE', '26F9-1F3FF', '26FA', '26FD', '2702', '2705', '2708', '2709', '270A', '270A-1F3FB', '270A-1F3FC', '270A-1F3FD', '270A-1F3FE', '270A-1F3FF', '270B', '270B-1F3FB', '270B-1F3FC', '270B-1F3FD', '270B-1F3FE', '270B-1F3FF', '270C', '270C-1F3FB', '270C-1F3FC', '270C-1F3FD', '270C-1F3FE', '270C-1F3FF', '270D', '270D-1F3FB', '270D-1F3FC', '270D-1F3FD', '270D-1F3FE', '270D-1F3FF', '270F', '2712', '2714', '2716', '271D', '2721', '2728', '2733', '2734', '2744', '2747', '274C', '274E', '2753', '2754', '2755', '2757', '2763', '2764', '2795', '2796', '2797', '27A1', '27B0', '27BF', '2934', '2935', '2B05', '2B06', '2B07', '2B1B', '2B1C', '2B50', '2B55', '3030', '303D', '3297', '3299', 'FE4E5', 'FE4E6', 'FE4E7', 'FE4E8', 'FE4E9', 'FE4EA', 'FE4EB', 'FE4EC', 'FE4ED', 'FE4EE', 'FE82C', 'FE82E', 'FE82F', 'FE830', 'FE831', 'FE832', 'FE833', 'FE834', 'FE835', 'FE836', 'FE837'];
+
+
+    var emotionGroup = [
+        {
+            "[微笑]": "em_0.png"
+        },
+        {
+            "[撇嘴]": "em_1.png"
+        },
+        {
+            "[色]": "em_2.png"
+        },
+        {
+            "[发呆]": "em_3.png"
+        },
+        {
+            "[得意]": "em_4.png"
+        },
+        {
+            "[流泪]": "em_5.png"
+        },
+        {
+            "[害羞]": "em_6.png"
+        },
+        {
+            "[闭嘴]": "em_7.png"
+        },
+        {
+            "[睡]": "em_8.png"
+        },
+        {
+            "[大哭]": "em_9.png"
+        },
+        {
+            "[尴尬]": "em_10.png"
+        },
+        {
+            "[发怒]": "em_11.png"
+        },
+        {
+            "[调皮]": "em_12.png"
+        },
+        {
+            "[龇牙]": "em_13.png"
+        },
+        {
+            "[惊讶]": "em_14.png"
+        },
+        {
+            "[难过]": "em_15.png"
+        },
+        {
+            "[酷]": "em_16.png"
+        },
+        {
+            "[冷汗]": "em_17.png"
+        },
+        {
+            "[抓狂]": "em_18.png"
+        },
+        {
+            "[吐]": "em_19.png"
+        },
+        {
+            "[偷笑]": "em_20.png"
+        },
+        {
+            "[愉快]": "em_21.png"
+        },
+        {
+            "[白眼]": "em_22.png"
+        },
+        {
+            "[傲慢]": "em_23.png"
+        },
+        {
+            "[饥饿]": "em_24.png"
+        },
+        {
+            "[困]": "em_25.png"
+        },
+        {
+            "[惊恐]": "em_26.png"
+        },
+        {
+            "[流汗]": "em_27.png"
+        },
+        {
+            "[憨笑]": "em_28.png"
+        },
+        {
+            "[悠闲]": "em_29.png"
+        },
+        {
+            "[奋斗]": "em_30.png"
+        },
+        {
+            "[咒骂]": "em_31.png"
+        },
+        {
+            "[疑问]": "em_32.png"
+        },
+        {
+            "[嘘]": "em_33.png"
+        },
+        {
+            "[晕]": "em_34.png"
+        },
+        {
+            "[疯了]": "em_35.png"
+        },
+        {
+            "[衰]": "em_36.png"
+        },
+        {
+            "[骷髅]": "em_37.png"
+        },
+        {
+            "[敲打]": "em_38.png"
+        },
+        {
+            "[再见]": "em_39.png"
+        },
+        {
+            "[擦汗]": "em_40.png"
+        },
+        {
+            "[抠鼻]": "em_41.png"
+        },
+        {
+            "[鼓掌]": "em_42.png"
+        },
+        {
+            "[糗大了]": "em_43.png"
+        },
+        {
+            "[坏笑]": "em_44.png"
+        },
+        {
+            "[左哼哼]": "em_45.png"
+        },
+        {
+            "[右哼哼]": "em_46.png"
+        },
+        {
+            "[哈欠]": "em_47.png"
+        },
+        {
+            "[鄙视]": "em_48.png"
+        },
+        {
+            "[委屈]": "em_49.png"
+        },
+        {
+            "[快哭了]": "em_50.png"
+        },
+        {
+            "[阴险]": "em_51.png"
+        },
+        {
+            "[亲亲]": "em_52.png"
+        },
+        {
+            "[吓]": "em_53.png"
+        },
+        {
+            "[可怜]": "em_54.png"
+        },
+        {
+            "[斧头]": "em_55.png"
+        },
+        {
+            "[西瓜]": "em_56.png"
+        },
+        {
+            "[啤酒]": "em_57.png"
+        },
+        {
+            "[篮球]": "em_58.png"
+        },
+        {
+            "[乒乓球]": "em_59.png"
+        },
+        {
+            "[咖啡]": "em_60.png"
+        },
+        {
+            "[饭]": "em_61.png"
+        },
+        {
+            "[猪头]": "em_62.png"
+        },
+        {
+            "[小花]": "em_63.png"
+        },
+        {
+            "[凋谢]": "em_64.png"
+        },
+        {
+            "[嘴唇]": "em_65.png"
+        },
+        {
+            "[爱心]": "em_66.png"
+        },
+        {
+            "[心碎]": "em_67.png"
+        },
+        {
+            "[蛋糕]": "em_68.png"
+        },
+        {
+            "[闪电]": "em_69.png"
+        },
+        {
+            "[炸弹]": "em_70.png"
+        },
+        {
+            "[锤子]": "em_71.png"
+        },
+        {
+            "[足球]": "em_72.png"
+        },
+        {
+            "[瓢虫]": "em_73.png"
+        },
+        {
+            "[便便]": "em_74.png"
+        },
+        {
+            "[月亮]": "em_75.png"
+        },
+        {
+            "[太阳]": "em_76.png"
+        },
+        {
+            "[礼物]": "em_77.png"
+        },
+        {
+            "[雪人]": "em_78.png"
+        },
+        {
+            "[强]": "em_79.png"
+        },
+        {
+            "[弱]": "em_80.png"
+        },
+        {
+            "[握手]": "em_81.png"
+        },
+        {
+            "[胜利]": "em_82.png"
+        },
+        {
+            "[抱拳]": "em_83.png"
+        },
+        {
+            "[勾引]": "em_84.png"
+        },
+        {
+            "[拳头]": "em_85.png"
+        },
+        {
+            "[差劲]": "em_86.png"
+        },
+        {
+            "[爱你]": "em_87.png"
+        },
+        {
+            "[NO]": "em_88.png"
+        },
+        {
+            "[OK]": "em_89.png"
+        },
+        {
+            "[爱情]": "em_90.png"
+        },
+        {
+            "[飞吻]": "em_91.png"
+        },
+        {
+            "[跳跳]": "em_92.png"
+        },
+        {
+            "[发抖]": "em_93.png"
+        },
+        {
+            "[呕火]": "em_94.png"
+        },
+        {
+            "[转圈]": "em_95.png"
+        },
+        {
+            "[磕头]": "em_96.png"
+        },
+        {
+            "[回头]": "em_97.png"
+        },
+        {
+            "[跳绳]": "em_98.png"
+        },
+        {
+            "[投降]": "em_99.png"
+        },
+        {
+            "[激动]": "em_100.png"
+        },
+        {
+            "[街舞]": "em_101.png"
+        },
+        {
+            "[献吻]": "em_102.png"
+        },
+        {
+            "[左太极]": "em_103.png"
+        },
+        {
+            "[右太极]": "em_104.png"
+        },
+        {
+            "[喜]": "em_105.png"
+        },
+        {
+            "[鞭炮]": "em_106.png"
+        },
+        {
+            "[灯笼]": "em_107.png"
+        },
+        {
+            "[发财]": "em_108.png"
+        },
+        {
+            "[话筒]": "em_109.png"
+        },
+        {
+            "[公文包]": "em_110.png"
+        },
+        {
+            "[信]": "em_111.png"
+        },
+        {
+            "[帅]": "em_112.png"
+        },
+        {
+            "[喝彩]": "em_113.png"
+        },
+        {
+            "[蜡烛]": "em_114.png"
+        },
+        {
+            "[怒]": "em_115.png"
+        },
+        {
+            "[棒棒糖]": "em_116.png"
+        },
+        {
+            "[喝奶]": "em_117.png"
+        },
+        {
+            "[下面]": "em_118.png"
+        },
+        {
+            "[香蕉]": "em_119.png"
+        },
+        {
+            "[飞机]": "em_120.png"
+        },
+        {
+            "[开车]": "em_121.png"
+        },
+        {
+            "[左车头]": "em_122.png"
+        },
+        {
+            "[车厢]": "em_123.png"
+        },
+        {
+            "[右车头]": "em_124.png"
+        },
+        {
+            "[多云]": "em_125.png"
+        },
+        {
+            "[下雨]": "em_126.png"
+        },
+        {
+            "[钞票]": "em_127.png"
+        },
+        {
+            "[熊猫]": "em_128.png"
+        },
+        {
+            "[灯泡]": "em_129.png"
+        },
+        {
+            "[风车]": "em_130.png"
+        },
+        {
+            "[闹钟]": "em_131.png"
+        },
+        {
+            "[打伞]": "em_132.png"
+        },
+        {
+            "[彩球]": "em_133.png"
+        },
+        {
+            "[钻戒]": "em_134.png"
+        },
+        {
+            "[沙发]": "em_135.png"
+        },
+        {
+            "[纸巾]": "em_136.png"
+        },
+        {
+            "[药]": "em_137.png"
+        },
+        {
+            "[手枪]": "em_138.png"
+        },
+        {
+            "[青蛙]": "em_139.png"
+        },
+        {
+            "[放空]": "em_140.png"
+        },
+        {
+            "[斜眼]": "em_141.png"
+        },
+        {
+            "[无语]": "em_142.png"
+        }
+    ]
+
+
+    var regex = /[\uD83D][\uDC68|\uDC69][\uD83D][\uDC68|\uDC69][\uD83D][\uDC66|\uDC67][\uD83D][\uDC66|\uDC67]|[\uD83D][\uDC68|\uDC69][\u2764][\uD83D][\uDC8B][\uD83D][\uDC68|\uDC69]|[\uD83D][\uDC68|\uDC69][\uD83D][\uDC68|\uDC69][\uD83D][\uDC66|\uDC67]|[\uD83D][\uDC69][\u2764][\uD83D][\uDC69]|[\uD83D][\uDC68][\u2764][\uD83D][\uDC68]|[\uD83C|\uD83D|\uD83E][\uDC00-\uDFFF][\uD83C][\uDDE0-\uDDFF|\uDFF0-\uDFFF]|[\uD83C|\uD83D|\uD83E][\uDC00-\uDFFF]|[\u261D-\u270D][\uD83C][\uDFF0-\uDFFF]|[\u261D-\u270D][\uD83C][\uDFF0-\uDFFF]|[\uDBB0-\uDBBF][\uDC00-\uDCFF]|[\u0020-\u0040]\u20E3|\u00A9|\u00AE|[\u203C-\u3299]/ig;
+
+
+    var text = XssToString(str)
+
+    var newText = hexToDec(text)
+
+    newText = newText.replace(/\[.+?]/g, function (item) {
+        var result = emotionGroup.filter(function (value) {
+            return value[item]
+        })
+
+        if (result.length > 0) {
+
+            ++emojiId;
+            result = '<img onload="getEmoji(this,1,\'' + result[0][item] + '\')" src="./images/ml_fileIcon.png"  >'
+            return result
 
 
         } else {
-
-            my_layer({message: '网络异常'}, 'warn')
+            return item
         }
+    })
+
+    var res = newText.replace(regex, function (code) {
+
+        var file = _escapeToUtf32(code);
+        var result = code
+        if (emojiCollection.includes(file.toUpperCase())) {
+
+            result = '<img onload="getEmoji(this,0,\'' + file + '\')" src="./images/ml_fileIcon.png">'
+            return result
+
+        } else {
+            return result
+        }
+
 
     })
 
+    return res;
+    function hexToDec(str) {
 
-} catch (e) {
-    my_layer({message: '调用接口错误，错误码' + e.message})
-}
-}
+        var text = str || '';
+        //var nwStr = text.replace(/\\/g, '%');
+        // return unescape(text);
+        return text;
+    }
 
-function ReceiveIframeWebCall(handle) {
-    return new Promise(function(resolve, reject){
+    function _escapeToUtf32(str) {
+        var escaped = [];
+        var unicodeCodes = _convertStringToUnicodeCodePoints(str);
+        var len = unicodeCodes.length;
+        var hex;
+
+        for (var i = 0; i < len; i++) {
+            hex = unicodeCodes[i].toString(16);
+            escaped.push('0000'.substr(hex.length) + hex);
+        }
+        return escaped.join('-');
+    }
+
+    function _convertStringToUnicodeCodePoints(str) {
+        var surrogate1st = 0;
+        var unicodeCodes = [];
+        var len = str.length;
+
+        for (var i = 0; i < len; i++) {
+            var utf16Code = str.charCodeAt(i);
+            if (surrogate1st !== 0) {
+                if (utf16Code >= 0xDC00 && utf16Code <= 0xDFFF) {
+                    var surrogate2nd = utf16Code;
+                    var unicodeCode = (surrogate1st - 0xD800) * (1 << 10) + (1 << 16) + (surrogate2nd - 0xDC00);
+                    unicodeCodes.push(unicodeCode);
+                }
+                surrogate1st = 0;
+            } else if (utf16Code >= 0xD800 && utf16Code <= 0xDBFF) {
+                surrogate1st = utf16Code;
+            } else {
+                unicodeCodes.push(utf16Code);
+            }
+        }
+        return unicodeCodes;
+    }
+
+}
+/**
+ * QueryBitmapData
+ * @param handel
+ * @param parm type:0表示emoji 1表示face
+ * @param cb
+ * @constructor
+ */
+function QueryBitmapData(parm, targ,cb) {
+
         try {
-            window.lxpc.exebusinessaction(handle, 'ReceiveIframeWebCall', '0', JSON.stringify({}), 0, function (status, result, targ) {
+            window.lxpc.exebusinessaction('ChatRecord', 'QueryBitmapData', '0', JSON.stringify(parm), targ, function (status, result, targ) {
                 if (status == 0) {
-                    resolve(JSON.parse(result)||null)
-                }else {
+
+                    if (result != '') {
+
+                        var data = JSON.parse(result)
+                       if(Object.prototype.toString.call(cb)=='[object Function]'){
+                           cb(data,targ)
+                       }
+
+
+                    }
+
+
+
+                } else {
+
+                }
+            })
+        } catch (e) {
+
+        }
+
+}
+function getEmoji(ele, type, name) {
+
+    ++emojiId
+
+    emojiList[emojiId] = ele;
+    QueryBitmapData({type: type, name: name}, emojiId,function (data,targ) {
+        if (data) {
+
+            var img = emojiList[targ];
+
+            img.src = data.data;
+            img.onload = null;
+        }
+    })
+
+
+}
+
+//textArea输入过成功自适应高度
+(function ($) {
+    $.fn.autoTextarea = function (options) {
+        var defaults = {
+            maxHeight: null,//文本框是否自动撑高，默认：null，不自动撑高；如果自动撑高必须输入数值，该值作为文本框自动撑高的最大高度
+            minHeight: $(this).height() //默认最小高度，也就是文本框最初的高度，当内容高度小于这个高度的时候，文本以这个高度显示
+        };
+        var opts = $.extend({}, defaults, options);
+        return $(this).each(function () {
+            $(this).bind("paste cut keydown keyup focus blur", function () {
+                var height, style = this.style;
+                this.style.height = opts.minHeight + 'px';
+                if (this.scrollHeight > opts.minHeight) {
+                    if (opts.maxHeight && this.scrollHeight > opts.maxHeight) {
+                        height = opts.maxHeight;
+                        style.overflowY = 'scroll';
+                    } else {
+                        height = this.scrollHeight;
+                        style.overflowY = 'hidden';
+                    }
+                    style.height = height + 'px';
+                }
+            });
+        });
+    };
+    //导出Excel
+    $.fn.exportExcel=function (){
+        tabletoExcel(this);
+        function tabletoExcel(mytalbe) {
+            var mytalbe1=mytalbe;
+            //获得id为mytable的table的html元素
+            mytalbe=mytalbe1;
+            var table=document.getElementById(mytalbe);
+            // 克隆（复制）此table元素，这样对复制品进行修改（如添加或改变table的标题等），导出复制品，而不影响原table在浏览器中的展示。
+            table = table.cloneNode(true);
+//        //下面五行代码就是用来改变table中的某些信息的，不需要的话可以注释，或修改。
+//        var name=$("#cur_title_date").text()+"XXX信息统计表";
+//        var caption_orig = table.getElementsByTagName("caption");
+//        $(caption_orig).text(name);
+//        var th_first_ele = table.getElementsByTagName("th")[0];
+//        th_first_ele.innerHTML="XXX的编号";
+
+            // 下面的代码才是真正用来将html table导出Excel表格（我从stackoverflow上看到的，修改了一点点，不会再有中文乱码问题了。）
+            var uri = 'data:application/vnd.ms-excel;base64,'
+                , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><?xml version="1.0" encoding="UTF-8" standalone="yes"?><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table style="vnd.ms-excel.numberformat:@">{table}</table></body></html>'
+                , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))); }
+                , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }); };
+            if (!table.nodeType) table = document.getElementById(table);
+            var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML };
+
+            window.location.href = uri + base64(format(template, ctx));
+
+            DownloadExcel(uri + base64(format(template, ctx)))
+
+        }
+        function DownloadExcel (resourceData) {
+            try {
+                window.lxpc.exebusinessaction('notice', 'DownloadExcel', '0', resourceData, 0, null)
+            } catch (e) {
+                console.log(e.message)
+            }
+        }
+    }
+})(jQuery);
+
+//水印
+//function drawWaterMark(str, box) {
+//    // 2. 获取canvas元素的引用。
+//
+//
+//    var canvas = document.createElement('canvas')
+//
+//    // 3. 从canvas元素中获取一个2D上下文（context）。
+//    var context = canvas.getContext("2d");
+//    //context.rotate(-30*Math.PI/180)
+//    context.fillStyle = "#000";
+//    context.font = "lighter 16px Arial";
+//    var text = context.measureText(str)
+//    var width = text.width
+//
+//    var result = width
+//    var canvas2 = document.getElementById("ex1");
+//    canvas2.width = (result + 60) * Math.cos(Math.PI / 6);
+//    var height = canvas2.height = (result + 60) * Math.sin(Math.PI / 6);
+//    var context2 = canvas2.getContext("2d");
+//    context2.translate(0, height)
+//    context2.fillStyle = "#000";
+//    context2.font = "lighter 16px Arial";
+//    context2.rotate(-30 * Math.PI / 180)
+//    context2.fillText(str, 16, 0);
+//    var urlvalue = context2.canvas.toDataURL();
+//
+//    box.style.backgroundImage = 'url("' + urlvalue + '")';
+////        document.body.classList.add('opc8')
+//}
+function drawWaterMark(str) {
+    // 2. 获取canvas元素的引用。
+
+
+    var canvas = document.createElement('canvas')
+
+    // 3. 从canvas元素中获取一个2D上下文（context）。
+    var context = canvas.getContext("2d");
+    //context.rotate(-30*Math.PI/180)
+    context.fillStyle = "#000";
+    context.font = "lighter 16px Arial";
+    var text = context.measureText(str)
+    var width = text.width
+
+    var result = width
+    var canvas2 = document.getElementById("ex1");
+    canvas2.width = (result + 60) * Math.cos(Math.PI / 6);
+    var height = canvas2.height = (result + 60) * Math.sin(Math.PI / 6);
+    var context2 = canvas2.getContext("2d");
+    context2.translate(0, height)
+    context2.fillStyle = "#000";
+    context2.font = "lighter 16px Arial";
+    context2.rotate(-30 * Math.PI / 180)
+    context2.fillText(str, 16, 0);
+    var urlvalue = context2.canvas.toDataURL();
+    var oWater=$('.water');
+    if (oWater.length>0) {
+        var oDom=oWater
+   } else {
+        var str1='<div class="water"></div>'
+        var oDom=$(str1).appendTo('body')
+    }
+
+    var strpath='url("' + urlvalue + '")'
+    oDom.css('backgroundImage', strpath);
+//        document.body.classList.add('opc8')
+
+
+}
+//把图片转成base64字符串
+//function getBase64Image (img){
+//
+//    if(!img){return}
+//    var canvas = document.createElement("canvas");
+//    canvas.width =  img.width;
+//    canvas.height =  img.height;
+//
+//    var ctx = canvas.getContext("2d");
+//    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+//    var dataURL = canvas.toDataURL();
+//    console.log(dataURL)
+//    console.log('Base64====================================')
+//    return dataURL;
+//}
+function getBase64(img){//传入图片路径，返回base64
+    function getBase64Image(img,width,height) {//width、height调用时传入具体像素值，控制大小 ,不传则默认图像大小
+        var canvas = document.createElement("canvas");
+        canvas.width = width ? width : img.width;
+        canvas.height = height ? height : img.height;
+
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        var dataURL = canvas.toDataURL();
+        return dataURL;
+    }
+    var image = new Image();
+    image.crossOrigin = '';
+    image.src = img;
+    var deferred=$.Deferred();
+    if(img){
+        image.onload =function (){
+            deferred.resolve(getBase64Image(image));//将base64传给done上传处理
+            image.src=null;
+        }
+        return deferred.promise();//问题要让onload完成后再return sessionStorage['imgTest']
+    }
+}
+//复制图片
+function CopyImage (parm) {
+    //var parm = {data:'',path:''}
+    return new Promise(function (resolve, reject) {
+        try {
+            window.lxpc.exebusinessaction('ChatRecord', 'CopyImage', '0', JSON.stringify(parm), 0, function (status, data, targ) {
+                if (status == 0) {
+                    resolve(data)
+                } else {
+                    reject(status)
+                    console.log('CopyImage 错误码是:' + status)
+                }
+            })
+        } catch (e) {
+            console.log('CopyImage 错误码是:' + e.message)
+            reject(status)
+        }
+    })
+}
+function setInitadta(initdata){
+    if (initdata.clientVersion=='5.0'){
+        $('body').addClass('v5')
+    }
+}
+//查询人员信息详情
+function QuerySenderInfo(parm, targ) {
+    return new Promise(function (resolve, reject) {
+        try {
+            window.lxpc.exebusinessaction('ChatRecord', 'QuerySenderInfo', '1', JSON.stringify(parm), targ, function (status, result, targ) {
+                console.log('查询结果===================',result)
+                if (status == 0) {
+                    var result = {info: JSON.parse(result), index: targ}
+                    resolve(result)
+                } else {
                     reject(status)
                 }
             })
-        }catch (e){
+        } catch (e) {
             reject(e.message)
+            console.log(e.message)
         }
     })
-
 }
-
