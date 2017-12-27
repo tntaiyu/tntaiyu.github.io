@@ -1691,8 +1691,8 @@
 
             var audioRoleId = audioRoleList.indexOf(data.userUniID);
             var videoRoleId = videoRoleList.indexOf(data.userUniID);
-            var noVideoList=$('#vdo_connecting .vdo_rL_iVideo.on')
-            var noAudioList=$('#vdo_connecting .vdo_rL_iMute.on')
+            // var noVideoList=$('#vdo_connecting .vdo_rL_iVideo.on')
+            // var noAudioList=$('#vdo_connecting .vdo_rL_iMute.on')
                 if(!hasJoinList[data.userUniID]){
                     var $li = $('#vdo_notConnect li[uniid="' + data.userUniID + '"]');
                     $('#vdo_connecting').append($li);
@@ -1722,10 +1722,10 @@
                     if (videoRoleId == -1) videoRoleList.push(data.userUniID);
 
                     if(videoRoleList.length==5){
-                        noVideoList.addClass('no');
+                        $('#vdo_connecting .vdo_rL_iVideo.on').addClass('no');
                     }
                     if(audioRoleList.length==16){
-                        noAudioList.addClass('no');
+                        $('#vdo_connecting .vdo_rL_iMute.on').addClass('no');
                     }
 
                 }else{
@@ -1740,7 +1740,7 @@
                     audioCount--;
                     if (audioRoleId > -1) {
                         if(audioRoleList.length==16){
-                            noAudioList.removeClass('no');
+                            $('#vdo_connecting .vdo_rL_iMute.on').removeClass('no');
                         }
                         audioRoleList.splice(audioRoleId,1);
                     }else{
@@ -1752,7 +1752,7 @@
 
                     if (videoRoleId > -1){
                         if(videoRoleList.length==5){
-                            noVideoList.removeClass('no');
+                            $('#vdo_connecting .vdo_rL_iVideo.on').removeClass('no');
                         }
                         videoRoleList.splice(videoRoleId,1);
                     } else{
@@ -1784,7 +1784,7 @@
                      videoCount++;
                     if (videoRoleId == -1) videoRoleList.push(data.userUniID)
                     if(videoRoleList.length==5){
-                        noVideoList.addClass('no');
+                        $('#vdo_connecting .vdo_rL_iVideo.on').addClass('no');
                     }
 
                 } else {
@@ -1802,7 +1802,7 @@
                     videoCount--;
                     if (videoRoleId > -1) {
                         if(videoRoleList.length==5){
-                            noVideoList.removeClass('no');
+                            $('#vdo_connecting .vdo_rL_iVideo.on').removeClass('no');
                         }
                         videoRoleList.splice(videoRoleId,1)
                     } else{
@@ -1840,7 +1840,7 @@
                         audioRoleList.push(data.userUniID);
                     }
                     if(audioRoleList.length==16){
-                        noAudioList.addClass('no');
+                        $('#vdo_connecting .vdo_rL_iMute.on').addClass('no');
                     }
 
                 } else {
@@ -1857,7 +1857,7 @@
                     var audioRoleId = audioRoleList.indexOf(data.userUniID);
                     if (audioRoleId > -1) {
                         if(audioRoleList.length==16){
-                            noAudioList.removeClass('no');
+                            $('#vdo_connecting .vdo_rL_iMute.on').removeClass('no');
                         }
                         audioRoleList.splice(audioRoleId,1);
 
@@ -1883,7 +1883,7 @@
                 audioCount--;
                 if(audioRoleId > -1){
                     if(audioRoleList.length==16){
-                        noAudioList.removeClass('no');
+                        $('#vdo_connecting .vdo_rL_iMute.on').removeClass('no');
                     }
                     audioRoleList.splice(audioRoleId,1);
                 }else{
@@ -1894,7 +1894,7 @@
                 if(videoRoleId>-1){
 
                     if(videoRoleList.length==5){
-                        noVideoList.removeClass('no');
+                        $('#vdo_connecting .vdo_rL_iVideo.on').removeClass('no');
                     }
                     videoRoleList.splice(videoRoleId,1)
                 }else{
@@ -2435,7 +2435,6 @@
         } else {
             msgTip = '您确定要退出此次视频会议么？'
         }
-
 
         if (initData.isXP) {
             var parm = {title: '蓝信', text: msgTip}
