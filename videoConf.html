@@ -565,6 +565,15 @@
                     $li.addClass('recalling');
                     InvateVideoMeetingMember(parm).then(function () {
                         $ele.data('redo', false);
+                    },function(status){
+                        $ele.data('redo', false);
+                        if(initData.isXP){
+
+                        }else{
+                            my_layer({message:'邀请失败'},'warn');
+                            $li.find('.vdo_noReceive_tip').html('未接通');
+                            $li.removeClass('recalling');
+                        }
                     })
 
                 } else {
@@ -1245,7 +1254,6 @@
                     var sessionId=initData.sessionId = JSON.parse(jsondata).sessionId;
                     ResponseVideoMeeting(parm);
                     var obj={isLeaved:0,isStart:1,mediaOption:0,sessionId:sessionId,userUniID:initData.toUserUniId};
-
                     getJoinMemberVideoInfo(obj);
                 }
             })
@@ -1295,24 +1303,22 @@
 
     //绑定视频信息
     function bindVideo(Handel, oVideo, mainVideo) {
-        console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
-        console.log(Handel);
-        console.log(oVideo);
+        
         navigator.getUserMedia({
             audio: false,
             video: {
                 mandatory: {
                     chromeMediaSource: 'desktop',
                     chromeMediaSourceId: 'window:' + Handel + ':0',
-                    maxWidth: 1920,
-                    maxHeight: 1080,
+                    maxWidth: 2560,
+                    maxHeight: 1920,
                     maxFrameRate:60
 
                 },
                 optional: [
                     {minFrameRate:60},
-                    {minWidth: 1920},
-                    {minHeight: 1080}
+                    {minWidth: 2560},
+                    {minHeight: 1920}
                 ],
 
             }
@@ -1452,6 +1458,7 @@
         var $video = userInfo.find('.vdo_rL_iVideo');
 
         if (item) {
+
             var item = hasJoinList[data.userUniID]
             if (item.mediaOption === data.mediaOption && item.isStart === data.isStart) {
                 return;
@@ -1472,6 +1479,7 @@
                 if (mainVideo === data.userUniID) setMainVideo();
             } else if (data.mediaOption === 1) { // 主持人禁掉或开启某人语音
                 if (data.isStart == 1) {//打开
+                    if(audioRoleList.indexOf(data.userUniID)>-1) return;
                     if (video_role == 3) {
                         tips = '音频已被开启'
                         if (isMyinfo) {
@@ -1484,6 +1492,7 @@
                     $Mick.attr('title', tips)
                     peerVideo.find('.vdo_l_mute').hide();
                 } else {
+                    if(audioRoleList.indexOf(data.userUniID)==-1) return;
                     if (video_role == 3) {
                         tips = '主持人未开启音频'
                         if (isMyinfo) {
@@ -1494,12 +1503,11 @@
                     }
                     $Mick.attr('title', tips)
                     peerVideo.find('.vdo_l_mute').show();
-
-
                 }
 
             } else if (data.mediaOption === 2) {//主持人禁掉或开启某人视频
                 if (data.isStart == 1) {//打开
+                    if(videoRoleList.indexOf(data.userUniID)>-1) return;
                     if (video_role == 3) {
                         tips = '视频已被开启'
                         if (isMyinfo) {
@@ -1535,6 +1543,7 @@
 
 
                 } else {
+                    if(videoRoleList.indexOf(data.userUniID)==-1) return;
                     peerVideo.remove();
 
                     if (video_role == 3) {
@@ -1551,6 +1560,8 @@
                 }
             } else if (data.mediaOption === 3) {//主持人禁掉或开启某人视频和语音
                 if (data.isStart == 1) {//打开
+
+                    if(videoRoleList.indexOf(data.userUniID)>-1 && audioRoleList.indexOf(data.userUniID)>-1) return;
                     var tipAuto = ''
                     if (video_role == 3) {
                         tips = '视频已被开启'
@@ -1578,7 +1589,9 @@
                     }
 
                 } else {
+                    if(videoRoleList.indexOf(data.userUniID)==-1 && audioRoleList.indexOf(data.userUniID)==-1) return;
                     if (video_role == 3) {
+
                         tips = '主持人未开启视频'
                         tipAuto = '主持人未开启音频'
                         if (isMyinfo) {
@@ -1600,16 +1613,18 @@
         } else {
             hasJoinList[data.userUniID] = data;
             JoinCount++;
-            notJointCount = initData.userUniIdList.length - JoinCount;
+
             $('#vdo_btn_Count').html(JoinCount);
             $('#connectCount').html(JoinCount)
             $('#topconnectCount').html(JoinCount)
-            $('#notConnectCount').html(notJointCount)
+
             var curMember = data;
             var index = initData.userUniIdList.findIndex(function (item) {
                 return item.userUniId == data.userUniID
             })
             if (index > -1) {
+                notJointCount = initData.userUniIdList.length - JoinCount;
+                $('#notConnectCount').html(notJointCount)
                 curMember = initData.userUniIdList[index];
                 connectList[data.userUniID] = curMember
                 if (data.userUniID === initData.hostInfo.userUniId) {//主持人
@@ -1647,9 +1662,12 @@
                     timer_video = setTimer(oTime);
                     ltarg++;
                 }
+                setVideoOrAudioAuthority(data)
             } else {
                 var parm = {userUniId: data.userUniID, dialogType: 2, orgDomain: initData.orgDomain};
                 senderId += 1
+                // notJointCount = initData.userUniIdList.length - JoinCount;
+                // $('#notConnectCount').html(notJointCount)
                 QuerySenderInfo(parm, senderId).then(function (result) {
                     var info = result.info,
                         targ = result.index;
@@ -1667,20 +1685,21 @@
                             } else if (data.mediaOption == 1) {
                                 if (data.isStart == 1) {
 
-                                    bindmemberInfoforCalled(curMember[0], data, true);
+                                    bindmemberInfoforCalled(info[0], data, true);
                                 }
                             } else {
 
-                                bindmemberInfoforCalled(curMember[0], data, true);
+                                bindmemberInfoforCalled(info[0], data, true);
                             }
 
                             $('#vdo_btn_AllCount').html(initData.userUniIdList.length);
+                            setVideoOrAudioAuthority(data)
                         }
                     }
                 })
             }
 
-            setVideoOrAudioAuthority(data)
+
         }
     }
 //主持人对与会成员食品和语音权限设置
@@ -2555,7 +2574,7 @@
             var curMember = datalist[i];
             var name = '';
             name = XssToString(curMember.name);
-            var tem = `<li uniid="${curMember.userUniId}">
+            var tem = `<li uniid="${curMember.userUniId}" class="recalling">
                              <span class="vdo_rL_lBtn2">`
             if (curMember.userUniId == initData.curUserUniID) {
                 name = curMember.name + '(主持人)';
@@ -2565,8 +2584,8 @@
             }
             tem += `<i class="vdo_rL_iMute" title="点击禁言" data-type="2"></i>
                  <i class="vdo_rL_iVideo" title="关闭视频" data-type="3"></i>
-                 <i class="vdo_rL_iReCalled" title="重拨" data-type="4"></i>
-                 <span class="vdo_noReceive_tip">未接听</span></span>
+                 <i class="vdo_rL_iReCalled " title="重拨" data-type="4"></i>
+                 <span class="vdo_noReceive_tip">呼叫中</span></span>
                  <img src="images/card_icon.png" data-resid="${curMember.photoResId}" onload="getImge(this)">
                   <p>${name}</p></li>`
             if (curMember.userUniId == initData.curUserUniID) {//当前的用户的信息再次不现实，在后边会显示
@@ -2624,22 +2643,23 @@
         name = XssToString(name);
         var muteStatus = '', videoStatus = ''
         if (videoinfo.mediaOption == 0) {
-            muteStatus = 'no'
-            videoStatus = 'no'
+            muteStatus = 'on'
+            videoStatus = 'on'
+
         } else if (videoinfo.mediaOption == 1) {
             if (videoinfo.isStart == 0) {
-                muteStatus = 'no'
+                muteStatus = 'on'
             }
 
         } else if (videoinfo.mediaOption == 2) {
             if (videoinfo.isStart == 0) {
-                videoStatus = 'no'
+                videoStatus = 'on'
             }
 
         } else if (videoinfo.mediaOption == 3) {
             if (videoinfo.isStart == 0) {
-                muteStatus = 'no'
-                videoStatus = 'no'
+                muteStatus = 'on'
+                videoStatus = 'on'
             }
 
         }
@@ -2990,7 +3010,7 @@
             try {
 
                 window.lxpc.exebusinessaction('VideoConf', 'InvateVideoMeetingMember', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-
+console.log('邀请结果========',jsondata,status)
                     if (status == 0) {
                         resolve(JSON.parse(jsondata || 'null'));
 
@@ -3011,6 +3031,7 @@
         try {
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveNotifyResponseVideoMeeting', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
                 if (status == 0) {
+                    debugger;
                     console.log('ReceiveNotifyResponseVideoMeeting========================', jsondata);
                     var data = JSON.parse(jsondata);
 
