@@ -1717,7 +1717,7 @@
                             $('#vdo_connecting').prepend(userInfo)
                         }
                     }
-
+                    myscroll3.refresh()
                     if (audioRoleId == -1) audioRoleList.push(data.userUniID);
                     if (videoRoleId == -1) videoRoleList.push(data.userUniID);
 
@@ -1735,7 +1735,7 @@
                     if(videoRoleList.length!=0||audioRoleList.length!=0){
                         $('#vdo_connecting').append(userInfo)
                     }
-
+                    myscroll3.refresh()
                     videoCount--;
                     audioCount--;
                     if (audioRoleId > -1) {
@@ -1781,6 +1781,7 @@
                                 $('#vdo_connecting').prepend(userInfo)
                             }
                     }
+                    myscroll3.refresh()
                      videoCount++;
                     if (videoRoleId == -1) videoRoleList.push(data.userUniID)
                     if(videoRoleList.length==5){
@@ -1798,7 +1799,7 @@
                             $('#vdo_connecting').append(userInfo)
                         }
                     }
-
+                    myscroll3.refresh()
                     videoCount--;
                     if (videoRoleId > -1) {
                         if(videoRoleList.length==5){
@@ -1834,7 +1835,7 @@
                             $('#vdo_connecting').prepend(userInfo)
                         }
                     }
-
+                    myscroll3.refresh()
                     audioCount++;
                     var audioRoleId = audioRoleList.indexOf(data.userUniID);
                     if (audioRoleId == -1){
@@ -1854,6 +1855,7 @@
                           $('#vdo_connecting').append(userInfo)
                       }
                     }
+                    myscroll3.refresh()
                     audioCount--;
                     var audioRoleId = audioRoleList.indexOf(data.userUniID);
                     if (audioRoleId > -1) {
@@ -1880,6 +1882,7 @@
                 } else{
                     $('#vdo_connecting').append(userInfo)
                 }
+                myscroll3.refresh()
                 videoCount--;
                 audioCount--;
                 if(audioRoleId > -1){
