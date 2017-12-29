@@ -634,14 +634,14 @@
             document.onclick = function () {
                 $(".vdo_drop_ModifyThe").removeClass("vdo_drop_aB")
                 $(".vdo_drop_list").hide();
-                $(".vdo_rList").css({opacity: "0", right: "-246px"}).hide()
                 $(".vdo_btn_member").removeClass('on');
                 if(initData.isXP){
-                    if(css('opacity')!=0){
+                    if($('.vdo_rList').css('opacity')!='0'){
                         var parm = {isShow: 0}
                         ShowConfMemberList(parm)
                     }
                 }
+				$(".vdo_rList").css({opacity: "0", right: "-246px"}).hide()
             };
             $('.vdo_set').click(function (event) {
                 $('.vdo_drop_list').hide();
