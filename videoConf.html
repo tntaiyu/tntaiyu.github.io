@@ -636,6 +636,12 @@
                 $(".vdo_drop_list").hide();
                 $(".vdo_rList").css({opacity: "0", right: "-246px"}).hide()
                 $(".vdo_btn_member").removeClass('on');
+                if(initData.isXP){
+                    if(css('opacity')!=0){
+                        var parm = {isShow: 0}
+                        ShowConfMemberList(parm)
+                    }
+                }
             };
             $('.vdo_set').click(function (event) {
                 $('.vdo_drop_list').hide();
@@ -1038,8 +1044,7 @@
         console.log('ResponseVideoCall============----------------------------')
         window.lxpc.exebusinessaction('VideoConf', 'ResponseVideoCall', '0', JSON.stringify(tmpparm), 0, function (status, jsondata, targ) {
             if (status == 0) {
-                console.log('响应------------------')
-                console.log(jsondata)
+
                 if (opCode == 1) {
                     window.lxpc.closewnd();
                 }
@@ -1303,7 +1308,7 @@
 
     //绑定视频信息
     function bindVideo(Handel, oVideo, mainVideo) {
-        
+
         navigator.getUserMedia({
             audio: false,
             video: {
@@ -1347,7 +1352,7 @@
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveVideoCallResult', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
                 console.log('ReceiveVideoCallResult--------------------')
                 console.log(jsondata)
-                debugger;
+
                 if (status == 0) {
                     var nflg = initData.flag
                     var data = JSON.parse(jsondata);
@@ -1717,7 +1722,6 @@
                     $('#vdo_connecting').append($li);
                     myscroll3.refresh()
                 }
-
             if(data.mediaOption==3){
                 if (data.isStart == 1) {
                     $Mick.removeClass('on');
@@ -1911,7 +1915,7 @@
                     audioRoleList.splice(audioRoleId,1);
                 }else{
                     if(audioRoleList.length==16){
-                        $video.addClass('no');
+                        $Mick.addClass('no');
                     }
                 }
                 if(videoRoleId>-1){
@@ -2279,7 +2283,8 @@
     function initSettingforMetting(type) {
         $('.vdo_r .vdo_r_callOutD').hide();
         $('#vdo_tem').hide();
-        $('.vdo_l_wait_member').show()
+        $('.vdo_l_wait_member').show();
+
         if (type === "qun_videomeetingcaller") {//视频会议的主持人
             video_role = 2;
             // ModifyWindowTitle({title:meetingTitle})
@@ -2359,7 +2364,9 @@
         $('.vdo_btn_camera').hide();
 
         if (initData.isXP) {
-            SwitchVideoWindow()
+            SwitchVideoWindow();
+            $('.vdo_r .main_name').hide();
+            $('.vdo_r .main_branch').hide();
         }
 
     }
@@ -3031,7 +3038,7 @@ console.log('邀请结果========',jsondata,status)
         try {
             window.lxpc.exebusinessaction('VideoConf', 'ReceiveNotifyResponseVideoMeeting', '0', JSON.stringify({}), 0, function (status, jsondata, targ) {
                 if (status == 0) {
-                    debugger;
+
                     console.log('ReceiveNotifyResponseVideoMeeting========================', jsondata);
                     var data = JSON.parse(jsondata);
 
