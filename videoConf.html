@@ -1986,18 +1986,15 @@
 
     function setMainVideo() {
 
-        if (initData.isXP) {
-
-        }
-
         var peerVideo = $('.vdo_r .vdo_out')
         peerVideo.remove();
-        var $outL = $('.vdo_l .vdo_out:eq(1)');
+        var $outLtem = $('.vdo_l .vdo_out:eq(1)');
+        var $outL=$outLtem.clone(true);
         if ($outL.length > 0) {
             var newMainVideo = $outL.attr('uniid')
         }
-        var $ParetL = $outL.parents('.vdo_lD')
         $('.vdo_r').prepend($outL);
+        var $ParetL = $outLtem.parents('.vdo_lD')
         $ParetL.remove();
         // var outLFirst = $('.vdo_l .vdo_out:eq(1)');
         // if (videoRoleList.length > 0) {
