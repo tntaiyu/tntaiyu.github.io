@@ -1985,7 +1985,11 @@
     }
 
     function setMainVideo() {
-        debugger;
+
+        if (initData.isXP) {
+
+        }
+
         var peerVideo = $('.vdo_r .vdo_out')
         peerVideo.remove();
         var $outL = $('.vdo_l .vdo_out:eq(1)');
@@ -3199,18 +3203,28 @@
                 if (status == 0) {
                     var data = JSON.parse(jsondata);
                     var uniId = data.userUniId;
-                    if (mainVideo != '' && mainVideo !== uniId) {
+                    if (!initData.isXP) {
+                        if (mainVideo != '' && mainVideo !== uniId) {
 
+                            var $li = $('#vdo_connecting li[uniid="' + uniId + '"]');
+                            var $li_main = $('#vdo_connecting li:first');
+                            var tem = $li.clone(true);
+                            $li.replaceWith($li_main);
+                            $li.remove();
+                            mainVideo = uniId;
+                            $('#vdo_connecting').prepend(tem);
+                        } else {
+                            mainVideo = uniId;
+                        }
+                    } else {
                         var $li = $('#vdo_connecting li[uniid="' + uniId + '"]');
                         var $li_main = $('#vdo_connecting li:first');
                         var tem = $li.clone(true);
                         $li.replaceWith($li_main);
                         $li.remove();
-                        mainVideo = uniId;
                         $('#vdo_connecting').prepend(tem);
-                    } else {
-                        mainVideo = uniId;
                     }
+
                 }
             })
         } catch (e) {
