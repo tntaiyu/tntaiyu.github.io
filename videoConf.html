@@ -888,7 +888,8 @@
         videoRoleList = [],//记录已接入视频的人员信息
         audioCount = 0,//记录已接入音频的人数
         audioRoleList = [],//记录已接入音频的人员信息
-        initVert = null, step = 5; //记录音频
+        initVert = null, step = 5, //记录音频
+        videoCallCode ; // 记录响应状态
 
     //callType 记录会话的状态
     $(function () {
@@ -991,6 +992,7 @@
                 var data = JSON.parse(jsondata)
                 initData.getSuccess = true;
                 //0=接受；1=拒绝；2=占线；3=超时;4=不在线;5=不支持（PMC关闭）；6=版本不支持
+                videoCallCode = data.opCode
                 if (data.opCode == 0) {
                     isconnect = true;
                     var parm = {sendUserUniId: initData.curUserUniID, recUserUniId: initData.dialogId}
@@ -2848,9 +2850,14 @@
         } else {
 
             if (video_role == 0) {//视频通话主叫或是视频会议发起者 退出视频通话或视频会议
-                var parm = {userUniId: initData.dialogId, callType: callType};
-                CancelVideoCall(parm)
-                TerminateVideoConf()
+                if (!parseFloat(videoCallCode)){
+                    var parm = {userUniId: initData.dialogId, callType: callType};
+                    CancelVideoCall(parm)
+                    TerminateVideoConf()
+                } else{
+                    TerminateVideoConf()
+                }
+
             } else if (video_role == 2) {
                 var parm = {dialogId: initData.meetingQunId, juFengId: confId};
                 VideoMeetingOver(parm);
