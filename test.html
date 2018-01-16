@@ -2473,7 +2473,8 @@
         try {
             window.lxpc.exebusinessaction(handle, 'ReceiveIframeWebCall', '0', JSON.stringify({}), 0, function (status, result, targ) {
                 if (status == 0) {
-
+                    console.log('ddddddddddddddddddddddddddd')
+                    console.log(result);
                     result = JSON.parse(result);
                     if (result.action == 'close') {
                         console.log('1111111111111111111111111111111')
