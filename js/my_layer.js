@@ -14,7 +14,7 @@ function my_layer(option, type, cbok, cbcancle) {
 
     var str = '';
     str += '<div class="mark"></div><div class="layer_box"  ><div class="layer_top" data-tran>' + opt.title + ' <em></em></div>';
-    str += '<div class="layer_wrap"><div style="padding:20px;height: 34px;font-size: 0"><img src="' + opt.icon + '" alt="" style="display: inline-block;vertical-align: middle">'
+    str += '<div class="layer_wrap"><div class="wrap"><img src="' + opt.icon + '" alt="" style="display: inline-block;vertical-align: middle">'
     str += '<span style="font-size:14px;color: #000;word-break: break-all;overflow: hidden;" data-tran>' + opt.message + '</span></div></div>'
     //str+='<div class="layer_footer"><em class="layer_check"></em><input type="checkbox" name="tip" id="tip"><label for="tip">不再提示</label>';
     str += '<div class="layer_footer">';
