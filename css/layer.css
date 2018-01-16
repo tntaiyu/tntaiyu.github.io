@@ -54,6 +54,8 @@
     margin-left: 50px;
     padding-right: 17px;
     line-height: 24px;
+    word-break: break-all;
+    overflow: hidden;
 }
 .wrap{
     padding:20px;height: 34px;font-size: 0
