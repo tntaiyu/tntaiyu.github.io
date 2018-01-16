@@ -2,7 +2,9 @@
 .layer_box{
     width:420px;
     height:180px;
+    display: flex;
     position: absolute;
+    flex-direction: column;
     background:#fff;
     top:0;
     left:0;
@@ -21,6 +23,8 @@
     color: #fff;
     padding-left:10px ;
     z-index: 10000;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 .layer_top em{
     height: 30px;
@@ -35,7 +39,8 @@
     background-position: -60px;
 }
 .layer_wrap{
-
+    flex-grow: 1;
+    flex-shrink: 0;
     font-size: 14px;
     color: #000;
     width:100%;
@@ -61,6 +66,8 @@
     padding:20px;height: 34px;font-size: 0
 }
 .layer_footer{
+    flex-grow: 0;
+    flex-shrink: 0;
     /*z-index: 10000;*/
     border-bottom: 1px #e2e2e2;
     height:44px; width:100%; background: #f9f9f9; position: absolute; bottom:0; left:0; z-index:100;
