@@ -55,6 +55,9 @@
     padding-right: 17px;
     line-height: 24px;
 }
+.wrap{
+    padding:20px;height: 34px;font-size: 0
+}
 .layer_footer{
     /*z-index: 10000;*/
     border-bottom: 1px #e2e2e2;
