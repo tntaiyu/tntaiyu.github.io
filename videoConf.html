@@ -2252,6 +2252,7 @@
                     }
 
                 } else {
+                    window.lxpc.closewnd();
                     my_layer({message: '错误码' + status}, 'error')
                 }
             })
@@ -2667,7 +2668,7 @@
         var vdo = $('#vdo_tem'),
             $scroll = $('.vdo_l .scroll');
         var vdo_clone = vdo.clone(true);
-        vdo_clone.find('.vdo_lD_b').html(XssToString(curMember.name));
+        vdo_clone.find('.vdo_lD_b').html(XssToString(curMember.name)||'未知');
         vdo_clone.find('video').attr('src', '');
         vdo_clone.find('.vdo_tip').html('正在连接');
         vdo_clone.find('.vdo_l_bac').hide();
@@ -2739,7 +2740,7 @@
         if (!isNotCreatvideo) {
             if (videoinfo.peerWnd) {
                 var vdo_clone = vdo.clone(true);
-                vdo_clone.find('.vdo_lD_b').html(XssToString(curMember.name));
+                vdo_clone.find('.vdo_lD_b').html(XssToString(curMember.name) || '未知');
                 vdo_clone.find('.vdo_tip').html('正在连接');
                 vdo_clone.find('.video').attr('src', '');
                 vdo_clone.find('.vdo_l_bac').hide();
@@ -2840,7 +2841,6 @@
 
     //退出视频
     function exitVideo() {
-        console.log('333333333333333333333333333333333')
         var type = 1
         if (video_role == 0 || video_role == 1) {//视频通话
             type = 1
@@ -2848,8 +2848,6 @@
             type = 2
         }
         clearInterval(timer_video)
-        console.log('444444444444444444444444444444');
-        console.log(error.Jufeng);
         if (!error.Jufeng) {
             window.lxpc.closewnd();
         } else {
