@@ -132,7 +132,7 @@
 
             })
             vert.onchange = function () {
-                if (initData.setInitAutio) {
+                if (!initData||initData.setInitAutio) {
                     initData.setInitAutio = false
                     return;
                 }
@@ -2338,7 +2338,7 @@
         $('.vdo_r .vdo_r_callOutD').hide();
         $('#vdo_tem').hide();
         $('.vdo_l_wait_member').show();
-
+        initData.MeetingTitle = meetingTitle
         if (type === "qun_videomeetingcaller") {//视频会议的主持人
             video_role = 2;
             // ModifyWindowTitle({title:meetingTitle})
@@ -2424,7 +2424,6 @@
             $('.vdo_r .main_branch').hide();
         }
         ModifyWindowTitle();
-
     }
 
     //登录菊峰
@@ -3241,33 +3240,29 @@
 
     //通知页面title发生变化
     function ModifyWindowTitle(){
-        // var parm={title:''}
-        if (video_role==2) {
+
+        if (!initData.MeetingTitle) {
             initData.MeetingTitle = meetingTitle
         }
 
-        if (initData.MeetingTitle!='') {
-            var parm ={title:initData.MeetingTitle};
-            console.log('通知页面title发生变化==================')
-            console.log(parm)
-            try {
-                window.lxpc.exebusinessaction('VideoConf', 'ModifyWindowTitle', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-                    console.log('更改结果=============');
-                    console.log(status.jsondata)
-                    if (status == 0) {
+        var parm = {title: initData.MeetingTitle};
+        console.log('通知页面title发生变化==================')
+        console.log(parm)
+        try {
+            window.lxpc.exebusinessaction('VideoConf', 'ModifyWindowTitle', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
+                console.log('更改结果=============');
+                console.log(status.jsondata)
+                if (status == 0) {
 
-                    }
-                    else {
-                        console.log(status)
-                    }
-                })
-            } catch (e) {
-                console.log(e.message)
-            }
+                }
+                else {
+                    console.log(status)
+                }
+            })
+        } catch (e) {
+            console.log(e.message)
         }
-
-
-
-
+        document.title = initData.MeetingTitle;
+        
     }
 </script>
