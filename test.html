@@ -19,13 +19,13 @@
     <title>正在视频通话</title>
     <link rel="stylesheet" type="text/css" href="css/reset.css"/>    <!--通用-->
     <link rel="stylesheet" type="text/css" href="css/common.css"/>    <!--通用-->
+    <link rel="stylesheet" type="text/css" href="css/layer.css">  <!-- 弹窗-->
     <link rel="stylesheet" type="text/css" href="css/video.css"/>    <!--视频-->
     <link rel="stylesheet" type="text/css" href="css/powerange.css"/>    <!--音量-->
-    <link rel="stylesheet" type="text/css" href="css/layer.css">  <!-- 弹窗-->
     <script type="text/javascript" src="js/jQuery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="js/my_layer2.js"></script> <!--弹窗-->
     <script type="text/javascript" src="js/iscroll-5.1.3.min.js"></script>    <!--滚动条-->
     <script type="text/javascript" src="js/powerange.min.js"></script>        <!--音量-->
-    <script type="text/javascript" src="js/my_layer.js"></script> <!--弹窗-->
     <script type="text/javascript" src="js/application.js"></script>
     <script type="text/javascript" src="js/xss.min.js"></script>
     <script type="text/javascript" src="js/base64.min.js"></script>
@@ -848,7 +848,7 @@
                     </span>
                 <!--<a href="javascript:;" class="vdo_btn_set disN" title="设置"><i></i></a>-->
                 <a href="javascript:;" class="vdo_btn_member " style="" title="会议管理">
-                    <i></i><em><span id="vdo_btn_Count">0</span> / <span id="vdo_btn_AllCount">0</span></em>
+                    <i></i><em id="vdo_member_count"><span id="vdo_btn_Count">0</span> / <span id="vdo_btn_AllCount">0</span></em>
                 </a>
             </div>
             <div class="vdo_btn_r"><span class="vdo_time" id="vdo_time">00:00</span><a href="javascript:;"
@@ -2252,11 +2252,12 @@
                     }
 
                 } else {
+                    window.lxpc.closewnd();
                     my_layer({message: '错误码' + status}, 'error')
                 }
             })
         } catch (e) {
-            my_layer({message: '错误码' + e.message}, 'error')
+            window.lxpc.closewnd();
             console.log(e.message)
         }
         clearInterval(timer_video)
@@ -2344,7 +2345,7 @@
             $('.PA88').show();
             $('.notConnectCount').show();
             $('#vdo_connecting ').addClass('vdo_qun_call').removeClass('vdo_qun_called');
-
+            $('#vdo_member_count').show();
             mainVideo = initData.curUserUniID
             // $('#vdo_btn_AllCount').html(initData.userUniIdList.length)
             ReceiveSelectPeople(initData.id, function (data) {
@@ -2393,7 +2394,8 @@
             $('.PA88').hide();
             $('.PA42 ').show();
             $('.notConnectCount').hide();
-            $('#vdo_connecting ').removeClass('vdo_qun_call').addClass('vdo_qun_called')
+            $('#vdo_connecting ').removeClass('vdo_qun_call').addClass('vdo_qun_called');
+            $('#vdo_member_count').hide();
             video_role = 3;
             mainVideo = initData.userUniId
             // var parm = {userUniId: initData.dialogId, dialogType: 2, orgDomain: initData.orgDomain};
@@ -2473,11 +2475,9 @@
         try {
             window.lxpc.exebusinessaction(handle, 'ReceiveIframeWebCall', '0', JSON.stringify({}), 0, function (status, result, targ) {
                 if (status == 0) {
-                    console.log('ddddddddddddddddddddddddddd')
-                    console.log(result);
+
                     result = JSON.parse(result);
                     if (result.action == 'close') {
-                        console.log('1111111111111111111111111111111')
                         layOutMsgBOx()
                     } else if (result.action == 'ReceiveVideoConfStatus') {// 接收由extendFrame 注册ReceiveVideoConfStatus 返回的数据
                         ReceiveVideoConfStatus(result.data)
@@ -2530,7 +2530,6 @@
                 }
             })
         } else {
-            console.log('222222222222222222222222222222222222')
             my_layer({message: msgTip}, 'confirm', function () {
                 exitVideoIsManual = true
                 exitVideo();
@@ -2842,7 +2841,6 @@
 
     //退出视频
     function exitVideo() {
-        console.log('333333333333333333333333333333333')
         var type = 1
         if (video_role == 0 || video_role == 1) {//视频通话
             type = 1
@@ -2850,8 +2848,6 @@
             type = 2
         }
         clearInterval(timer_video)
-        console.log('444444444444444444444444444444');
-        console.log(error.Jufeng);
         if (!error.Jufeng) {
             window.lxpc.closewnd();
         } else {
