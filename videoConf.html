@@ -2338,10 +2338,10 @@
         $('.vdo_r .vdo_r_callOutD').hide();
         $('#vdo_tem').hide();
         $('.vdo_l_wait_member').show();
-        initData.MeetingTitle = meetingTitle
+
         if (type === "qun_videomeetingcaller") {//视频会议的主持人
             video_role = 2;
-            // ModifyWindowTitle({title:meetingTitle})
+
             $('.PA88').show();
             $('.notConnectCount').show();
             $('#vdo_connecting ').addClass('vdo_qun_call').removeClass('vdo_qun_called');
@@ -2390,7 +2390,6 @@
 
             });
         } else {
-            // ModifyWindowTitle({title:initData.MeetingTitle})
             $('.PA88').hide();
             $('.PA42 ').show();
             $('.notConnectCount').hide();
@@ -2398,21 +2397,6 @@
             $('#vdo_member_count').hide();
             video_role = 3;
             mainVideo = initData.userUniId
-            // var parm = {userUniId: initData.dialogId, dialogType: 2, orgDomain: initData.orgDomain};
-            // senderId += 1
-            // QuerySenderInfo(parm, senderId).then(function (result) {
-            //     var data = result.info,
-            //         targ = result.index;
-            //     if (Object.prototype.toString.call(data) == '[object Array]') {
-            //         if (data.length > 0) {
-            //
-            //             var item = data[0];
-            //             var name = item.name;
-            //             document.title = meetingTitle = name;
-            //         }
-            //     }
-            // })
-
 
         }
         $('.vdo_btn_mic').hide();
@@ -3263,6 +3247,6 @@
             console.log(e.message)
         }
         document.title = initData.MeetingTitle;
-        
+
     }
 </script>
