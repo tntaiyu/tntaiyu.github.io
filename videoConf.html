@@ -1341,6 +1341,7 @@
 
     //绑定视频信息
     function bindVideo(Handel, oVideo, mainVideo) {
+
         navigator.getUserMedia({
             audio: false,
             video: {
@@ -1668,12 +1669,12 @@
 
                     if ((data.mediaOption == 2 || data.mediaOption == 3)) {
                         if (data.isStart == 1) {
-                            var peerVideo = $('.vdo_r video');
-                            bindVideo(data.peerWnd, peerVideo[0]);
-                            $('.vdo_r .vdo_out').attr('uniid', data.userUniID);
-                            mainVideo = data.userUniID;
-                            $('.vdo_r .main_name').html(XssToString(curMember.name))
-                            $('.vdo_r .main_branch').html(XssToString(curMember.branchPath));
+                            // var peerVideo = $('.vdo_r video');
+                            // bindVideo(data.peerWnd, peerVideo[0]);
+                            // $('.vdo_r .vdo_out').attr('uniid', data.userUniID);
+                            // mainVideo = data.userUniID;
+                            // $('.vdo_r .main_name').html(XssToString(curMember.name))
+                            // $('.vdo_r .main_branch').html(XssToString(curMember.branchPath));
                             bindmemberInfoforCalled(curMember, data, true);
                         } else {
                             bindmemberInfoforCalled(curMember, data, false);
@@ -2120,7 +2121,7 @@
     // 点击切换左侧视频列表和主视频区域
     function changeVideo(ele, e) {
 
-        var $ele = $(ele)
+        var $ele = $(ele);
         var vdo_outL = $ele.find('.vdo_out');
         var vdo_outR = $('.vdo_r .vdo_out');
         var userUniId_L = vdo_outL.attr('uniid');
@@ -2152,7 +2153,9 @@
 
             mainVideo = userUniId_L;
         }
-        mystopPropagation(e)
+        if (e) {
+            mystopPropagation(e)
+        }
 
     }
 
@@ -2691,6 +2694,7 @@
         if (videoinfo && videoinfo.userUniID == initData.hostInfo.userUniId) {
             name = name + '(主持人)'
         }
+
         name = XssToString(name);
         var muteStatus = '', videoStatus = ''
         if (videoinfo.mediaOption == 0) {
@@ -2726,12 +2730,12 @@
         str += tem;
 
         if (videoinfo.peerWnd) {
-            debugger;
-            if (!mainVideo || mainVideo == '') {
 
+            if (!mainVideo || mainVideo == '') {
                 mainVideo = curMember.userUniId
                 var outR = $('.vdo_r .vdo_out');
                 if (outR.length > 0) {
+
                     outR.find('.vdo_lD_b').html(XssToString(curMember.name) || '未知');
                     peerVideo = outR.find('video');
                     outR.find('.vdo_l_bac').hide();
@@ -2740,6 +2744,7 @@
                     outR.find('.main_name').html(XssToString(curMember.name) || '未知');
                     outR.find('.main_branch').html(XssToString(curMember.branchPath) || '');
                 } else {
+
                     var vdo_clone1 = vdo.clone(true);
                     vdo_clone1.find('.vdo_lD_b').html(XssToString(curMember.name) || '未知');
                     vdo_clone1.find('.vdo_tip').html('正在连接');
@@ -2754,6 +2759,7 @@
                 bindVideo(videoinfo.peerWnd, peerVideo1[0])
 
             } else {
+
                 if (mainVideo!=curMember.userUniId) {
                     var vdo_clone = vdo.clone(true);
                     vdo_clone.find('.vdo_lD_b').html(XssToString(curMember.name) || '未知');
@@ -2766,7 +2772,15 @@
                     $scroll.append(vdo_clone);
                     var newvdo = vdo_clone.appendTo($scroll)
                     var peerVideotem = newvdo.find('video');
-                    bindVideo(videoinfo.peerWnd, peerVideotem[0])
+                    if (curMember.userUniId ==initData.hostInfo.userUniId) {
+                        debugger;
+                        changeVideo(newvdo[0]);
+                        var video = $('.vdo_r video');
+                        bindVideo(videoinfo.peerWnd, video[0]);
+                    } else {
+                        bindVideo(videoinfo.peerWnd, peerVideotem[0]);
+                    }
+
                 }
             }
         }
@@ -3269,8 +3283,6 @@
         console.log(parm)
         try {
             window.lxpc.exebusinessaction('VideoConf', 'ModifyWindowTitle', '0', JSON.stringify(parm), 0, function (status, jsondata, targ) {
-                console.log('更改结果=============');
-                console.log(status.jsondata)
                 if (status == 0) {
 
                 }
