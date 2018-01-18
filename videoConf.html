@@ -132,7 +132,7 @@
 
             })
             vert.onchange = function () {
-                if (!initData||initData.setInitAutio) {
+                if (!initData || initData.setInitAutio) {
                     initData.setInitAutio = false
                     return;
                 }
@@ -633,7 +633,7 @@
             //点击关闭按钮退出视频
             ReceiveIframeWebCall1('LxVideoConf')
             $(".vdo_btn_quit").click(function () {
-                debugger;
+
                 layOutMsgBOx();
             })
 
@@ -848,7 +848,8 @@
                     </span>
                 <!--<a href="javascript:;" class="vdo_btn_set disN" title="设置"><i></i></a>-->
                 <a href="javascript:;" class="vdo_btn_member " style="" title="会议管理">
-                    <i></i><em id="vdo_member_count"><span id="vdo_btn_Count">0</span> / <span id="vdo_btn_AllCount">0</span></em>
+                    <i></i><em id="vdo_member_count"><span id="vdo_btn_Count">0</span> / <span
+                        id="vdo_btn_AllCount">0</span></em>
                 </a>
             </div>
             <div class="vdo_btn_r"><span class="vdo_time" id="vdo_time">00:00</span><a href="javascript:;"
@@ -889,7 +890,7 @@
         audioCount = 0,//记录已接入音频的人数
         audioRoleList = [],//记录已接入音频的人员信息
         initVert = null, step = 5, //记录音频
-        videoCallCode ; // 记录响应状态
+        videoCallCode; // 记录响应状态
 
     //callType 记录会话的状态
     $(function () {
@@ -1284,14 +1285,14 @@
 
                     var sessionId = initData.sessionId = JSON.parse(jsondata).sessionId;
                     ResponseVideoMeeting(parm);
-                    var obj = {
-                        isLeaved: 0,
-                        isStart: 1,
-                        mediaOption: 0,
-                        sessionId: sessionId,
-                        userUniID: initData.toUserUniId
-                    };
-                    getJoinMemberVideoInfo(obj);
+                    // var obj = {
+                    //     isLeaved: 0,
+                    //     isStart: 1,
+                    //     mediaOption: 0,
+                    //     sessionId: sessionId,
+                    //     userUniID: initData.toUserUniId
+                    // };
+                    // getJoinMemberVideoInfo(obj);
                 }
             })
         } catch (e) {
@@ -1340,7 +1341,6 @@
 
     //绑定视频信息
     function bindVideo(Handel, oVideo, mainVideo) {
-
         navigator.getUserMedia({
             audio: false,
             video: {
@@ -1360,7 +1360,6 @@
 
             }
         }, function (stream) {
-
             oVideo.onload = function (e) {
                 window.URL.revokeObjectURL(this.src); // 清除释放
                 $(this).siblings('.vdo_r_callOutD').hide();
@@ -1486,8 +1485,8 @@
 
     //视频会议被叫被推送的数据
     function getJoinMemberVideoInfo(data, $li) {
-
         var item = hasJoinList[data.userUniID];
+
         var tips = '';
 
         var userInfo = $('.vdo_rL_tabC li[uniid="' + data.userUniID + '"] ');
@@ -1597,7 +1596,6 @@
                 }
             } else if (data.mediaOption === 3) {//主持人禁掉或开启某人视频和语音
                 if (data.isStart == 1) {//打开
-
                     if (videoRoleList.indexOf(data.userUniID) > -1 && audioRoleList.indexOf(data.userUniID) > -1) return;
                     var tipAuto = ''
                     if (video_role == 3) {
@@ -1612,13 +1610,14 @@
                     }
                     $video.attr('title', tips);
                     $Mick.attr('title', tipAuto);
+
                     if (data.peerWnd) {
                         if (peerVideo.length == 0) {
+
                             var index = initData.userUniIdList.findIndex(function (item) {
                                 return item.userUniId == data.userUniID
                             })
                             if (index > -1) {
-
                                 var peerVideo = bindleftVideo(initData.userUniIdList[index], data);
                                 bindVideo(data.peerWnd, peerVideo[0]);
                             }
@@ -1660,6 +1659,7 @@
                 return item.userUniId == data.userUniID
             })
             if (index > -1) {
+
                 notJointCount = initData.userUniIdList.length - JoinCount;
                 $('#notConnectCount').html(notJointCount)
                 curMember = initData.userUniIdList[index];
@@ -1672,15 +1672,19 @@
                             bindVideo(data.peerWnd, peerVideo[0]);
                             $('.vdo_r .vdo_out').attr('uniid', data.userUniID);
                             mainVideo = data.userUniID;
-
+                            $('.vdo_r .main_name').html(XssToString(curMember.name))
+                            $('.vdo_r .main_branch').html(XssToString(curMember.branchPath));
+                            bindmemberInfoforCalled(curMember, data, true);
+                        } else {
+                            bindmemberInfoforCalled(curMember, data, false);
                         }
-                    }
-                    bindmemberInfoforCalled(curMember, data, true);
 
-                    $('.vdo_r .main_name').html(XssToString(curMember.name))
-                    $('.vdo_r .main_branch').html(XssToString(curMember.branchPath));
+                    } else {
+                        bindmemberInfoforCalled(curMember, data, false);
+                    }
 
                 } else {
+
                     if ((data.mediaOption == 2 || data.mediaOption == 3)) {
                         if (data.isStart == 1) {
                             bindmemberInfoforCalled(curMember, data);
@@ -1991,7 +1995,7 @@
         var peerVideo = $('.vdo_r .vdo_out')
         peerVideo.remove();
         var $outLtem = $('.vdo_l .vdo_out:eq(1)');
-        var $outL=$outLtem.clone(true);
+        var $outL = $outLtem.clone(true);
         if ($outL.length > 0) {
             var newMainVideo = $outL.attr('uniid')
         }
@@ -2396,7 +2400,7 @@
             $('#vdo_connecting ').removeClass('vdo_qun_call').addClass('vdo_qun_called');
             $('#vdo_member_count').hide();
             video_role = 3;
-            mainVideo = initData.userUniId
+            // mainVideo = initData.userUniId
 
         }
         $('.vdo_btn_mic').hide();
@@ -2627,7 +2631,7 @@
                 name = curMember.name
                 tem += '<i class="vdo_rL_iKick" title="断开" data-type="1"></i>'
             }
-            name =XssToString(name)
+            name = XssToString(name)
             tem += `<i class="vdo_rL_iMute" title="点击禁言" data-type="2"></i>
                  <i class="vdo_rL_iVideo" title="关闭视频" data-type="3"></i>
                  <i class="vdo_rL_iReCalled " title="重拨" data-type="4"></i>
@@ -2651,7 +2655,7 @@
         var vdo = $('#vdo_tem'),
             $scroll = $('.vdo_l .scroll');
         var vdo_clone = vdo.clone(true);
-        vdo_clone.find('.vdo_lD_b').html(XssToString(curMember.name)||'未知');
+        vdo_clone.find('.vdo_lD_b').html(XssToString(curMember.name) || '未知');
         vdo_clone.find('video').attr('src', '');
         vdo_clone.find('.vdo_tip').html('正在连接');
         vdo_clone.find('.vdo_l_bac').hide();
@@ -2663,7 +2667,7 @@
         }
         var $out = vdo_clone.find('.vdo_out');
         $out.attr('uniid', curMember.userUniId);
-        if (mainVideo == '') {
+        if (!mainVideo || mainVideo == '') {
             var newvideo = $out.prependTo('.vdo_r');
             mainVideo = curMember.userUniId;
             var $li = $('#vdo_connecting li[uniid="' + curMember.userUniId + '"]');
@@ -2678,6 +2682,7 @@
     }
 
     function bindmemberInfoforCalled(data, videoinfo, isNotCreatvideo) {
+
         var vdo = $('.vdo_l .vdo_lD:eq(0)'),
             $scroll = $('.vdo_l .scroll');
         var str = ''
@@ -2720,22 +2725,52 @@
 
         str += tem;
 
-        if (!isNotCreatvideo) {
-            if (videoinfo.peerWnd) {
-                var vdo_clone = vdo.clone(true);
-                vdo_clone.find('.vdo_lD_b').html(XssToString(curMember.name) || '未知');
-                vdo_clone.find('.vdo_tip').html('正在连接');
-                vdo_clone.find('.video').attr('src', '');
-                vdo_clone.find('.vdo_l_bac').hide();
-                vdo_clone.data('uniid', curMember.userUniId)
-                vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId);
-                vdo_clone.show();
-                $scroll.append(vdo_clone);
-                var newvdo = vdo_clone.appendTo($scroll)
-                var peerVideo = newvdo.find('video');
-                bindVideo(videoinfo.peerWnd, peerVideo[0])
+        if (videoinfo.peerWnd) {
+            debugger;
+            if (!mainVideo || mainVideo == '') {
+
+                mainVideo = curMember.userUniId
+                var outR = $('.vdo_r .vdo_out');
+                if (outR.length > 0) {
+                    outR.find('.vdo_lD_b').html(XssToString(curMember.name) || '未知');
+                    peerVideo = outR.find('video');
+                    outR.find('.vdo_l_bac').hide();
+                    outR.data('uniid', curMember.userUniId)
+                    outR.attr('uniid', curMember.userUniId);
+                    outR.find('.main_name').html(XssToString(curMember.name) || '未知');
+                    outR.find('.main_branch').html(XssToString(curMember.branchPath) || '');
+                } else {
+                    var vdo_clone1 = vdo.clone(true);
+                    vdo_clone1.find('.vdo_lD_b').html(XssToString(curMember.name) || '未知');
+                    vdo_clone1.find('.vdo_tip').html('正在连接');
+                    vdo_clone1.find('video').attr('src', '');
+                    vdo_clone1.find('.vdo_l_bac').hide();
+                    vdo_clone1.data('uniid', curMember.userUniId)
+                    vdo_clone1.find('.vdo_out').attr('uniid', curMember.userUniId);
+                    vdo_clone1.show();
+                    $('.vdo_r').append(vdo_clone1);
+                }
+                var peerVideo1 = $('.vdo_r').find('video');
+                bindVideo(videoinfo.peerWnd, peerVideo1[0])
+
+            } else {
+                if (mainVideo!=curMember.userUniId) {
+                    var vdo_clone = vdo.clone(true);
+                    vdo_clone.find('.vdo_lD_b').html(XssToString(curMember.name) || '未知');
+                    vdo_clone.find('.vdo_tip').html('正在连接');
+                    vdo_clone.find('video').attr('src', '');
+                    vdo_clone.find('.vdo_l_bac').hide();
+                    vdo_clone.data('uniid', curMember.userUniId)
+                    vdo_clone.find('.vdo_out').attr('uniid', curMember.userUniId);
+                    vdo_clone.show();
+                    $scroll.append(vdo_clone);
+                    var newvdo = vdo_clone.appendTo($scroll)
+                    var peerVideotem = newvdo.find('video');
+                    bindVideo(videoinfo.peerWnd, peerVideotem[0])
+                }
             }
         }
+
         if (video_role == 3) {
 
             if (isNotCreatvideo) {
@@ -2836,11 +2871,11 @@
         } else {
 
             if (video_role == 0) {//视频通话主叫或是视频会议发起者 退出视频通话或视频会议
-                if (!parseFloat(videoCallCode)){
+                if (!parseFloat(videoCallCode)) {
                     var parm = {userUniId: initData.dialogId, callType: callType};
                     CancelVideoCall(parm)
                     TerminateVideoConf()
-                } else{
+                } else {
                     TerminateVideoConf()
                 }
 
@@ -3223,7 +3258,7 @@
     }
 
     //通知页面title发生变化
-    function ModifyWindowTitle(){
+    function ModifyWindowTitle() {
 
         if (!initData.MeetingTitle) {
             initData.MeetingTitle = meetingTitle
